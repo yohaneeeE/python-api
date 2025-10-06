@@ -2,7 +2,7 @@ fastapi
 uvicorn[standard]
 pillow
 pytesseract
-scikit-learn
 pandas
-python-dotenv
+scikit-learn
+mysql-connector-python
 python-multipart

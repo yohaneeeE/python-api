@@ -1,4 +1,4 @@
-# main.py — cleaned & fixed
+# main.py — Career Prediction API with Multi-File Support
 import os
 import re
 import io
@@ -15,6 +15,8 @@ from sklearn.preprocessing import LabelEncoder
 from PIL import Image
 import pytesseract
 from dotenv import load_dotenv
+import fitz  # PyMuPDF for PDFs
+from docx import Document
 
 # ---------------------------
 # Load Environment Variables
@@ -39,13 +41,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Root route for Render health check
+# Root route
 @app.get("/")
 def root():
     return {"message": "🚀 Career Prediction API is running successfully!"}
 
 # ---------------------------
-# Data Model + ML setup (optional)
+# Data Model + ML setup
 # ---------------------------
 class StudentInput(BaseModel):
     python: int
@@ -55,7 +57,6 @@ class StudentInput(BaseModel):
 model: Optional[RandomForestClassifier] = None
 targetEncoder: Optional[LabelEncoder] = None
 
-# If you have a cs_students.csv and want to train at startup, enable this:
 CS_CSV = "cs_students.csv"
 if os.path.exists(CS_CSV):
     try:
@@ -129,95 +130,11 @@ def grade_to_level(grade: Optional[float]) -> str:
     else:
         return "Weak"
 
-# ---------------------------
-# OCR → Text → Grades Parser
-# (Simple robust placeholder: returns numeric finalBuckets)
-# ---------------------------
-def extractSubjectGrades(text: str):
-    """
-    Parse OCR text (rough) and return:
-    (subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets)
-    finalBuckets is a dict with numeric values (1.0 - 5.0)
-    """
-    # Very tolerant parsing: attempt to find subject lines with grades
-    subjects_structured = []
-    rawSubjects = OrderedDict()
-    normalizedText = {}
-    mappedSkills = {}
-    bucket_grades = {"Python": [], "SQL": [], "Java": []}
-
-    if not text:
-        # Default fallback
-        finalBuckets = {"Python": 3.0, "SQL": 3.0, "Java": 3.0}
-        return subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets
-
-    lines = [l.strip() for l in text.splitlines() if l.strip()]
-
-    for raw_line in lines:
-        line = raw_line.strip()
-        if not line:
-            continue
-
-        # ignore obviously irrelevant lines
-        low = line.lower()
-        if any(kw in low for kw in ["student", "report", "university", "republic"]):
-            continue
-
-        # crude extraction: find last numeric token (grade) in line
-        tokens = re.split(r'\s+', line)
-        nums = [re.sub(r'[^0-9.]', '', t) for t in tokens if re.search(r'\d', t)]
-        grade_val = None
-        if nums:
-            # try last numeric token as grade
-            try:
-                cand = float(nums[-1])
-                cand_norm = snap_to_valid_grade(_normalize_grade_str(cand))
-                grade_val = cand_norm
-            except Exception:
-                grade_val = None
-
-        # subject is the non-numeric prefix
-        subj_tokens = [t for t in tokens if not re.fullmatch(r'[^A-Za-z]*\d+[^A-Za-z]*', t)]
-        subj_name = " ".join([t for t in subj_tokens if not re.search(r'\d', t)])
-        subj_name = subj_name.strip() or "Unknown Subject"
-        subj_name = re.sub(r'[^\w\s]', ' ', subj_name).strip().title()
-
-        # map simple keyword to bucket
-        lower = subj_name.lower()
-        if "python" in lower:
-            bucket_grades["Python"].append(grade_val if grade_val is not None else 3.0)
-        if "sql" in lower or "database" in lower:
-            bucket_grades["SQL"].append(grade_val if grade_val is not None else 3.0)
-        if "java" in lower:
-            bucket_grades["Java"].append(grade_val if grade_val is not None else 3.0)
-
-        mappedSkills[subj_name] = grade_to_level(grade_val)
-        subjects_structured.append({
-            "description": subj_name,
-            "grade": grade_val,
-            "raw_line": line
-        })
-        rawSubjects[subj_name] = grade_val
-        normalizedText[subj_name] = subj_name
-
-    # compute averages -> numeric finalBuckets
-    finalBuckets = {}
-    for k in ("Python", "SQL", "Java"):
-        vals = [v for v in bucket_grades.get(k, []) if isinstance(v, (int, float))]
-        if vals:
-            finalBuckets[k] = round(sum(vals) / len(vals), 2)
-        else:
-            finalBuckets[k] = 3.0
-
-    return subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets
-
-# helper used above
 def _normalize_grade_str(num):
     try:
         raw = float(num)
     except Exception:
         return None
-    # attempt sensible conversions
     candidates = [raw, raw / 10.0, raw / 100.0]
     valid = [c for c in candidates if 1.0 <= c <= 5.0]
     if valid:
@@ -228,13 +145,69 @@ def _normalize_grade_str(num):
     return None
 
 # ---------------------------
+# OCR → Text → Grades Parser
+# ---------------------------
+def extractSubjectGrades(text: str):
+    subjects_structured = []
+    rawSubjects = OrderedDict()
+    normalizedText = {}
+    mappedSkills = {}
+    bucket_grades = {"Python": [], "SQL": [], "Java": []}
+
+    if not text:
+        finalBuckets = {"Python": 3.0, "SQL": 3.0, "Java": 3.0}
+        return subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets
+
+    lines = [l.strip() for l in text.splitlines() if l.strip()]
+
+    for raw_line in lines:
+        line = raw_line.strip()
+        if not line:
+            continue
+
+        low = line.lower()
+        if any(kw in low for kw in ["student", "report", "university", "republic"]):
+            continue
+
+        tokens = re.split(r'\s+', line)
+        nums = [re.sub(r'[^0-9.]', '', t) for t in tokens if re.search(r'\d', t)]
+        grade_val = None
+        if nums:
+            try:
+                cand = float(nums[-1])
+                grade_val = snap_to_valid_grade(_normalize_grade_str(cand))
+            except Exception:
+                grade_val = None
+
+        subj_tokens = [t for t in tokens if not re.fullmatch(r'[^A-Za-z]*\d+[^A-Za-z]*', t)]
+        subj_name = " ".join([t for t in subj_tokens if not re.search(r'\d', t)])
+        subj_name = subj_name.strip() or "Unknown Subject"
+        subj_name = re.sub(r'[^\w\s]', ' ', subj_name).strip().title()
+
+        lower = subj_name.lower()
+        if "python" in lower:
+            bucket_grades["Python"].append(grade_val if grade_val is not None else 3.0)
+        if "sql" in lower or "database" in lower:
+            bucket_grades["SQL"].append(grade_val if grade_val is not None else 3.0)
+        if "java" in lower:
+            bucket_grades["Java"].append(grade_val if grade_val is not None else 3.0)
+
+        mappedSkills[subj_name] = grade_to_level(grade_val)
+        subjects_structured.append({"description": subj_name, "grade": grade_val, "raw_line": line})
+        rawSubjects[subj_name] = grade_val
+        normalizedText[subj_name] = subj_name
+
+    finalBuckets = {}
+    for k in ("Python", "SQL", "Java"):
+        vals = [v for v in bucket_grades.get(k, []) if isinstance(v, (int, float))]
+        finalBuckets[k] = round(sum(vals) / len(vals), 2) if vals else 3.0
+
+    return subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets
+
+# ---------------------------
 # Predict Function
 # ---------------------------
 def predictCareerWithSuggestions(finalBuckets: dict):
-    """
-    finalBuckets: {"Python":1.5, "SQL":3.0, "Java":2.0}
-    Returns list of career dicts (career, confidence, suggestion, certificates)
-    """
     careers = []
     if model is not None and targetEncoder is not None:
         try:
@@ -253,9 +226,7 @@ def predictCareerWithSuggestions(finalBuckets: dict):
             print("Warning: structured model prediction failed:", e)
             careers = []
 
-    # fallback heuristic if model not available or failed
     if not careers:
-        # simple heuristic ranks careers by sum of relevant buckets (lower is better)
         careerSkillMap = {
             "Software Engineer": ["programming", "databases"],
             "Data Scientist": ["ai_ml", "programming", "databases"],
@@ -264,17 +235,12 @@ def predictCareerWithSuggestions(finalBuckets: dict):
         }
         heuristics = []
         for career, skills in careerSkillMap.items():
-            # map skill names to buckets
             score = 0.0
             for s in skills:
-                if s == "programming":
-                    score += finalBuckets.get("Java", 3.0)
-                elif s == "databases":
-                    score += finalBuckets.get("SQL", 3.0)
-                elif s == "ai_ml":
-                    score += finalBuckets.get("Python", 3.0)
-                else:
-                    score += 3.0
+                if s == "programming": score += finalBuckets.get("Java", 3.0)
+                elif s == "databases": score += finalBuckets.get("SQL", 3.0)
+                elif s == "ai_ml": score += finalBuckets.get("Python", 3.0)
+                else: score += 3.0
             heuristics.append({"career": career, "score": score})
         heuristics = sorted(heuristics, key=lambda x: x["score"])
         max_score = heuristics[-1]["score"] if heuristics else 1.0
@@ -283,11 +249,9 @@ def predictCareerWithSuggestions(finalBuckets: dict):
             conf = max(0.0, (max_score - h["score"]) / max_score) * 100 if max_score else 50.0
             careers.append({"career": h["career"], "confidence": round(conf, 2)})
 
-    # add suggestions + certificate recs
     for c in careers:
         name = c["career"]
         suggestions = []
-        # generic suggestions based on buckets
         for k, val in finalBuckets.items():
             if val <= 1.75:
                 suggestions.append(f"Strong in {k} — consider advanced projects or certifications.")
@@ -306,40 +270,54 @@ def predictCareerWithSuggestions(finalBuckets: dict):
 def analyzeCertificates(certFiles: Optional[List[UploadFile]]):
     if not certFiles:
         return [{"info": "No certificates uploaded"}]
-    results = []
-    for c in certFiles:
-        results.append({"file": c.filename, "suggestions": ["Certificate received"]})
-    return results
+    return [{"file": c.filename, "suggestions": ["Certificate received"]} for c in certFiles]
+
+# ---------------------------
+# Multi-File Text Extraction
+# ---------------------------
+def extract_text_from_file(upload: UploadFile) -> str:
+    filename = upload.filename.lower()
+    file_bytes = upload.file.read()
+
+    if filename.endswith(".pdf"):
+        text = ""
+        with fitz.open(stream=file_bytes, filetype="pdf") as doc:
+            for page in doc:
+                text += page.get_text("text") + "\n"
+        return text
+
+    elif filename.endswith(".docx") or filename.endswith(".doc"):
+        doc = Document(io.BytesIO(file_bytes))
+        return "\n".join([p.text for p in doc.paragraphs])
+
+    elif filename.endswith(".txt"):
+        return file_bytes.decode("utf-8", errors="ignore")
+
+    else:
+        # fallback: image
+        img = Image.open(io.BytesIO(file_bytes)).convert("RGB")
+        return pytesseract.image_to_string(img)
 
 # ---------------------------
 # Routes
 # ---------------------------
-@app.post("/ocrPredict")
-async def ocrPredict(file: UploadFile = File(...), certificateFiles: Optional[List[UploadFile]] = File(None)):
+@app.post("/filePredict")
+async def filePredict(file: UploadFile = File(...), certificateFiles: Optional[List[UploadFile]] = File(None)):
     try:
-        imageBytes = await file.read()
-        img = Image.open(io.BytesIO(imageBytes)).convert("RGB")
+        text = await asyncio.to_thread(extract_text_from_file, file)
+        print("📄 Extracted text preview:", text[:200])
 
-        # run pytesseract in thread to avoid blocking
-        text = await asyncio.to_thread(pytesseract.image_to_string, img)
-        # debug: print first 120 chars of extracted text
-        print("OCR Extracted (preview):", (text or "")[:120])
-
-        subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets = extractSubjectGrades((text or "").strip())
+        subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets = extractSubjectGrades(text)
         careerOptions = predictCareerWithSuggestions(finalBuckets)
         certResults = analyzeCertificates(certificateFiles)
 
         return {
             "careerPrediction": careerOptions[0]["career"] if careerOptions else "General Studies",
             "careerOptions": careerOptions,
-            "subjects_structured": subjects_structured,
-            "rawSubjects": list(rawSubjects.items()),
-            "normalizedText": normalizedText,
-            "mappedSkills": mappedSkills,
             "finalBuckets": finalBuckets,
+            "subjects_structured": subjects_structured,
             "certificates": certResults
         }
     except Exception as e:
-        # don't expose internal stack in production — here we return for debugging
-        print("Error in /ocrPredict:", e)
+        print("Error in /filePredict:", e)
         return {"error": str(e)}

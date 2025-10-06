@@ -1,4 +1,4 @@
-# main.py — Career Prediction API with Multi-File Support
+# main.py — Career Prediction API with Multi-File Support & Backward Compatibility
 import os
 import re
 import io
@@ -41,7 +41,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Root route
 @app.get("/")
 def root():
     return {"message": "🚀 Career Prediction API is running successfully!"}
@@ -321,3 +320,8 @@ async def filePredict(file: UploadFile = File(...), certificateFiles: Optional[L
     except Exception as e:
         print("Error in /filePredict:", e)
         return {"error": str(e)}
+
+# Backward compatibility for old OCR route
+@app.post("/ocrPredict")
+async def ocrPredict_redirect(file: UploadFile = File(...), certificateFiles: Optional[List[UploadFile]] = File(None)):
+    return await filePredict(file, certificateFiles)

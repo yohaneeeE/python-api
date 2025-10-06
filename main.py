@@ -16,6 +16,7 @@ from PIL import Image
 import pytesseract
 from dotenv import load_dotenv
 
+
 # ---------------------------
 # Load Environment Variables
 # ---------------------------

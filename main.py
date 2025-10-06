@@ -29,12 +29,14 @@ if TESSERACT_PATH:
 # ---------------------------
 # FastAPI App + CORS
 # ---------------------------
-app = FastAPI(title="Career Prediction API (TOR/COG + Certificates 🚀)")
+app = FastAPI(title="Career Prediction API (TOR/COG + Certificates ")
+
 
 from fastapi.middleware.cors import CORSMiddleware
 
 app.add_middleware(
     CORSMiddleware,
+    allow_origins=["*"],  # or your PHP site URL only
     allow_origins=["*"],  # or specify your frontend URL(s)
     allow_credentials=True,
     allow_methods=["*"],
@@ -182,3 +184,4 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: Optional[Li
         }
     except Exception as e:
         return {"error": str(e)}
+

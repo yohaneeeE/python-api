@@ -1,5 +1,5 @@
 fastapi
-uvicorn
+uvicorn[standard]
 python-multipart
 pandas
 scikit-learn
@@ -8,4 +8,5 @@ pytesseract
 python-docx
 PyPDF2
 python-dotenv
+mysql-connector-python  # optional, only if you want DB save
 

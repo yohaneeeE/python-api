@@ -31,9 +31,11 @@ if TESSERACT_PATH:
 # ---------------------------
 app = FastAPI(title="Career Prediction API (TOR/COG + Certificates 🚀)")
 
+from fastapi.middleware.cors import CORSMiddleware
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[FRONTEND_URL] if FRONTEND_URL != "*" else ["*"],
+    allow_origins=["*"],  # or specify your frontend URL(s)
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

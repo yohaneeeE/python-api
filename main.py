@@ -1,7 +1,7 @@
-# main_fixed_reliable.py — Reliable Career Prediction API with Certificates 🚀
+# main.py — Career Prediction API (OCR + PDF/DOCX/TXT + Certificates)
 import os
-import re
 import io
+import re
 import asyncio
 from collections import OrderedDict
 from typing import List, Optional, Dict
@@ -15,24 +15,23 @@ from sklearn.preprocessing import LabelEncoder
 from PIL import Image
 import pytesseract
 from dotenv import load_dotenv
-import fitz  # PyMuPDF for PDFs
+import fitz  # PyMuPDF
 from docx import Document
-from rapidfuzz import fuzz
 
 # ---------------------------
 # Load Environment Variables
 # ---------------------------
 load_dotenv()
-TESSERACT_PATH = os.getenv("TESSERACT_PATH")
+TESSERACT_PATH = os.getenv("TESSERACT_PATH")  # e.g., /usr/bin/tesseract
 FRONTEND_URL = os.getenv("FRONTEND_URL", "*")
 
 if TESSERACT_PATH:
     pytesseract.pytesseract.tesseract_cmd = TESSERACT_PATH
 
 # ---------------------------
-# FastAPI App + CORS
+# FastAPI Setup
 # ---------------------------
-app = FastAPI(title="Career Prediction API (Reliable)")
+app = FastAPI(title="Career Prediction API 🚀")
 
 app.add_middleware(
     CORSMiddleware,
@@ -44,16 +43,11 @@ app.add_middleware(
 
 @app.get("/")
 def root():
-    return {"message": "🚀 Career Prediction API is running reliably!"}
+    return {"message": "Career Prediction API is running!"}
 
 # ---------------------------
-# ML Model Setup
+# Model and Data Loading
 # ---------------------------
-class StudentInput(BaseModel):
-    python: int
-    sql: int
-    java: int
-
 model: Optional[RandomForestClassifier] = None
 targetEncoder: Optional[LabelEncoder] = None
 
@@ -80,11 +74,15 @@ if os.path.exists(CS_CSV):
             model = RandomForestClassifier(n_estimators=50, max_depth=8, random_state=42)
             model.fit(X, y)
             print("✅ Structured model trained from cs_students.csv")
+        else:
+            print("ℹ️ cs_students.csv present but no target column — model disabled")
     except Exception as e:
         print("⚠️ Could not train model:", e)
+else:
+    print("ℹ️ cs_students.csv not found — using heuristics only")
 
 # ---------------------------
-# Dictionaries / Heuristics
+# Subject Groups & Buckets
 # ---------------------------
 subjectGroups = {
     "programming": ["programming", "java", "oop", "software", "coding", "development"],
@@ -94,7 +92,6 @@ subjectGroups = {
     "webdev": ["html", "css", "javascript", "frontend", "backend", "php", "web"],
     "systems": ["operating systems", "os", "architecture", "computer systems"]
 }
-
 bucketMap = {"programming": "Java", "databases": "SQL", "ai_ml": "Python"}
 
 careerCertSuggestions = {
@@ -116,8 +113,11 @@ TEXT_FIXES = {
 }
 
 REMOVE_LIST = [
-    "stone project ad reset", "student", "report of grades", "unknown subject",
-    "category", "communications", "class", "united", "student no", "fullname"
+    "stone project ad reset",
+    "student",
+    "report of grades",
+    "unknown subject",
+    "category", "communications", "class", "united", "student no", "fullname",
 ]
 
 VALID_GRADES = [1.00, 1.25, 1.50, 1.75, 2.00, 2.25, 2.50, 2.75, 3.00, 5.00]
@@ -140,7 +140,21 @@ def grade_to_level(grade: Optional[float]) -> str:
     else:
         return "Weak"
 
-def normalize_subject(subj: str) -> Optional[str]:
+def _normalize_grade_str(num):
+    try:
+        raw = float(num)
+    except Exception:
+        return None
+    candidates = [raw, raw / 10.0, raw / 100.0]
+    valid = [c for c in candidates if 1.0 <= c <= 5.0]
+    if valid:
+        chosen = min(valid, key=lambda x: abs(x - 2.5))
+        return round(chosen, 2)
+    if 0.0 < raw <= 5.0:
+        return round(raw, 2)
+    return None
+
+def normalize_subject(subj: str) -> str:
     s = subj.lower().strip()
     for wrong, correct in TEXT_FIXES.items():
         if wrong in s:
@@ -151,17 +165,16 @@ def normalize_subject(subj: str) -> Optional[str]:
             return None
     return s.title() if s else None
 
-def fuzzy_bucket(subj: str):
-    """Return main bucket key from subject string."""
-    subj = subj.lower()
+def simple_bucket(subj: str) -> Optional[str]:
+    s = subj.lower()
     for bucket, keywords in subjectGroups.items():
         for kw in keywords:
-            if fuzz.partial_ratio(kw, subj) > 80:
+            if kw in s:
                 return bucketMap.get(bucket)
     return None
 
 # ---------------------------
-# OCR / Text → Grades Parser
+# Extract Subjects & Grades
 # ---------------------------
 def extractSubjectGrades(text: str):
     subjects_structured = []
@@ -170,30 +183,27 @@ def extractSubjectGrades(text: str):
     bucket_grades = {"Python": [], "SQL": [], "Java": []}
 
     lines = [l.strip() for l in text.splitlines() if l.strip()]
-
-    for line in lines:
-        if any(kw in line.lower() for kw in ["student", "report", "university", "republic"]):
+    for raw_line in lines:
+        line = raw_line.strip()
+        if not line or any(kw in line.lower() for kw in ["student", "report", "university", "republic"]):
             continue
 
-        # Extract number from line
-        nums = re.findall(r"\d+(?:\.\d+)?", line.replace(",", "."))
+        tokens = re.split(r'\s+', line)
+        nums = [re.sub(r'[^0-9.]', '', t) for t in tokens if re.search(r'\d', t)]
         grade_val = None
         if nums:
             try:
                 cand = float(nums[-1])
-                if cand > 5.0:  # normalize 0-100 scale to 1-5
-                    cand = 5.0 - (cand / 100) * 4
-                grade_val = snap_to_valid_grade(cand)
+                grade_val = snap_to_valid_grade(_normalize_grade_str(cand))
             except:
                 grade_val = None
 
-        # Extract subject name
-        subj_tokens = re.split(r'\d+', line)
-        subj_name = " ".join(subj_tokens).strip()
+        subj_tokens = [t for t in tokens if not re.fullmatch(r'[^A-Za-z]*\d+[^A-Za-z]*', t)]
+        subj_name = " ".join([t for t in subj_tokens if not re.search(r'\d', t)])
         subj_name = normalize_subject(subj_name) or "Unknown Subject"
 
-        # Map to bucket
-        bucket = fuzzy_bucket(subj_name)
+        # Add to bucket grades
+        bucket = simple_bucket(subj_name)
         if bucket:
             bucket_grades[bucket].append(grade_val if grade_val is not None else 3.0)
 
@@ -202,23 +212,27 @@ def extractSubjectGrades(text: str):
         rawSubjects[subj_name] = grade_val
 
     finalBuckets = {}
-    for k in ["Python", "SQL", "Java"]:
-        vals = [v for v in bucket_grades[k] if isinstance(v, (int, float))]
-        finalBuckets[k] = round(sum(vals)/len(vals), 2) if vals else 3.0
+    for k in ("Python", "SQL", "Java"):
+        vals = [v for v in bucket_grades.get(k, []) if isinstance(v, (int, float))]
+        finalBuckets[k] = round(sum(vals) / len(vals), 2) if vals else 3.0
 
     return subjects_structured, rawSubjects, mappedSkills, finalBuckets
 
 # ---------------------------
-# Career Prediction
+# Predict Career & Suggestions
 # ---------------------------
 def predictCareerWithSuggestions(finalBuckets: dict):
     careers = []
     if model is not None and targetEncoder is not None:
         try:
-            dfInput = pd.DataFrame([finalBuckets])
+            dfInput = pd.DataFrame([{
+                "Python": float(finalBuckets.get("Python", 3.0)),
+                "SQL": float(finalBuckets.get("SQL", 3.0)),
+                "Java": float(finalBuckets.get("Java", 3.0)),
+            }])
             proba = model.predict_proba(dfInput)[0]
             careers = [
-                {"career": targetEncoder.inverse_transform([i])[0], "confidence": round(float(p)*100, 2)}
+                {"career": targetEncoder.inverse_transform([i])[0], "confidence": round(float(p)*100,2)}
                 for i, p in enumerate(proba)
             ]
             careers = sorted(careers, key=lambda x: x["confidence"], reverse=True)[:3]
@@ -226,59 +240,59 @@ def predictCareerWithSuggestions(finalBuckets: dict):
             careers = []
 
     if not careers:
-        # Weighted heuristic
-        career_weights = {
-            "Software Engineer": 0.6*finalBuckets["Java"] + 0.4*finalBuckets["Python"],
-            "Web Developer": 0.5*finalBuckets["Java"] + 0.5*finalBuckets["SQL"],
-            "Data Scientist": 0.7*finalBuckets["Python"] + 0.3*finalBuckets["SQL"]
-        }
-        min_score = min(career_weights.values())
+        heuristics = [
+            {"career": "Software Engineer", "score": finalBuckets.get("Java", 3.0)},
+            {"career": "Web Developer", "score": (finalBuckets.get("Java",3.0)+finalBuckets.get("SQL",3.0))/2},
+            {"career": "Data Scientist", "score": finalBuckets.get("Python", 3.0)}
+        ]
+        max_score = max(h["score"] for h in heuristics)
         careers = []
-        for career, score in career_weights.items():
-            conf = max(0.0, (5.0 - score)/5.0) * 100
-            careers.append({"career": career, "confidence": round(conf, 2)})
+        for h in heuristics:
+            conf = max(0.0,(max_score-h["score"])/max_score*100) if max_score else 50.0
+            careers.append({"career": h["career"], "confidence": round(conf,2)})
 
+    # Add suggestions and certificates
     for c in careers:
         name = c["career"]
         suggestions = []
         for k, val in finalBuckets.items():
             if val <= 1.75:
-                suggestions.append(f"Strong in {k} — consider advanced projects or certifications.")
+                suggestions.append(f"Strong in {k} — advanced projects or certifications recommended.")
             elif val <= 2.5:
-                suggestions.append(f"Average in {k} — do hands-on practice and small projects.")
+                suggestions.append(f"Average in {k} — practice and small projects recommended.")
             else:
-                suggestions.append(f"Weak in {k} — take foundational courses and practice more.")
-        c["suggestion"] = " ".join(suggestions[:6])
+                suggestions.append(f"Weak in {k} — foundational courses and practice needed.")
+        c["suggestion"] = " ".join(suggestions)
         c["certificates"] = careerCertSuggestions.get(name, ["Consider general IT certifications."])
 
     return careers
 
 # ---------------------------
-# Certificate Analysis
+# Certificates Analysis
 # ---------------------------
 def analyzeCertificates(certFiles: Optional[List[UploadFile]]):
     if not certFiles:
-        return [{"info": "No certificates uploaded"}]
+        return [{"info":"No certificates uploaded"}]
 
-    certificateSuggestions = {
-        "aws": "Your AWS certificate strengthens Cloud Architect and DevOps career paths.",
-        "ccna": "Your CCNA boosts Networking and Systems Administrator opportunities.",
-        "datascience": "Data Science certificate aligns well with AI/ML and Data Scientist roles.",
-        "webdev": "Web Development certificate enhances your frontend/backend developer profile.",
-        "python": "Python certification supports Data Science, AI, and Software Engineering careers."
+    suggestionsMap = {
+        "aws":"AWS certification boosts Cloud/DevOps roles",
+        "ccna":"CCNA boosts Networking/System admin roles",
+        "datascience":"Data Science certificate aligns with AI/ML",
+        "webdev":"Web Dev cert enhances frontend/backend profile",
+        "python":"Python cert supports Data Science, AI, Software Eng"
     }
 
     results = []
     for cert in certFiles:
-        certName = cert.filename.lower().replace("_", " ").replace("-", " ")
-        matched = [msg for key, msg in certificateSuggestions.items() if key in certName]
+        certName = cert.filename.lower()
+        matched = [msg for key, msg in suggestionsMap.items() if key in certName]
         if not matched:
-            matched = [f"Certificate '{cert.filename}' adds value to your career profile."]
+            matched = [f"Certificate '{cert.filename}' adds career value."]
         results.append({"file": cert.filename, "suggestions": matched})
     return results
 
 # ---------------------------
-# File Text Extraction
+# Extract text from files
 # ---------------------------
 def extract_text_from_file(upload: UploadFile) -> str:
     filename = upload.filename.lower()
@@ -288,24 +302,14 @@ def extract_text_from_file(upload: UploadFile) -> str:
         text = ""
         with fitz.open(stream=file_bytes, filetype="pdf") as doc:
             for page in doc:
-                page_text = page.get_text("text")
-                if not page_text.strip():
-                    # fallback OCR
-                    pix = page.get_pixmap()
-                    img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
-                    page_text = pytesseract.image_to_string(img)
-                text += page_text + "\n"
+                text += page.get_text("text") + "\n"
         return text
-
-    elif filename.endswith((".docx", ".doc")):
+    elif filename.endswith(".docx") or filename.endswith(".doc"):
         doc = Document(io.BytesIO(file_bytes))
         return "\n".join([p.text for p in doc.paragraphs])
-
     elif filename.endswith(".txt"):
         return file_bytes.decode("utf-8", errors="ignore")
-
     else:
-        # fallback: image
         img = Image.open(io.BytesIO(file_bytes)).convert("RGB")
         return pytesseract.image_to_string(img)
 
@@ -325,12 +329,12 @@ async def filePredict(file: UploadFile = File(...), certificateFiles: Optional[L
             "careerOptions": careerOptions,
             "finalBuckets": finalBuckets,
             "subjects_structured": subjects_structured,
-            "mappedSkills": mappedSkills,
             "certificates": certResults
         }
     except Exception as e:
         return {"error": str(e)}
 
+# Backward compatibility route
 @app.post("/ocrPredict")
 async def ocrPredict_redirect(file: UploadFile = File(...), certificateFiles: Optional[List[UploadFile]] = File(None)):
     return await filePredict(file, certificateFiles)

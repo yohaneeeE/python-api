@@ -1,25 +1,27 @@
-# Use official Python image
+# Use official lightweight Python image
 FROM python:3.11-slim
 
-# Set work directory
-WORKDIR /app
-
-# Install system dependencies for OCR and PDFs
+# Install system dependencies (Tesseract + Poppler for PDF parsing)
 RUN apt-get update && apt-get install -y \
     tesseract-ocr \
+    libtesseract-dev \
     poppler-utils \
-    libmagic1 \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy project
-COPY . /app
+# Set working directory
+WORKDIR /app
 
-# Install Python dependencies
+# Copy requirement list and install dependencies
+COPY requirements.txt .
+
 RUN pip install --no-cache-dir --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy all source code into the container
+COPY . .
 
 # Expose FastAPI default port
 EXPOSE 8000
 
-# Run the app with uvicorn
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Start FastAPI using Uvicorn
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

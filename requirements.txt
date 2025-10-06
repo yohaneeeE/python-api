@@ -1,9 +1,7 @@
 fastapi
 uvicorn
-python-dotenv
 pandas
 scikit-learn
-pillow
 pytesseract
-python-multipart
-gunicorn
+pillow
+python-dotenv

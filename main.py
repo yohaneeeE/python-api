@@ -15,6 +15,28 @@ from PIL import Image
 import pytesseract
 import asyncio
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI(title="Career Prediction API (TOR/COG + Certificates 🚀)")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # or [FRONTEND_URL]
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ✅ Add this here — right after the app and middleware
+@app.get("/")
+def root():
+    return {"message": "🚀 Career Prediction API is running successfully!"}
+
+# (Your other endpoints below)
+@app.post("/ocrPredict")
+async def ocrPredict(...):
+
 
 # Load .env file (optional)
 load_dotenv()
@@ -551,3 +573,4 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: Optional[Li
     except Exception as e:
         # return error message for debugging — consider logging in production
         return {"error": str(e)}
+

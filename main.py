@@ -1,4 +1,4 @@
-# main.py — Career Prediction API with Multi-File Support & Backward Compatibility
+# main_fixed.py — Career Prediction API with Multi-File Support & Detailed Certificate Suggestions
 import os
 import re
 import io
@@ -109,6 +109,24 @@ careerCertSuggestions = {
     "General Studies": ["Short IT courses to explore career interests"]
 }
 
+# For OCR fixes and known misreads
+TEXT_FIXES = {
+    "tras beaives bstaegt": "Elective 5",
+    "wage system integration and rotate 2 es": "System Integration and Architecture 2",
+    "aot sten ainsaton and marenance": "System Administration and Maintenance",
+    "capa capstone pret and research 2 es": "Capstone Project and Research 2",
+    "mathnats nthe modem oa es": "Mathematics in the Modern World",
+    "advan database systems": "Advance Database Systems"
+}
+
+REMOVE_LIST = [
+    "stone project ad reset",
+    "student",
+    "report of grades",
+    "unknown subject",
+    "category", "communications", "class", "united", "student no", "fullname",
+]
+
 VALID_GRADES = [1.00, 1.25, 1.50, 1.75, 2.00, 2.25, 2.50, 2.75, 3.00, 5.00]
 
 # ---------------------------
@@ -143,8 +161,19 @@ def _normalize_grade_str(num):
         return round(raw, 2)
     return None
 
+def normalize_subject(subj: str) -> str:
+    s = subj.lower().strip()
+    for wrong, correct in TEXT_FIXES.items():
+        if wrong in s:
+            s = s.replace(wrong, correct)
+    s = re.sub(r'[^\w\s]', ' ', s)
+    for bad in REMOVE_LIST:
+        if bad in s:
+            return None
+    return s.title() if s else None
+
 # ---------------------------
-# OCR → Text → Grades Parser
+# OCR / Text → Grades Parser
 # ---------------------------
 def extractSubjectGrades(text: str):
     subjects_structured = []
@@ -152,10 +181,6 @@ def extractSubjectGrades(text: str):
     normalizedText = {}
     mappedSkills = {}
     bucket_grades = {"Python": [], "SQL": [], "Java": []}
-
-    if not text:
-        finalBuckets = {"Python": 3.0, "SQL": 3.0, "Java": 3.0}
-        return subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets
 
     lines = [l.strip() for l in text.splitlines() if l.strip()]
 
@@ -180,8 +205,7 @@ def extractSubjectGrades(text: str):
 
         subj_tokens = [t for t in tokens if not re.fullmatch(r'[^A-Za-z]*\d+[^A-Za-z]*', t)]
         subj_name = " ".join([t for t in subj_tokens if not re.search(r'\d', t)])
-        subj_name = subj_name.strip() or "Unknown Subject"
-        subj_name = re.sub(r'[^\w\s]', ' ', subj_name).strip().title()
+        subj_name = normalize_subject(subj_name) or "Unknown Subject"
 
         lower = subj_name.lower()
         if "python" in lower:
@@ -204,7 +228,7 @@ def extractSubjectGrades(text: str):
     return subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets
 
 # ---------------------------
-# Predict Function
+# Career Prediction with Suggestions
 # ---------------------------
 def predictCareerWithSuggestions(finalBuckets: dict):
     careers = []
@@ -221,30 +245,18 @@ def predictCareerWithSuggestions(finalBuckets: dict):
                 for i, p in enumerate(proba)
             ]
             careers = sorted(careers, key=lambda x: x["confidence"], reverse=True)[:3]
-        except Exception as e:
-            print("Warning: structured model prediction failed:", e)
+        except:
             careers = []
 
     if not careers:
-        careerSkillMap = {
-            "Software Engineer": ["programming", "databases"],
-            "Data Scientist": ["ai_ml", "programming", "databases"],
-            "Cloud Solutions Architect": ["networking", "databases", "programming"],
-            "Web Developer": ["webdev", "programming", "databases"],
-        }
-        heuristics = []
-        for career, skills in careerSkillMap.items():
-            score = 0.0
-            for s in skills:
-                if s == "programming": score += finalBuckets.get("Java", 3.0)
-                elif s == "databases": score += finalBuckets.get("SQL", 3.0)
-                elif s == "ai_ml": score += finalBuckets.get("Python", 3.0)
-                else: score += 3.0
-            heuristics.append({"career": career, "score": score})
-        heuristics = sorted(heuristics, key=lambda x: x["score"])
-        max_score = heuristics[-1]["score"] if heuristics else 1.0
+        heuristics = [
+            {"career": "Software Engineer", "score": finalBuckets.get("Java", 3.0)},
+            {"career": "Web Developer", "score": (finalBuckets.get("Java", 3.0)+finalBuckets.get("SQL",3.0))/2},
+            {"career": "Data Scientist", "score": finalBuckets.get("Python", 3.0)}
+        ]
+        max_score = max(h["score"] for h in heuristics)
         careers = []
-        for h in heuristics[:3]:
+        for h in heuristics:
             conf = max(0.0, (max_score - h["score"]) / max_score) * 100 if max_score else 50.0
             careers.append({"career": h["career"], "confidence": round(conf, 2)})
 
@@ -264,12 +276,28 @@ def predictCareerWithSuggestions(finalBuckets: dict):
     return careers
 
 # ---------------------------
-# Certificates
+# Certificates Analysis
 # ---------------------------
 def analyzeCertificates(certFiles: Optional[List[UploadFile]]):
     if not certFiles:
         return [{"info": "No certificates uploaded"}]
-    return [{"file": c.filename, "suggestions": ["Certificate received"]} for c in certFiles]
+
+    certificateSuggestions = {
+        "aws": "Your AWS certificate strengthens Cloud Architect and DevOps career paths.",
+        "ccna": "Your CCNA boosts Networking and Systems Administrator opportunities.",
+        "datascience": "Data Science certificate aligns well with AI/ML and Data Scientist roles.",
+        "webdev": "Web Development certificate enhances your frontend/backend developer profile.",
+        "python": "Python certification supports Data Science, AI, and Software Engineering careers."
+    }
+
+    results = []
+    for cert in certFiles:
+        certName = cert.filename.lower()
+        matched = [msg for key, msg in certificateSuggestions.items() if key in certName]
+        if not matched:
+            matched = [f"Certificate '{cert.filename}' adds additional value to your career profile."]
+        results.append({"file": cert.filename, "suggestions": matched})
+    return results
 
 # ---------------------------
 # Multi-File Text Extraction
@@ -304,8 +332,6 @@ def extract_text_from_file(upload: UploadFile) -> str:
 async def filePredict(file: UploadFile = File(...), certificateFiles: Optional[List[UploadFile]] = File(None)):
     try:
         text = await asyncio.to_thread(extract_text_from_file, file)
-        print("📄 Extracted text preview:", text[:200])
-
         subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets = extractSubjectGrades(text)
         careerOptions = predictCareerWithSuggestions(finalBuckets)
         certResults = analyzeCertificates(certificateFiles)
@@ -318,7 +344,6 @@ async def filePredict(file: UploadFile = File(...), certificateFiles: Optional[L
             "certificates": certResults
         }
     except Exception as e:
-        print("Error in /filePredict:", e)
         return {"error": str(e)}
 
 # Backward compatibility for old OCR route

@@ -1,16 +1,15 @@
 # decisiontree_api.py
 """
 Fixed and hardened version of your career-prediction API.
-- Removes unused/Windows-only imports
 - Supports images, PDF, DOCX, TXT uploads
 - Safe handling when cs_students.csv is missing (fallback training data)
-- Adds root route for health check
+- Root route for health check
 - Prints OCR/debug logs (visible in Render logs)
 - Keeps original feature set: OCR -> subject parsing -> bucket averages -> ML predict -> suggestions
 
-Deploy with:
-- Build Command (Render): apt-get update && apt-get install -y tesseract-ocr && pip install -r requirements.txt
-- Start Command (Render): uvicorn decisiontree_api:app --host 0.0.0.0 --port 10000
+Deploy with (Render):
+Build Command: apt-get update && apt-get install -y tesseract-ocr && pip install -r requirements.txt
+Start Command: uvicorn decisiontree_api:app --host 0.0.0.0 --port $PORT
 
 Requirements (requirements.txt):
 fastapi
@@ -22,7 +21,6 @@ scikit-learn
 python-multipart
 PyPDF2
 python-docx
-
 """
 
 import io
@@ -30,7 +28,7 @@ import re
 import shutil
 import asyncio
 from collections import OrderedDict
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 import pandas as pd
 from fastapi import FastAPI, UploadFile, File
@@ -65,7 +63,6 @@ app.add_middleware(
 VALID_GRADES = [1.00, 1.25, 1.50, 1.75, 2.00, 2.25, 2.50, 2.75, 3.00, 5.00]
 
 TEXT_FIXES = {
-    # keep the map you had; trimmed here for brevity
     "inveductonto computing": "introduction to computing",
     "phystal edeation": "physical education",
 }
@@ -117,7 +114,7 @@ if target not in df.columns:
     df[target] = "General Studies"
 
 # encode categorical features if any
-labelEncoders = {}
+labelEncoders: Dict[str, LabelEncoder] = {}
 for col in features:
     if df[col].dtype == "object":
         le_col = LabelEncoder()
@@ -268,10 +265,11 @@ def extractSubjectGrades(text: str):
 # Prediction + suggestions
 # ---------------------------
 def predictCareerWithSuggestions(finalBuckets: dict, normalizedText: dict, mappedSkills: dict):
+    # Prepare input for the model
     dfInput = pd.DataFrame([{
-        "Python": finalBuckets["Python"],
-        "SQL": finalBuckets["SQL"],
-        "Java": finalBuckets["Java"],
+        "Python": finalBuckets.get("Python", 3.0),
+        "SQL": finalBuckets.get("SQL", 3.0),
+        "Java": finalBuckets.get("Java", 3.0),
     }])
 
     try:
@@ -290,37 +288,35 @@ def predictCareerWithSuggestions(finalBuckets: dict, normalizedText: dict, mappe
 
     it_keywords = ["programming", "database", "data", "system", "software", "network", "java", "python", "sql"]
 
+    # Enrich each career option with suggestions and certificate recommendations
     for c in careers:
         suggestions = []
         cert_recs = []
+        predictedCareer = c["career"]
+
+        # Map subject-based suggestions
         for subj, level in mappedSkills.items():
             subj_lower = subj.lower()
             if not any(k in subj_lower for k in it_keywords):
                 continue
             if level == "Strong":
                 suggestions.append(f"Excellent performance in {subj}! Keep it up.")
-                   # Suggest certificates based on career domain
-    for key, certs in careerCertSuggestions.items():
-        if key.lower() in predictedCareer.lower():
-            topCareerSuggestions = certs
-
-    return {
-        "careerPrediction": predictedCareer,
-        "careerOptions": list(careerCertSuggestions.keys()),
-        "suggestedCertifications": topCareerSuggestions,
-        "subjects_structured": subjects_structured,
-        "finalBuckets": finalBuckets
-    }
-
-
             elif level == "Average":
                 suggestions.append(f"Good progress in {subj}, but you can still improve.")
             else:
                 suggestions.append(f"Needs improvement in {subj}.")
-        if "Developer" in c["career"] or "Engineer" in c["career"]:
+
+        # Career name based suggestions & certificate picks
+        if "Developer" in predictedCareer or "Engineer" in predictedCareer or "Software" in predictedCareer:
             suggestions.append("Build small coding projects to apply your knowledge.")
-        if "Data" in c["career"] or "AI" in c["career"]:
+        if "Data" in predictedCareer or "AI" in predictedCareer:
             suggestions.append("Try Python/ML projects to enhance your portfolio.")
+
+        # Certificates: match by career title keywords
+        for key, certs in careerCertSuggestions.items():
+            if key.lower() in predictedCareer.lower():
+                cert_recs.extend(certs)
+
         c["suggestion"] = " ".join(suggestions) if suggestions else "Focus on IT-related subjects for stronger career alignment."
         c["certificates"] = cert_recs if cert_recs else careerCertSuggestions.get(c["career"], ["Consider general IT certifications."])
 
@@ -387,7 +383,7 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
         except Exception as e:
             print("Extractor error:", e)
 
-        print("OCR/Extractor output (first 400 chars):", text[:400].replace('\n', ' '))
+        print("OCR/Extractor output (first 400 chars):", (text or "")[:400].replace('\n', ' '))
 
         subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets = extractSubjectGrades((text or "").strip())
         print("Parsed subjects:", subjects_structured)

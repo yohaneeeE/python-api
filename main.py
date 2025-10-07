@@ -7,6 +7,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.ensemble import RandomForestClassifier
 import uvicorn
 import io
+import mysql.connector
+
 
 app = FastAPI()
 

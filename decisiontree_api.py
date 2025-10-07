@@ -299,7 +299,7 @@ def predictCareerWithSuggestions(finalBuckets: dict, normalizedText: dict, mappe
                 continue
             if level == "Strong":
                 suggestions.append(f"Excellent performance in {subj}! Keep it up.")
-                for key, certs in subjectCertMap.items():
+                    for key, certs in subjectCertMap.items():
                     if key in subj_lower:
                         cert_recs.extend(certs)
             elif level == "Average":

@@ -1,11 +1,9 @@
 fastapi
 uvicorn
 pandas
+pydantic
+mysql-connector-python
 scikit-learn
 pillow
 pytesseract
-python-docx
-PyPDF2
-jinja2
-python-multipart
-
+aiofiles

@@ -1,11 +1,8 @@
 fastapi
-uvicorn[standard]
+uvicorn
 pandas
-scikit-learn
 pillow
+scikit-learn
 pytesseract
-python-dotenv
-python-multipart
 mysql-connector-python
-PyPDF2
-python-docx
+python-multipart

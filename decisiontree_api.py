@@ -16,7 +16,7 @@ import asyncio
 from fastapi.middleware.cors import CORSMiddleware
 
 # Windows Tesseract path (adjust if needed)
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
 
 # ---------------------------
 # Input Schema

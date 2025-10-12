@@ -1,5 +1,11 @@
 fastapi
 uvicorn
+pandas
+pillow
+scikit-learn
+pytesseract
+mysql-connector-python
+python-multipart
 pydantic
 pandas
 numpy

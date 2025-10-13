@@ -57,6 +57,8 @@ def preprocess_image(img: Image.Image) -> Image.Image:
 
     return Image.fromarray(deskewed)
 
+
+    
 # ---------------------------
 # Gemini Client
 # ---------------------------
@@ -437,6 +439,8 @@ def extractSubjectGrades(text: str):
 
     return subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets
 
+
+    
 # ---------------------------
 # Career Prediction
 # ---------------------------
@@ -503,12 +507,11 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
         imageBytes = await file.read()
         img = Image.open(io.BytesIO(imageBytes))
 
-        # 🧠 Preprocess the image for better OCR accuracy
+        # 🧠 Preprocess the image
         img = preprocess_image(img)
 
-        # 🔍 Perform OCR
+        # 🔍 OCR
         try:
-            # psm 6 = Assume a uniform block of text (good for TOR tables)
             text = await asyncio.to_thread(
                 pytesseract.image_to_string,
                 img,
@@ -517,19 +520,43 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
             )
         except Exception as e:
             print(f"OCR failed: {e}")
-            # Fallback to default OCR
-        text = await asyncio.to_thread(pytesseract.image_to_string,img)
+            text = await asyncio.to_thread(pytesseract.image_to_string, img)
 
         subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets = extractSubjectGrades(text.strip())
 
-        # Gemini enhancement
-        updatedSubjects, updatedSkills, careerOptions = await improveSubjectsWithGemini(normalizedText, mappedSkills)
-        careerOptions = predictCareerWithSuggestions(finalBuckets, updatedSubjects, {k:v["level"] for k,v in updatedSkills.items()})
+        # ✨ Gemini enhancement
+        if not mappedSkills:
+            print("⚠️ No subjects detected — skipping Gemini enhancement.")
+            updatedSubjects, updatedSkills, careerOptions = normalizedText, mappedSkills, []
+        else:
+            updatedSubjects, updatedSkills, careerOptions = await improveSubjectsWithGemini(normalizedText, mappedSkills)
 
+        # 🔁 Normalize Gemini skills
+        mappedLevels = {}
+        for k, v in updatedSkills.items():
+            if isinstance(v, dict) and "level" in v:
+                mappedLevels[k] = v["level"]
+            else:
+                mappedLevels[k] = v
+
+        # 🎯 Predict careers
+        careerOptions = predictCareerWithSuggestions(finalBuckets, updatedSubjects, mappedLevels)
         if not careerOptions:
-            careerOptions=[{"career":"General Studies","confidence":50.0,"suggestion":"Add more subjects or improve grades.","certificates":careerCertSuggestions["General Studies"]}]
+            careerOptions = [{
+                "career": "General Studies",
+                "confidence": 50.0,
+                "suggestion": "Add more subjects or improve grades.",
+                "certificates": careerCertSuggestions["General Studies"]
+            }]
 
-        certResults = analyzeCertificates(certificateFiles or []) if certificateFiles else [{"info":"No certificates uploaded"}]
+        # 📜 Analyze uploaded certificates
+        certResults = analyzeCertificates(certificateFiles or []) if certificateFiles else [{"info": "No certificates uploaded"}]
+
+        # 🧾 Debug prints
+        print("Extracted text:", text[:500])
+        print("Detected subjects:", list(mappedSkills.keys()))
+        print("Final buckets:", finalBuckets)
+        print("Gemini response subjects:", list(updatedSubjects.values()))
 
         return {
             "careerPrediction": careerOptions[0]["career"],
@@ -541,5 +568,12 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
             "finalBuckets": finalBuckets,
             "certificates": certResults
         }
+
     except Exception as e:
         return {"error": str(e)}
+
+
+print("Extracted text:", text[:500])
+print("Detected subjects:", list(mappedSkills.keys()))
+print("Final buckets:", finalBuckets)
+print("Gemini response subjects:", list(updatedSubjects.values()))

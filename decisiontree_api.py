@@ -786,11 +786,13 @@ async def fix_ocr_text_with_gemini(text: str):
 @app.post("/predict")
 async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[UploadFile] = File(None)):
     try:
-       imageBytes = await file.read()
+       @app.post("/predict")
+async def predict(file: UploadFile = File(...)):
+    try:
+        imageBytes = await file.read()
         img = Image.open(io.BytesIO(imageBytes))
-
-        # ✅ Preprocess image first
         processed_img = await preprocess_image(imageBytes)
+
 
         # ✅ Use better OCR config
         config = "--psm 6 --oem 3 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789./- "

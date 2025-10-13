@@ -17,6 +17,17 @@ from google import genai
 import cv2
 import numpy as np
 
+def preprocess_image(img: Image.Image) -> Image.Image:
+    import cv2, numpy as np
+    img_cv = np.array(img.convert("L"))  # grayscale
+    img_cv = cv2.bilateralFilter(img_cv, 9, 75, 75)
+    _, thresh = cv2.threshold(img_cv, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    kernel = np.ones((1, 1), np.uint8)
+    thresh = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel)
+    thresh = cv2.medianBlur(thresh, 3)
+    thresh = cv2.resize(thresh, None, fx=1.8, fy=1.8, interpolation=cv2.INTER_LINEAR)
+    return Image.fromarray(thresh)
+
 # ---------------------------
 # Utility Helpers
 # ---------------------------
@@ -57,60 +68,39 @@ def preprocess_image(img: Image.Image) -> Image.Image:
 # Gemini Client
 # ---------------------------
 client = genai.Client()  # reads GEMINI_API_KEY from environment
-
 async def improveSubjectsWithGemini(subjects: dict, mappedSkills: dict):
     prompt = f"""
-You are an expert career counselor AI. Here are the subjects and skill levels:
-{subjects} with skills {mappedSkills}.
+Fix and normalize subject names. Correct typos, capitalization, and map to standard IT subjects if possible.
+Subjects: {subjects}
+Skill levels: {mappedSkills}
 
-Please:
-1. Fix misspellings and normalize subject names.
-2. For each subject, provide "level" and a short "suggestion".
-3. Suggest top 3–5 career paths with confidence scores and relevant certificates.
-
-Return only JSON in this format:
+Return ONLY valid JSON in this format (no explanations):
 {{
-  "subjects": {{"original": "corrected"}},
-  "skills": {{"subject": {{"level": "...", "suggestion": "..."}}}},
-  "career_options": [{{"career": "...", "confidence": 90, "suggestion": "...", "certificates": ["..."]}}]
+ "subjects": {{"original": "corrected"}},
+ "skills": {{"subject": {{"level": "Strong/Average/Weak", "suggestion": "plain short sentence"}}}},
+ "career_options": [{{"career": "...", "confidence": 90, "suggestion": "plain short text", "certificates": ["AWS","SQL"]}}]
 }}
+Keep each text field under 4 sentences maximum.
 """
     try:
         response = await asyncio.to_thread(
             lambda: client.models.generate_content(
-                model="gemini-2.5-flash",
+                model="gemini-2.0-flash",
                 contents=prompt
             )
         )
-        parsed = json.loads(response.candidates[0].content.parts[0].text)
-        updatedSubjects = parsed.get("subjects", {})
-        updatedSkills = parsed.get("skills", {})
-
-        # 🔁 Normalize Gemini skill data
-        mappedLevels = {}
-        for k, v in updatedSkills.items():
-            if isinstance(v, dict):
-                mappedLevels[k] = v.get("level", str(v))
-            else:
-                mappedLevels[k] = str(v)
-        updatedSkills = mappedLevels
-
-        careerOptions = parsed.get("career_options", [])
-
-        # 🧹 Ensure all are clean
-        cleanedSkills = {}
-        for subj, val in updatedSkills.items():
-            cleanedSkills[subj] = {
-                "level": str(val),
-                "suggestion": ""
-            }
-
-        return updatedSubjects, cleanedSkills, careerOptions
-
+        text = response.candidates[0].content.parts[0].text.strip()
+        # keep only JSON part
+        text = re.sub(r"^[^{]*|[^}]*$", "", text)
+        parsed = json.loads(text)
+        return (
+            parsed.get("subjects", {}),
+            parsed.get("skills", {}),
+            parsed.get("career_options", [])
+        )
     except Exception as e:
-        print(f"[Gemini Error] {e}")
-        return subjects, {k: {"level": v, "suggestion": ""} for k, v in mappedSkills.items()}, []
-
+        print("[Gemini Error]", e)
+        return subjects, mappedSkills, []
 
 # ---------------------------
 # Tesseract Path
@@ -211,21 +201,22 @@ def extractSubjectGrades(text: str):
 # ---------------------------
 # Career Prediction
 # ---------------------------
-def predictCareerWithSuggestions(finalBuckets, normalizedText, mappedSkills):
+def predictCareerWithSuggestions(finalBuckets, subjects, mappedSkills):
     dfInput = pd.DataFrame([{
-        "Python": finalBuckets["Python"],
-        "SQL": finalBuckets["SQL"],
-        "Java": finalBuckets["Java"]
+        "Python": finalBuckets.get("Python", 3.0),
+        "SQL": finalBuckets.get("SQL", 3.0),
+        "Java": finalBuckets.get("Java", 3.0)
     }])
     proba = model.predict_proba(dfInput)[0]
-    careers = [{"career": targetEncoder.inverse_transform([i])[0],
-                "confidence": round(float(p)*100,2)} for i,p in enumerate(proba)]
-    careers = sorted(careers, key=lambda x: x["confidence"], reverse=True)[:3]
-
+    careers = sorted(
+        [{"career": targetEncoder.inverse_transform([i])[0], "confidence": round(p*100, 2)} for i, p in enumerate(proba)],
+        key=lambda x: x["confidence"], reverse=True
+    )[:3]
     for c in careers:
-        c["suggestion"] = "Focus on IT-related subjects."
-        c["certificates"] = ["AWS", "SQL", "Java"]
+        c["suggestion"] = "Focus on practical IT projects and certifications."
+        c["certificates"] = ["AWS", "Google Cloud", "Java", "SQL"]
     return careers
+
 
 
 # ---------------------------
@@ -254,12 +245,12 @@ async def ocrPredict(
     certificateFiles: List[UploadFile] = File(None)
 ):
     try:
-        # 📸 Read and preprocess image
+        # 🧩 STEP 1: Read and preprocess image
         imageBytes = await file.read()
         img = Image.open(io.BytesIO(imageBytes))
-        img = preprocess_image(img)
+        img = preprocess_image(img)  # <-- add this helper above your route
 
-        # 🔍 OCR extraction
+        # 🧩 STEP 2: OCR extraction with fallback
         try:
             text = await asyncio.to_thread(
                 pytesseract.image_to_string,
@@ -271,17 +262,41 @@ async def ocrPredict(
             print(f"OCR failed: {e}")
             text = await asyncio.to_thread(pytesseract.image_to_string, img)
 
-        # 🧾 Extract subjects and grades
-        subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets = extractSubjectGrades(text.strip())
+        print("🟢 OCR Output Preview:\n", text[:600])
 
-        # ✨ Gemini enhancement (only if subjects detected)
+        # 🧩 STEP 3: Extract subjects and grades directly from OCR
+
+        def parse_grades(text):
+            subjects = {}
+            lines = text.splitlines()
+            for line in lines:
+                clean = line.strip()
+                # Example: "IT 203 Object-Oriented Programming 2.50"
+                match = re.match(r"^(?:[A-Z]{2,4}\s*\d+\*?)?\s*(.+?)\s+(\d(?:\.\d{1,2})?)$", clean)
+                if match:
+                    subject = match.group(1).strip()
+                    grade = float(match.group(2))
+                    subjects[subject] = grade
+            return subjects
+
+
+        rawSubjects = parse_grades(text)
+        if not rawSubjects:
+            print("⚠️ No subjects detected via regex parsing.")
+
+        # Create mock skill mapping (replace with your logic if you have a function)
+        mappedSkills = {subj: {"level": "Average"} for subj in rawSubjects}
+        normalizedText = rawSubjects
+        finalBuckets = {k: v for k, v in rawSubjects.items()}  # placeholder for numeric inputs
+
+        # 🧩 STEP 4: Gemini enhancement — only if we have subjects
         if not mappedSkills:
             print("⚠️ No subjects detected — skipping Gemini enhancement.")
             updatedSubjects, updatedSkills, careerOptions = normalizedText, mappedSkills, []
         else:
             updatedSubjects, updatedSkills, careerOptions = await improveSubjectsWithGemini(normalizedText, mappedSkills)
 
-        # 🧹 FIX 1: Convert any nested dicts to clean strings
+        # 🧹 Clean Gemini output
         def clean_value(v):
             if isinstance(v, dict):
                 if "level" in v:
@@ -291,28 +306,27 @@ async def ocrPredict(
                 return ", ".join(map(str, v))
             return str(v)
 
-        # Apply cleanup to skill mappings
         mappedLevels = {k: clean_value(v) for k, v in updatedSkills.items()}
 
-        # 🎯 Predict careers
+        # 🧩 STEP 5: Predict careers — Gemini-based short suggestions
         careerOptions = predictCareerWithSuggestions(finalBuckets, updatedSubjects, mappedLevels)
         if not careerOptions:
             careerOptions = [{
-                "career": "General Studies",
+                "career": "General IT Track",
                 "confidence": 50.0,
-                "suggestion": "Add more subjects or improve grades.",
-                "certificates": careerCertSuggestions.get("General Studies", [])
+                "suggestion": "Consider improving grades in key technical subjects like Programming and Networking.",
+                "certificates": ["CompTIA A+", "AWS Cloud Practitioner"]
             }]
 
-        # 📜 Analyze uploaded certificates
+        # 🧩 STEP 6: Analyze certificates (if uploaded)
         certResults = analyzeCertificates(certificateFiles or []) if certificateFiles else [{"info": "No certificates uploaded"}]
 
-        # 🧾 Debug logs
-        print("Extracted text:", text[:500])
-        print("Detected subjects:", list(mappedSkills.keys()))
+        # 🧹 Debug logs
+        print("Extracted text:", text[:400])
+        print("Detected subjects:", list(rawSubjects.keys()))
         print("Final buckets:", finalBuckets)
 
-        # 🧹 FIX 2: Clean before returning JSON
+        # 🧹 STEP 7: JSON-safe cleanup
         def clean_for_json(data):
             if isinstance(data, dict):
                 return {k: clean_for_json(v) for k, v in data.items()}
@@ -328,11 +342,11 @@ async def ocrPredict(
         normalizedText = clean_for_json(normalizedText)
         mappedLevels = clean_for_json(mappedLevels)
 
-        # ✅ Return structured JSON output
+        # ✅ STEP 8: Final JSON response
         return {
             "careerPrediction": careerOptions[0]["career"],
             "careerOptions": careerOptions,
-            "subjects_structured": subjects_structured,
+            "subjects_structured": list(rawSubjects.items()),
             "rawSubjects": list(rawSubjects.items()),
             "normalizedText": normalizedText,
             "mappedSkills": mappedLevels,

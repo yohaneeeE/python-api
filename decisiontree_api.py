@@ -307,8 +307,10 @@ REMOVE_LIST = [
     "student",
     "acaserie eer agpy gna",
     "unknown subject",
-    "category", "communications", "class", "united", "student no", "fullname",
-    "report of grades", "republic", "city of", "wps", "office"
+    "category",  "class", "united", "student no", "fullname",
+    "report of grades", "republic", "city of", "wps", "office","total grades","section","ocr",
+    "passed", "failed", "ungraded", "bsit", "bsit 1", "bsit 2", "bsit 3", "bsit 4",
+    "major", "year level", "academic year", "grade", "total subject","credit","units","average"
 ]
 
 def normalize_subject(code: Optional[str], desc: str) -> Optional[str]:
@@ -407,7 +409,7 @@ def _normalize_grade_str(num_str: str):
 
     return round(raw, 2)
 
-async def improve_subjects_with_gemini(subjects: dict, skills: dict):
+async def improve_subjects_with_gemini(subjects: dict, skills: dict ):
     """
     Use Gemini (new SDK) to clean, correct, and enhance subject names and skill mappings.
     - Fix typograhical errors and grammar.

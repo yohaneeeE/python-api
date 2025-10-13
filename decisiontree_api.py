@@ -21,25 +21,34 @@ from google import genai
 # Gemini Client
 # ---------------------------
 client = genai.Client()  # reads GEMINI_API_KEY from environment
-
 async def improveSubjectsWithGemini(subjects: dict, mappedSkills: dict):
     """
-    Fix typos, normalize capitalization, and add 3-4 sentence career suggestions.
-    Returns updated subjects and mappedSkills.
+    Use Gemini to:
+    1. Fix typos and normalize capitalization in subject names.
+    2. Provide a proper subject name mapping.
+    3. Enhance career suggestions for each subject based on skill level.
+    Returns updated subjects and mappedSkills with suggestions.
     """
     prompt = f"""
-You are an expert career counselor AI. Subjects and skill levels:
+You are an expert career counselor AI. Here are the subjects and skill levels:
 {subjects} with skills {mappedSkills}.
-1. Correct typos or spellings in subject names.
+
+Instructions:
+1. Correct typos or misspellings in subject names.
 2. Normalize capitalization and suggest proper subject names.
-3. Provide 3–4 sentence career advice per subject based on skill level (Strong/Average/Weak).
-Return JSON like: {{
-  "subjects": {{subject_name: corrected_name}},
+3. For each subject, based on skill level (Strong/Average/Weak), write 3–4 sentence career guidance.
+4. Ensure suggestions are practical, career-focused, and professional.
+5. Return a JSON in this exact format:
+
+{{
+  "subjects": {{
+    "original_subject_name": "corrected_subject_name"
+  }},
   "skills": {{
-      subject_name: {{
-          "level": "Strong/Average/Weak",
-          "suggestion": "Your 3-4 sentence advice here."
-      }}
+    "corrected_subject_name": {{
+        "level": "Strong/Average/Weak",
+        "suggestion": "Your 3-4 sentence career advice here."
+    }}
   }}
 }}
 """
@@ -54,10 +63,9 @@ Return JSON like: {{
         updatedSubjects = parsed.get("subjects", {})
         updatedSkills = parsed.get("skills", {})
         return updatedSubjects, updatedSkills
-    except Exception:
-        # fallback
+    except Exception as e:
+        # fallback: keep original subjects but add empty suggestions
         return subjects, {k: {"level": v, "suggestion": ""} for k, v in mappedSkills.items()}
-
 
 # ---------------------------
 # Tesseract Path

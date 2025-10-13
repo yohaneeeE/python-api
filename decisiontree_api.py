@@ -14,19 +14,6 @@ from PIL import Image
 import pytesseract
 import asyncio
 from fastapi.middleware.cors import CORSMiddleware
-import json
-from google import genai
-import os
-from pdf2image import convert_from_bytes
-import cv2
-import numpy as np
-
-# Initialize Gemini client
-try:
-    client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
-except Exception as e:
-    client = None
-    print(f"Gemini client not initialized: {e}")
 
 # Windows Tesseract path (adjust if needed)
 pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
@@ -43,8 +30,10 @@ class StudentInput(BaseModel):
 # Train Structured Data Model
 # ---------------------------
 df = pd.read_csv("cs_students.csv")
+
 features = ["Python", "SQL", "Java"]
 target = "Future Career"
+
 data = df.copy()
 labelEncoders = {}
 
@@ -115,7 +104,6 @@ ignore_keywords = [
     "academic year", "date printed", "gwa", "credits", "republic", "city", "report",
     "gender", "bachelor", "semester", "university"
 ]
-
 # ---------------------------
 # Subject → Certificates Mapping
 # ---------------------------
@@ -136,6 +124,7 @@ subjectCertMap = {
         "Meta Full-Stack Developer Certificate",
         "JavaScript Specialist Certification"
     ],
+
     # Databases
     "information management": [
         "Oracle Database SQL Associate",
@@ -147,6 +136,7 @@ subjectCertMap = {
         "MongoDB Certified Developer Associate",
         "Oracle MySQL Professional"
     ],
+
     # Web & Systems
     "web systems and technologies": [
         "FreeCodeCamp Responsive Web Design",
@@ -163,6 +153,7 @@ subjectCertMap = {
         "Microsoft Certified: Windows Server Administration",
         "Red Hat Certified System Administrator (RHCSA)"
     ],
+
     # Networking & Security
     "networking 1": [
         "Cisco CCNA",
@@ -174,6 +165,7 @@ subjectCertMap = {
         "CompTIA Security+",
         "Fortinet NSE Certification"
     ],
+
     # Algorithms & Data
     "data structure and algorithms": [
         "HackerRank Skills Certification (DSA)",
@@ -184,6 +176,7 @@ subjectCertMap = {
         "Mathematics for Computer Science (MITx)",
         "Coursera Discrete Math Specialization"
     ],
+
     # AI & Emerging Tech
     "human computer interface": [
         "Google UX Design Certificate",
@@ -193,7 +186,9 @@ subjectCertMap = {
     "science technology and society": [
         "Ethics in AI & Data Science (Coursera)",
         "Technology & Society Certificate"
+
     ],
+
     # General IT Foundation
     "introduction to computing": [
         "IC3 Digital Literacy Certification",
@@ -203,6 +198,7 @@ subjectCertMap = {
         "CompTIA A+",
         "PC Hardware Technician Certification"
     ],
+
     # Capstone / Research (Optional Guidance)
     "capstone project and research": [
         "Agile Scrum Certification",
@@ -210,6 +206,8 @@ subjectCertMap = {
         "Google Project Management Certificate"
     ]
 }
+
+
 
 # ---------------------------
 # Hardcoded Certificate Suggestions
@@ -244,6 +242,7 @@ def snap_to_valid_grade(val: float):
         return None
     return min(VALID_GRADES, key=lambda g: abs(g - val))
 
+# Known OCR misreads to fix (add more as you discover them)
 TEXT_FIXES = {
     "tras beaives bstaegt": "Elective 5",
     "wage system integration and rotate 2 es": "System Integration and Architecture 2",
@@ -254,6 +253,7 @@ TEXT_FIXES = {
     "capstone project and research 1 spparont cepsre": "Capstone Project and Research 1",
     "web systems and technologies 2 soxtsrowebsystemsbtechroiogies": "Web Systems and Technologies 2",
     "rane foreign languoge 2": "Foreign Language 2",
+    "Networking 1 2": "Networking 2",
     "panik at lpunen 255": "Panitikan at Lipunan",
     "lifeand works of rizal": "Life and Works of Rizal",
     "conder cote soman cagesuntcanes": "Data Structure and Algorithms",
@@ -277,6 +277,7 @@ TEXT_FIXES = {
     "camper prararin": "computer programming",
     "readhgs npop history": "readings in philippine history",
     "scene technology and sooty": "science technology and society",
+    "scene technology and sooty": "science technology and society",
     "atari": "art appreciation",
     "natonl sncetrhing pega": "national service training program",
     "diserete sturt for it": "discrete structures for it",
@@ -286,23 +287,30 @@ TEXT_FIXES = {
     "Understanding The Selff": "understanding the self",
     "purposve communication": "purposive communication",
     "mathematics in the modem world so": "mathematics in the modern world"
+
 }
 
+# Things that should NEVER appear (noise / random OCR junk)
 REMOVE_LIST = [
-    "stone project ad reset", "catege ommuniatons crass uniteamed", "student",
-    "acaserie eer agpy gna", "unknown subject", "category", "class", "united",
-    "student no", "fullname", "report of grades", "republic", "city of", "wps",
-    "office","total grades","section","ocr","passed","failed","ungraded",
-    "bsit","major","year level","academic year","grade","total subject",
-    "credit","units","average"
+    "stone project ad reset",
+    "catege ommuniatons crass uniteamed",
+    "student",
+    "acaserie eer agpy gna",
+    "unknown subject",
+    "category", "communications", "class", "united", "student no", "fullname",
+    "report of grades", "republic", "city of", "wps", "office"
 ]
 
-# ---------------------------
-# Normalization Functions
-# ---------------------------
 def normalize_subject(code: Optional[str], desc: str) -> Optional[str]:
-    raw = desc or ""
+    """
+    Normalize and clean a subject description. Returns cleaned title-case desc or None (to drop).
+    - code: the detected code (e.g. "IT 102") or None
+    - desc: raw description tokens before grade
+    """
+    raw = desc or ""   # ignore course code in the displayed string
     s = raw.lower().strip()
+
+    # remove underscores, stray punctuation and multiple spaces
     s = re.sub(r'[_]+', ' ', s)
     s = re.sub(r'[^\w\s]', ' ', s)
     s = re.sub(r'\s{2,}', ' ', s).strip()
@@ -310,32 +318,50 @@ def normalize_subject(code: Optional[str], desc: str) -> Optional[str]:
     if not s:
         return None
 
+    # Remove obvious junk (contains any token from remove list)
     for bad in REMOVE_LIST:
-        pattern = r'\b' + re.escape(bad) + r'\b'
-        if re.search(pattern, s):
+        if bad in s:
             return None
 
+    # Replace known OCR misreads
     for wrong, correct in TEXT_FIXES.items():
         if wrong in s:
             s = s.replace(wrong, correct)
 
+    # Elective special-case: try preserve trailing elective number
     if "elective" in s:
-        m = re.search(r'\b(\d{1,2})\b', s) or (re.search(r'(\d)', code) if code else None)
-        num = m.group(1)[-1] if m else None
+        # try to grab an elective number from code or from the string
+        num = None
+        # look for a trailing digit token in s
+        m = re.search(r'\b(\d{1,2})\b', s)
+        if m:
+            num = m.group(1)[-1]  # last digit
+        elif code:
+            m2 = re.search(r'(\d)', code)
+            if m2:
+                num = m2.group(1)
         return f"Elective {num}" if num else "Elective"
 
-    if "pe" in s or "pathfit" in s:
+    # PE / Pathfit
+    if s.strip() == "pe" or "pe " in s or "pathfit" in s or s.startswith("pe "):
+        # Keep "PE" (optionally include number from code)
         if code:
+            # try to extract number from code (E10 or PE 10)
             m = re.search(r'(\d{1,3})', code)
             if m:
                 return f"PE {m.group(1)}"
         return "PE"
 
+    # Purposive Communication
     if "purposive" in s and "communication" in s:
+        # try to include code prefix if available
         return "Purposive Communication"
 
+    # Trim obvious headings/columns like "student" etc already covered above
+    # Final cleanup and Title case
     s = s.strip()
-    if len(s) < 2 and s not in ["pe", "it", "os"]:
+    # avoid leaving strings like '5' or single chars
+    if len(s) < 3:
         return None
 
     return s.title()
@@ -346,8 +372,7 @@ def normalize_code(text: str) -> Optional[str]:
     return re.sub(r'\s+', '', text.upper())
 
 def _normalize_grade_str(num_str: str):
-    s = str(num_str or "").replace(',', '.').replace('l','1').replace('O','0')
-    s = re.sub(r'[^0-9.]', '', s).strip()
+    s = re.sub(r'[^0-9.]', '', str(num_str or '')).strip()
     if s == "":
         return None
     try:
@@ -355,56 +380,47 @@ def _normalize_grade_str(num_str: str):
     except:
         return None
 
-    candidates = [raw, raw/10, raw/100]
+    candidates = [raw, raw / 10.0, raw / 100.0]
     valid = [c for c in candidates if 1.0 <= c <= 5.0]
     if valid:
-        return round(min(valid, key=lambda x: abs(x-2.5)),2)
-    if 0.0 < raw <=5.0:
-        return round(raw,2)
-    return round(raw,2)
+        chosen = min(valid, key=lambda x: abs(x - 2.5))
+        return round(chosen, 2)
 
-# ---------------------------
-# Gemini Cleanup
-# ---------------------------
-async def improve_subjects_with_gemini(subjects: dict, skills: dict):
-    if not client:
-        return subjects, skills
+    if raw >= 10:
+        if raw / 10.0 <= 5.0:
+            return round(raw / 10.0, 2)
+        if raw / 100.0 <= 5.0:
+            return round(raw / 100.0, 2)
 
-    prompt = f"""
-    You are an academic data cleaner AI.
-    Fix spelling and capitalization for subjects, keep skill levels unchanged.
-    Input: {json.dumps({"subjects": subjects, "skills": skills}, ensure_ascii=False)}
-    Output JSON only.
-    """
-    try:
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt
-        )
-        cleaned_text = re.sub(r"^```json|```$", "", response.text.strip(), flags=re.MULTILINE).strip()
-        cleaned = json.loads(cleaned_text)
-        return cleaned.get("subjects", subjects), cleaned.get("skills", skills)
-    except:
-        return subjects, skills
+    if 0.0 < raw <= 5.0:
+        return round(raw, 2)
+
+    return round(raw, 2)
 
 # ---------------------------
 # OCR Extraction
 # ---------------------------
-async def extractSubjectGrades(text: str):
-    subjects_structured, rawSubjects, normalizedText, mappedSkills = [], OrderedDict(), {}, {}
+def extractSubjectGrades(text: str):
+    subjects_structured = []
+    rawSubjects = OrderedDict()
+    normalizedText = {}
+    mappedSkills = {}
     bucket_grades = {"Python": [], "SQL": [], "Java": []}
 
     lines = [l.strip() for l in text.splitlines() if l.strip()]
+
     for raw_line in lines:
         line = raw_line.strip()
         if not line:
             continue
+
         low = line.lower()
-        if any(kw in low for kw in ignore_keywords) and len(line.split()) < 5:
+        if any(kw in low for kw in ignore_keywords):
             continue
 
-        clean = re.sub(r'[\t\r\f\v]+',' ', line)
-        clean = re.sub(r'[^\w\.\-\s]',' ', clean)
+        # normalize whitespace and remove weird separators
+        clean = re.sub(r'[\t\r\f\v]+', ' ', line)
+        clean = re.sub(r'[^\w\.\-\s]', ' ', clean)   # keep letters, numbers, dot, dash, underscore
         clean = re.sub(r'\s{2,}', ' ', clean).strip()
         if not clean:
             continue
@@ -413,137 +429,252 @@ async def extractSubjectGrades(text: str):
         if len(parts) < 2:
             continue
 
+        # --- detect course code (handles "IT 312", "IT312", "E10", "PCM 101") ---
         subjCode = None
-        if len(parts)>=2 and parts[0].isalpha() and parts[1].isdigit():
+        if len(parts) >= 2 and parts[0].isalpha() and parts[1].isdigit():
             subjCode = f"{parts[0].upper()} {parts[1]}"
             parts = parts[2:]
         elif re.match(r'^[A-Z]{1,4}\d{1,3}$', parts[0].upper()):
             subjCode = parts[0].upper()
             parts = parts[1:]
+        # else leave subjCode None and treat tokens as description + numbers
 
         if not parts:
             continue
 
-        remarks=None
-        if parts[-1].isalpha():
-            remarks=parts[-1]
-            parts=parts[:-1]
-            if not parts: continue
+        # Remove trailing textual remark (e.g., "Passed")
+        remarks = None
+        if parts and parts[-1].isalpha():
+            remarks = parts[-1]
+            parts = parts[:-1]
+            if not parts:
+                continue
 
-        float_tokens=[]
-        for i,tok in enumerate(parts):
-            tok = tok.replace(',', '.').replace('l','1').replace('O','0')
-            token_clean = re.sub(r'[^0-9.]','',tok)
+        # Collect numeric tokens with positions (to find grade and units)
+        float_tokens = []
+        for i, tok in enumerate(parts):
+            token_clean = re.sub(r'[^0-9.]', '', tok)
             if token_clean and re.search(r'\d', token_clean):
-                try: float_tokens.append((i,token_clean,float(token_clean)))
-                except: continue
+                try:
+                    rawf = float(token_clean)
+                    float_tokens.append((i, token_clean, rawf))
+                except:
+                    continue
 
-        gradeVal, unitsVal, grade_idx = None, None, None
-        if len(float_tokens)>=2:
+        # Decide grade and units:
+        gradeVal = None
+        unitsVal = None
+        grade_idx = None
+
+        if len(float_tokens) >= 2:
             prev_idx, prev_tok, prev_raw = float_tokens[-2]
             last_idx, last_tok, last_raw = float_tokens[-1]
-            grade_idx=prev_idx
-            gradeVal = snap_to_valid_grade(_normalize_grade_str(prev_tok))
+            grade_idx = prev_idx
+            gradeVal = _normalize_grade_str(prev_tok)
+            gradeVal = snap_to_valid_grade(gradeVal)
             unitsVal = float(last_raw)
-        elif len(float_tokens)==1:
-            idx, tok, rawf=float_tokens[0]
-            grade_idx=idx
-            gradeVal = snap_to_valid_grade(_normalize_grade_str(tok))
-            unitsVal=None
+        elif len(float_tokens) == 1:
+            idx, tok, rawf = float_tokens[0]
+            grade_idx = idx
+            gradeVal = _normalize_grade_str(tok)
+            gradeVal = snap_to_valid_grade(gradeVal)
+            unitsVal = None
         else:
+            # no numeric token → not a subject row
             continue
 
+        # Build description tokens before grade_idx
         desc_tokens = parts[:grade_idx] if grade_idx is not None else parts[:]
+        # If first token is just numeric code like '312', remove it
         if desc_tokens and re.fullmatch(r'\d+', desc_tokens[0]):
-            desc_tokens=desc_tokens[1:]
-        subjDesc_raw=" ".join(desc_tokens).strip() or subjCode or "Unknown Subject"
-        subjDesc = normalize_subject(subjCode, subjDesc_raw)
-        if subjDesc is None: continue
+            desc_tokens = desc_tokens[1:]
 
-        subjKey=subjDesc
+        subjDesc_raw = " ".join(desc_tokens).strip()
+        if not subjDesc_raw:
+            subjDesc_raw = subjCode or "Unknown Subject"
+
+        # Normalize & filter subject name
+        subjDesc_clean = normalize_subject(subjCode, subjDesc_raw)
+        if subjDesc_clean is None:
+            # filtered as junk
+            continue
+
+        subjDesc = subjDesc_clean
+        subjKey = subjDesc   # ✅ no course code in keys
+        category = None
+        # classify after normalization
         category = "Major Subject" if "elective" in subjDesc.lower() else (
             "IT Subject" if any(k in subjDesc.lower() for k in [
-                "programming","database","data","system","integration","architecture",
-                "software","network","computing","information","security","java","python","sql","web","algorithm"
+                "programming", "database", "data", "system", "integration", "architecture",
+                "software", "network", "computing", "information", "security", "java",
+                "python", "sql", "web", "algorithm"
             ]) else "Minor Subject"
         )
 
-        lower_desc=subjDesc.lower()
-        for group,keywords in subjectGroups.items():
+        # determine mapping to skill bucket (for ML only)
+        lower_desc = subjDesc.lower()
+        for group, keywords in subjectGroups.items():
             if any(k in lower_desc for k in keywords):
-                assigned_bucket=bucketMap.get(group)
+                assigned_bucket = bucketMap.get(group)
                 if assigned_bucket and gradeVal is not None:
                     bucket_grades[assigned_bucket].append(gradeVal)
                 break
 
-        mappedSkills[subjDesc]=grade_to_level(gradeVal) if gradeVal is not None else "Unknown"
+        # store subject skill level (Weak/Average/Strong) for UI
+        mappedSkills[subjDesc] = grade_to_level(gradeVal) if gradeVal is not None else "Unknown"
+
+        # store
         subjects_structured.append({
-            "code": subjCode,
-            "subject": subjDesc,
+            "description": subjDesc,
             "grade": gradeVal,
-            "units": unitsVal,
+            "units": float(unitsVal) if unitsVal is not None else None,
             "remarks": remarks,
             "category": category
         })
 
-        rawSubjects[subjDesc_raw]={
-            "grade": gradeVal,
-            "units": unitsVal,
-            "remarks": remarks
-        }
+        rawSubjects[subjKey] = gradeVal
+        normalizedText[subjKey] = subjDesc
 
-    subjects_structured, mappedSkills = await improve_subjects_with_gemini(subjects_structured, mappedSkills)
-    return subjects_structured, rawSubjects, bucket_grades, mappedSkills
+    # average bucket grades -> finalBuckets numeric values
+    finalBuckets = {}
+    for b, grades in bucket_grades.items():
+        if grades:
+            finalBuckets[b] = round(sum(grades) / len(grades), 2)
+        else:
+            finalBuckets[b] = 3.0
 
-# ---------------------------
-# OCR from PDF/Image
-# ---------------------------
-async def read_pdf(file: UploadFile):
-    contents = await file.read()
-    pages = convert_from_bytes(contents, dpi=300)
-    images=[]
-    for p in pages:
-        img = p.convert("L")  # grayscale
-        arr = np.array(img)
-        _, thresh = cv2.threshold(arr, 150, 255, cv2.THRESH_BINARY)
-        images.append(Image.fromarray(thresh))
-    text=""
-    for img in images:
-        text += pytesseract.image_to_string(img, lang="eng") + "\n"
-    return text
+    for k in ("Python", "SQL", "Java"):
+        finalBuckets.setdefault(k, 3.0)
+
+    return subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets
 
 # ---------------------------
-# API Endpoints
+# Career Prediction with Smarter Suggestions (IT-only focus + Subject Certs)
 # ---------------------------
-@app.post("/predict")
-async def predict_career(file: UploadFile=File(...)):
-    text = await read_pdf(file)
-    subjects, rawSubjects, bucket_grades, mappedSkills = await extractSubjectGrades(text)
+def predictCareerWithSuggestions(finalBuckets: dict, normalizedText: dict, mappedSkills: dict):
+    dfInput = pd.DataFrame([{
+        "Python": finalBuckets["Python"],
+        "SQL": finalBuckets["SQL"],
+        "Java": finalBuckets["Java"],
+    }])
 
-    avgGrades={}
-    for k,v in bucket_grades.items():
-        avgGrades[k]=round(sum(v)/len(v),2) if v else None
+    proba = model.predict_proba(dfInput)[0]
+    careers = [
+        {"career": targetEncoder.inverse_transform([i])[0], "confidence": round(float(p)*100, 2)}
+        for i, p in enumerate(proba)
+    ]
+    careers = sorted(careers, key=lambda x: x["confidence"], reverse=True)[:3]
 
-    bucket_preds={k:(labelEncoders.get(k,None).inverse_transform([int(round(v))])[0] if k in labelEncoders and v else "Unknown") for k,v in avgGrades.items()}
+    # Keywords to consider as IT-related
+    it_keywords = [
+        "programming", "database", "data", "system", "integration", "architecture",
+        "software", "network", "computing", "information", "security",
+        "java", "python", "sql", "web", "algorithm", "ai", "machine learning"
+    ]
 
-    career_scores={}
-    for career, certs in careerCertSuggestions.items():
-        career_scores[career]=sum(
-            [1 for bucket,val in bucket_grades.items() if val and val<=2.5]
+    for c in careers:
+        suggestions = []
+        cert_recs = []
+
+        for subj, level in mappedSkills.items():
+            subj_lower = subj.lower()
+
+            # ✅ Skip non-IT related subjects
+            if not any(k in subj_lower for k in it_keywords):
+                continue  
+
+            if level == "Strong":
+                suggestions.append(f"Excellent performance in {subj}! Keep it up 🚀.")
+                suggestions.append(f"Since you're strong in {subj}, consider certifications to prove your skill.")
+                # If strong but no cert yet → recommend certs too
+                for key, certs in subjectCertMap.items():
+                    if key in subj_lower:
+                        cert_recs.extend(certs)
+
+            elif level == "Average":
+                suggestions.append(f"Good progress in {subj}, but you can still improve 📘.")
+                suggestions.append(f"Extra practice or online short courses in {subj} could help you excel.")
+                for key, certs in subjectCertMap.items():
+                    if key in subj_lower:
+                        cert_recs.extend(certs)
+
+            elif level == "Weak":
+                suggestions.append(f"You need to strengthen your foundation in {subj}.")
+                suggestions.append(f"Study resources, tutorials, and practice exercises in {subj} are highly recommended.")
+                for key, certs in subjectCertMap.items():
+                    if key in subj_lower:
+                        cert_recs.extend(certs)
+
+        # Add career-specific hints
+        if "Developer" in c["career"] or "Engineer" in c["career"]:
+            suggestions.append("💻 Build small coding projects to apply your knowledge.")
+        if "Data" in c["career"] or "AI" in c["career"]:
+            suggestions.append("📊 Try Python/ML projects to enhance your data science portfolio.")
+
+        # Attach suggestions + certs
+        c["suggestion"] = " ".join(suggestions[:8]) if suggestions else "Focus on IT-related subjects for stronger career alignment."
+        c["certificates"] = cert_recs if cert_recs else careerCertSuggestions.get(
+            c["career"], ["Consider general IT certifications."]
         )
 
-    top_careers=sorted(career_scores.items(), key=lambda x:-x[1])[:3]
-    results=[]
-    for c,s in top_careers:
-        certs=careerCertSuggestions.get(c,[])
-        results.append({
-            "career":c,
-            "score":s,
-            "certificates":certs
-        })
+    return careers
 
-    return {
-        "subjects": subjects,
-        "skills": mappedSkills,
-        "career_matches": results
+# ---------------------------
+# Certificate Analysis
+# ---------------------------
+def analyzeCertificates(certFiles: List[UploadFile]):
+    results = []
+    certificateSuggestions = {
+        "aws": "Your AWS certificate strengthens Cloud Architect and DevOps career paths.",
+        "ccna": "Your CCNA boosts Networking and Systems Administrator opportunities.",
+        "datascience": "Data Science certificate aligns well with AI/ML and Data Scientist roles.",
+        "webdev": "Web Development certificate enhances your frontend/backend developer profile.",
+        "python": "Python certification supports Data Science, AI, and Software Engineering careers."
     }
+    for cert in certFiles:
+        certName = cert.filename.lower()
+        matched = [msg for key, msg in certificateSuggestions.items() if key in certName]
+        if not matched:
+            matched = [f"Certificate '{cert.filename}' adds additional value to your career profile."]
+        results.append({"file": cert.filename, "suggestions": matched})
+    return results
+
+# ---------------------------
+# Routes
+# ---------------------------
+@app.post("/predict")
+async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[UploadFile] = File(None)):
+    try:
+        imageBytes = await file.read()
+        img = Image.open(io.BytesIO(imageBytes))
+        text = await asyncio.to_thread(pytesseract.image_to_string, img)
+
+        subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets = extractSubjectGrades(text.strip())
+        careerOptions = predictCareerWithSuggestions(finalBuckets, normalizedText, mappedSkills)
+
+        if not careerOptions:
+            careerOptions = [{
+                "career": "General Studies",
+                "confidence": 50.0,
+                "suggestion": "Add more subjects or improve grades for a better match.",
+                "certificates": careerCertSuggestions["General Studies"]
+            }]
+
+        certResults = []
+        if certificateFiles:
+            certResults = analyzeCertificates(certificateFiles or [])
+        else:
+            certResults = [{"info": "No certificates uploaded"}]
+
+        return {
+            "careerPrediction": careerOptions[0]["career"],
+            "careerOptions": careerOptions,
+            "subjects_structured": subjects_structured,
+            "rawSubjects": list(rawSubjects.items()),
+            "normalizedText": normalizedText,
+            "mappedSkills": mappedSkills,
+            "finalBuckets": finalBuckets,
+            "certificates": certResults
+        }
+    except Exception as e:
+        return {"error": str(e)}

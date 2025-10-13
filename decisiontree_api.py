@@ -14,6 +14,54 @@ from PIL import Image
 import pytesseract
 import asyncio
 from fastapi.middleware.cors import CORSMiddleware
+from google import genai
+import asyncio
+
+client = genai.Client()  # Reads GEMINI_API_KEY from environment
+
+async def improveSubjectsWithGemini(subjects: dict, mappedSkills: dict):
+    """
+    Fix typos, normalize capitalization, and add improved 3–4 sentence career suggestions.
+    Returns updated subjects and mappedSkills with AI suggestions.
+    """
+    prompt = f"""
+You are an expert career counselor AI. Subjects and skill levels:
+{subjects} with skills {mappedSkills}.
+1. Correct typos or spellings in subject names.
+2. Normalize capitalization and suggest proper subject names.
+3. Provide 3–4 sentence career advice per subject based on skill level (Strong/Average/Weak).
+Return JSON like: {{
+  'subjects': {{subject_name: corrected_name}},
+  'skills': {{
+      subject_name: {{
+          'level': 'Strong/Average/Weak',
+          'suggestion': 'Your 3-4 sentence advice here.'
+      }}
+  }}
+}}
+    """
+
+    try:
+        response = await asyncio.to_thread(
+            lambda: client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=prompt
+            )
+        )
+        content = response.text
+
+        import json
+        parsed = json.loads(content)
+        updatedSubjects = parsed.get("subjects", {})
+        updatedSkills = parsed.get("skills", {})
+
+        return updatedSubjects, updatedSkills
+
+    except Exception as e:
+        # fallback: return original if AI fails
+        return subjects, {k: {"level": v, "suggestion": ""} for k, v in mappedSkills.items()}
+
+
 
 # Windows Tesseract path (adjust if needed)
 pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
@@ -650,7 +698,12 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
         text = await asyncio.to_thread(pytesseract.image_to_string, img)
 
         subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets = extractSubjectGrades(text.strip())
-        careerOptions = predictCareerWithSuggestions(finalBuckets, normalizedText, mappedSkills)
+
+        # --- Gemini Enhancement ---
+        updatedSubjects, updatedSkills = await improveSubjectsWithGemini(normalizedText, mappedSkills)
+
+        # Use updated subjects and skills for career prediction
+        careerOptions = predictCareerWithSuggestions(finalBuckets, updatedSubjects, {k: v['level'] for k, v in updatedSkills.items()})
 
         if not careerOptions:
             careerOptions = [{
@@ -672,7 +725,7 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
             "subjects_structured": subjects_structured,
             "rawSubjects": list(rawSubjects.items()),
             "normalizedText": normalizedText,
-            "mappedSkills": mappedSkills,
+            "mappedSkills": updatedSkills, 
             "finalBuckets": finalBuckets,
             "certificates": certResults
         }

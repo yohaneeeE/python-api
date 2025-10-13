@@ -15,16 +15,16 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
 from PIL import Image, ImageFilter
 import pytesseract
-from google import genai  # ✅ new correct Gemini client import
+import google.generativeai as genai  # ✅ correct Gemini import
 
 # ---------- CONFIG ----------
 pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
 
-# Create Gemini client (reads GEMINI_API_KEY from environment automatically)
-try:
-    client = genai.Client()
-except Exception:
-    client = None
+# Configure Gemini API key (from Render environment variable)
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+
+# Create model reference
+gemini_model = genai.GenerativeModel("gemini-2.0-flash")  # ✅ use latest stable model
 
 # ---------- MACHINE LEARNING SETUP ----------
 df = pd.read_csv("cs_students.csv")
@@ -48,7 +48,7 @@ model = RandomForestClassifier(n_estimators=50, max_depth=8, random_state=42)
 model.fit(X, y)
 
 # ---------- FASTAPI ----------
-app = FastAPI(title="Career Prediction API (Enhanced OCR + Gemini 2.5)")
+app = FastAPI(title="Career Prediction API (Enhanced OCR + Gemini 2.0)")
 
 app.add_middleware(
     CORSMiddleware,
@@ -81,9 +81,6 @@ async def extract_text_from_image(image_bytes: bytes) -> str:
 # ---------- GEMINI HELPERS ----------
 async def gemini_clean_subjects_and_grades(ocr_text: str):
     """Use Gemini to clean OCR output, correct typos and normalize grades."""
-    if not client:
-        return {"subjects": [], "skills": {}}
-
     prompt = f"""
     Clean and structure this OCR transcript of student grades.
     - Fix typos and capitalization of subject names.
@@ -100,19 +97,16 @@ async def gemini_clean_subjects_and_grades(ocr_text: str):
 
     try:
         response = await asyncio.to_thread(
-            client.models.generate_content,
-            model="gemini-2.5-flash",
-            contents=prompt
+            gemini_model.generate_content, prompt
         )
-        return json.loads(response.text.strip())
-    except Exception:
+        cleaned_text = response.text.strip()
+        return json.loads(cleaned_text)
+    except Exception as e:
+        print("Gemini clean error:", e)
         return {"subjects": [], "skills": {}}
 
 async def gemini_generate_career_suggestions(finalBuckets, subjects):
     """Generate top careers and plain text suggestions (3–4 sentences)."""
-    if not client:
-        return {"careers": []}
-
     prompt = f"""
     Based on these skills and average grades:
     {finalBuckets}
@@ -130,12 +124,12 @@ async def gemini_generate_career_suggestions(finalBuckets, subjects):
     """
     try:
         response = await asyncio.to_thread(
-            client.models.generate_content,
-            model="gemini-2.5-flash",
-            contents=prompt
+            gemini_model.generate_content, prompt
         )
-        return json.loads(response.text.strip())
-    except Exception:
+        result_text = response.text.strip()
+        return json.loads(result_text)
+    except Exception as e:
+        print("Gemini suggestion error:", e)
         return {"careers": []}
 
 # ---------- MAIN PREDICTION ROUTE ----------
@@ -145,7 +139,7 @@ async def ocr_predict(file: UploadFile = File(...)):
         image_bytes = await file.read()
         raw_text = await extract_text_from_image(image_bytes)
 
-        # Step 1: Clean OCR result using Gemini (if available)
+        # Step 1: Clean OCR result using Gemini
         cleaned = await gemini_clean_subjects_and_grades(raw_text)
         subjects = cleaned.get("subjects", [])
 
@@ -189,4 +183,4 @@ async def ocr_predict(file: UploadFile = File(...)):
 # ---------- ROOT ENDPOINT ----------
 @app.get("/")
 def root():
-    return {"status": "ok", "message": "Career Prediction API (Gemini 2.5) is running."}
+    return {"status": "ok", "message": "Career Prediction API (Gemini 2.0) is running."}

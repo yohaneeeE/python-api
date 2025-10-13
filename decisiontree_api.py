@@ -479,7 +479,13 @@ async def extractSubjectGrades(text: str):
     normalizedText = {}
     mappedSkills = {}
     bucket_grades = {"Python": [], "SQL": [], "Java": []}
-
+    ignore_keywords = [
+        "course", "description", "final", "remarks", "re-exam", "units",
+        "fullname", "year level", "program", "college", "student no",
+        "academic year", "date printed", "gwa", "credits", "republic", "city", "report",
+        "gender", "bachelor", "semester", "university",
+        "total subjects", "average", "gpa", "total units", "enrolled"
+    ]
     lines = [l.strip() for l in text.splitlines() if l.strip()]
 
     for raw_line in lines:
@@ -488,7 +494,7 @@ async def extractSubjectGrades(text: str):
             continue
 
         low = line.lower()
-        if any(kw in low for kw in ignore_keywords):
+        if any(word.lower() in line.lower() for word in ignore_keywords):
             continue
 
         # normalize whitespace and remove weird separators

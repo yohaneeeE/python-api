@@ -20,6 +20,15 @@ import cv2
 import numpy as np
 from PIL import Image
 
+def clean_for_json(data):
+    if isinstance(data, dict):
+        return {k: clean_for_json(v) for k, v in data.items()}
+    if isinstance(data, list):
+        return [clean_for_json(x) for x in data]
+    if isinstance(data, (str, int, float)) or data is None:
+        return data
+    return str(data)
+
 def preprocess_image(img: Image.Image) -> Image.Image:
     """
     Preprocess an image to improve OCR accuracy:
@@ -129,6 +138,13 @@ Instructions:
                     updatedSkills[k] = v.get("level", str(v))
 
         careerOptions = parsed.get("career_options", [])
+                # --- 🧠 Sanitize updatedSkills to ensure values are simple strings ---
+        if isinstance(updatedSkills, dict):
+            for k, v in list(updatedSkills.items()):
+                if isinstance(v, dict):
+                    lvl = v.get("level") or v.get("suggestion")
+                    updatedSkills[k] = lvl if isinstance(lvl, str) else str(v)
+
         return updatedSubjects, updatedSkills, careerOptions
     except Exception as e:
         # fallback: keep original subjects and empty suggestions, no careers
@@ -434,6 +450,19 @@ def extractSubjectGrades(text: str):
 
         subjDesc = subjDesc_clean.strip()
 
+                # --- 🧹 Clean up subject names and skip garbage OCR noise ---
+        subjDesc = subjDesc.strip()
+        subjDesc = re.sub(r'^[^\w]+|[^\w]+$', '', subjDesc)     # trim leading/trailing punctuation
+        subjDesc = re.sub(r'\s{2,}', ' ', subjDesc)            # collapse extra spaces
+
+        # Remove subjects that are too short or meaningless (like ". A")
+        alpha_only = re.sub(r'[^A-Za-z]', '', subjDesc)
+        if not subjDesc or len(alpha_only) < 2:
+            continue
+        if subjDesc.lower() in {"a", "b", "c", "d", "e", "f", "g"}:
+            continue
+
+
         # --- Skip malformed or garbage subjects (OCR noise) ---
         if (
             not subjDesc
@@ -536,30 +565,21 @@ def analyzeCertificates(certFiles: List[UploadFile]):
         if not matched: matched = [f"Certificate '{cert.filename}' adds additional value to your career profile."]
         results.append({"file": cert.filename, "suggestions": matched})
     return results
-
-def clean_for_json(data):
-    if isinstance(data, dict):
-        return {k: clean_for_json(v) for k, v in data.items()}
-    elif isinstance(data, list):
-        return [clean_for_json(x) for x in data]
-    elif isinstance(data, (int, float, str)) or data is None:
-        return data
-    else:
-        return str(data)
-
 # ---------------------------
 # API Route
 # ---------------------------
 @app.post("/predict")
-async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[UploadFile] = File(None)):
+async def ocrPredict(
+    file: UploadFile = File(...),
+    certificateFiles: List[UploadFile] = File(None)
+):
     try:
+        # 📸 Read and preprocess image
         imageBytes = await file.read()
         img = Image.open(io.BytesIO(imageBytes))
-
-        # 🧠 Preprocess the image
         img = preprocess_image(img)
 
-        # 🔍 OCR
+        # 🔍 OCR extraction
         try:
             text = await asyncio.to_thread(
                 pytesseract.image_to_string,
@@ -571,16 +591,17 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
             print(f"OCR failed: {e}")
             text = await asyncio.to_thread(pytesseract.image_to_string, img)
 
+        # 🧾 Extract subjects and grades
         subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets = extractSubjectGrades(text.strip())
 
-        # ✨ Gemini enhancement
+        # ✨ Gemini enhancement (only if subjects detected)
         if not mappedSkills:
             print("⚠️ No subjects detected — skipping Gemini enhancement.")
             updatedSubjects, updatedSkills, careerOptions = normalizedText, mappedSkills, []
         else:
             updatedSubjects, updatedSkills, careerOptions = await improveSubjectsWithGemini(normalizedText, mappedSkills)
 
-        # 🔁 Normalize Gemini skills
+        # 🔁 Normalize Gemini skills (ensure strings only)
         mappedLevels = {}
         for k, v in updatedSkills.items():
             if isinstance(v, dict) and "level" in v:
@@ -595,17 +616,24 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
                 "career": "General Studies",
                 "confidence": 50.0,
                 "suggestion": "Add more subjects or improve grades.",
-                "certificates": careerCertSuggestions["General Studies"]
+                "certificates": careerCertSuggestions.get("General Studies", [])
             }]
 
         # 📜 Analyze uploaded certificates
         certResults = analyzeCertificates(certificateFiles or []) if certificateFiles else [{"info": "No certificates uploaded"}]
 
-        # 🧾 Debug prints
+        # 🧾 Debug logs
         print("Extracted text:", text[:500])
         print("Detected subjects:", list(mappedSkills.keys()))
         print("Final buckets:", finalBuckets)
         print("Gemini response subjects:", list(updatedSubjects.values()))
+
+        # 🧹 Clean data before returning to frontend
+        updatedSkills = clean_for_json(updatedSkills)
+        careerOptions = clean_for_json(careerOptions)
+        normalizedText = clean_for_json(normalizedText)
+
+        # ✅ Return structured response
         return {
             "careerPrediction": careerOptions[0]["career"],
             "careerOptions": careerOptions,
@@ -618,8 +646,5 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
         }
 
     except Exception as e:
-                # --- Clean output before returning ---
-        updatedSkills = clean_for_json(updatedSkills)
-        careerOptions = clean_for_json(careerOptions)
-
+        print(f"❌ Error in /predict: {e}")
         return {"error": str(e)}

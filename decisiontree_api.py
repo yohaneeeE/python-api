@@ -102,7 +102,7 @@ ignore_keywords = [
     "course", "description", "final", "remarks", "re-exam", "units",
     "fullname", "year level", "program", "college", "student no",
     "academic year", "date printed", "gwa", "credits", "republic", "city", "report",
-    "gender", "bachelor", "semester", "university"
+    "gender", "bachelor", "semester", "university","bsit","C","A","B","D","E"
 ]
 # ---------------------------
 # Subject → Certificates Mapping

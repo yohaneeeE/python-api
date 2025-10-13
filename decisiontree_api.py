@@ -557,7 +557,6 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
         print("Detected subjects:", list(mappedSkills.keys()))
         print("Final buckets:", finalBuckets)
         print("Gemini response subjects:", list(updatedSubjects.values()))
-
         return {
             "careerPrediction": careerOptions[0]["career"],
             "careerOptions": careerOptions,
@@ -571,9 +570,3 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
 
     except Exception as e:
         return {"error": str(e)}
-
-
-print("Extracted text:", text[:500])
-print("Detected subjects:", list(mappedSkills.keys()))
-print("Final buckets:", finalBuckets)
-print("Gemini response subjects:", list(updatedSubjects.values()))

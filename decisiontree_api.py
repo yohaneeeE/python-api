@@ -18,6 +18,8 @@ import json
 from google import genai
 import os
 from pdf2image import convert_from_bytes
+from gemini_utils import improve_subjects_with_gemini
+
 
 # Initialize Gemini client
 try:
@@ -749,7 +751,7 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
         subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets = await extractSubjectGrades(full_text.strip())
 
         # --- ADD GEMINI PROCESSING HERE ---
-        subjects_structured, mappedSkills = await improveSubjectsWithGemini(subjects_structured, mappedSkills)
+        subjects_structured, mappedSkills = await improve_Subjects_With_Gemini(subjects_structured, mappedSkills)
 
         # Now predict careers using improved subjects/skills
         careerOptions = predictCareerWithSuggestions(finalBuckets, normalizedText, mappedSkills)

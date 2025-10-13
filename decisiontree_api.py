@@ -25,9 +25,13 @@ async def improveSubjectsWithGemini(subjects: dict, mappedSkills: dict):
     """
     Use Gemini to:
     1. Fix typos and normalize capitalization in subject names.
-    2. Provide a proper subject name mapping.
+    2. Provide proper subject name mapping.
     3. Enhance career suggestions for each subject based on skill level.
-    Returns updated subjects and mappedSkills with suggestions.
+    4. Suggest top 3-5 career options with confidence scores and recommended certificates.
+    Returns:
+        - updatedSubjects: dict of original -> corrected names
+        - updatedSkills: dict with level + 3-4 sentence suggestions
+        - careerOptions: list of career dicts with name, confidence, suggestions, certificates
     """
     prompt = f"""
 You are an expert career counselor AI. Here are the subjects and skill levels:
@@ -37,8 +41,10 @@ Instructions:
 1. Correct typos or misspellings in subject names.
 2. Normalize capitalization and suggest proper subject names.
 3. For each subject, based on skill level (Strong/Average/Weak), write 3–4 sentence career guidance.
-4. Ensure suggestions are practical, career-focused, and professional.
-5. Return a JSON in this exact format:
+4. Suggest the top 3–5 career paths for this student with confidence scores (0-100%).
+5. Recommend relevant certifications or courses for each suggested career.
+6. Ensure all suggestions are practical, career-focused, and professional.
+7. Return JSON in this exact format:
 
 {{
   "subjects": {{
@@ -47,9 +53,17 @@ Instructions:
   "skills": {{
     "corrected_subject_name": {{
         "level": "Strong/Average/Weak",
-        "suggestion": "Your 3-4 sentence career advice here."
+        "suggestion": "3-4 sentence career advice here"
     }}
-  }}
+  }},
+  "career_options": [
+    {{
+      "career": "Career Name",
+      "confidence": 95,
+      "suggestion": "Brief professional advice for career",
+      "certificates": ["Cert1", "Cert2"]
+    }}
+  ]
 }}
 """
     try:
@@ -62,10 +76,11 @@ Instructions:
         parsed = json.loads(response.text)
         updatedSubjects = parsed.get("subjects", {})
         updatedSkills = parsed.get("skills", {})
-        return updatedSubjects, updatedSkills
+        careerOptions = parsed.get("career_options", [])
+        return updatedSubjects, updatedSkills, careerOptions
     except Exception as e:
-        # fallback: keep original subjects but add empty suggestions
-        return subjects, {k: {"level": v, "suggestion": ""} for k, v in mappedSkills.items()}
+        # fallback: keep original subjects and empty suggestions, no careers
+        return subjects, {k: {"level": v, "suggestion": ""} for k, v in mappedSkills.items()}, []
 
 # ---------------------------
 # Tesseract Path

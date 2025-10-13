@@ -73,7 +73,7 @@ Instructions:
                 contents=prompt
             )
         )
-        parsed = json.loads(response.text)
+        parsed = json.loads(response.candidates[0].content.parts[0].text)
         updatedSubjects = parsed.get("subjects", {})
         updatedSkills = parsed.get("skills", {})
         careerOptions = parsed.get("career_options", [])
@@ -373,7 +373,9 @@ def extractSubjectGrades(text: str):
     for b, grades in bucket_grades.items():
         finalBuckets[b] = round(sum(grades)/len(grades),2) if grades else 3.0
 
-    for k in ("Python","SQL","Java"): finalBuckets.setdefault(k,3.0)
+    for key in ("Python", "SQL", "Java"):
+    finalBuckets.setdefault(key, 3.0)
+
 
     return subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets
 
@@ -447,7 +449,7 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
         subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets = extractSubjectGrades(text.strip())
 
         # Gemini enhancement
-        updatedSubjects, updatedSkills = await improveSubjectsWithGemini(normalizedText, mappedSkills)
+        updatedSubjects, updatedSkills, careerOptions = await improveSubjectsWithGemini(normalizedText, mappedSkills)
         careerOptions = predictCareerWithSuggestions(finalBuckets, updatedSubjects, {k:v["level"] for k,v in updatedSkills.items()})
 
         if not careerOptions:

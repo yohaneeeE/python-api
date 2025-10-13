@@ -1,5 +1,3 @@
-# filename: decisiontree_api.py
-
 import re
 import io
 import json
@@ -18,8 +16,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from google import genai
 import cv2
 import numpy as np
-from PIL import Image
 
+# ---------------------------
+# Utility Helpers
+# ---------------------------
 def clean_for_json(data):
     if isinstance(data, dict):
         return {k: clean_for_json(v) for k, v in data.items()}
@@ -29,96 +29,51 @@ def clean_for_json(data):
         return data
     return str(data)
 
+
 def preprocess_image(img: Image.Image) -> Image.Image:
-    """
-    Preprocess an image to improve OCR accuracy:
-    - Convert to grayscale
-    - Remove noise
-    - Binarize
-    - Deskew
-    - Resize
-    """
+    """Preprocess an image to improve OCR accuracy."""
     img_cv = np.array(img.convert("L"))  # grayscale
-
-    # 1. Remove small noise
     img_cv = cv2.medianBlur(img_cv, 3)
-
-    # 2. Binarize (black and white)
     _, thresh = cv2.threshold(img_cv, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
-    # 3. Deskew (straighten tilted text)
     coords = np.column_stack(np.where(thresh > 0))
-    angle = cv2.minAreaRect(coords)[-1]
-    if angle < -45:
-        angle = -(90 + angle)
-    else:
-        angle = -angle
+    if len(coords) > 0:
+        angle = cv2.minAreaRect(coords)[-1]
+        if angle < -45:
+            angle = -(90 + angle)
+        else:
+            angle = -angle
+        (h, w) = thresh.shape[:2]
+        M = cv2.getRotationMatrix2D((w // 2, h // 2), angle, 1.0)
+        thresh = cv2.warpAffine(thresh, M, (w, h),
+                                flags=cv2.INTER_CUBIC,
+                                borderMode=cv2.BORDER_REPLICATE)
 
-    (h, w) = thresh.shape[:2]
-    M = cv2.getRotationMatrix2D((w // 2, h // 2), angle, 1.0)
-    deskewed = cv2.warpAffine(thresh, M, (w, h),
-                              flags=cv2.INTER_CUBIC,
-                              borderMode=cv2.BORDER_REPLICATE)
-
-    # 4. Resize (helps OCR detect smaller text)
-    deskewed = cv2.resize(deskewed, None, fx=1.5, fy=1.5,
-                          interpolation=cv2.INTER_LINEAR)
-
-    return Image.fromarray(deskewed)
+    thresh = cv2.resize(thresh, None, fx=1.5, fy=1.5, interpolation=cv2.INTER_LINEAR)
+    return Image.fromarray(thresh)
 
 
-    
 # ---------------------------
 # Gemini Client
 # ---------------------------
 client = genai.Client()  # reads GEMINI_API_KEY from environment
-async def improveSubjectsWithGemini(subjects: dict, mappedSkills: dict):
-    """
-    "Here’s the raw OCR transcript text:\n{text}\n"
-    "The system detected these subjects and grades:\n{rawSubjects}\n"
-    "Please correct any misspelled subjects and fill in missing grades if they can be inferred."
 
-    Use Gemini to:
-    1. Fix typos and normalize capitalization in subject names.
-    2. Provide proper subject name mapping.
-    3. Enhance career suggestions for each subject based on skill level.
-    4. Suggest top 3-5 career options with confidence scores and recommended certificates.
-    Returns:
-        - updatedSubjects: dict of original -> corrected names
-        - updatedSkills: dict with level + 3-4 sentence suggestions
-        - careerOptions: list of career dicts with name, confidence, suggestions, certificates
-    """
+
+async def improveSubjectsWithGemini(subjects: dict, mappedSkills: dict):
     prompt = f"""
 You are an expert career counselor AI. Here are the subjects and skill levels:
 {subjects} with skills {mappedSkills}.
 
-Instructions:
-1. Correct typos or misspellings in subject names.
-2. Normalize capitalization and suggest proper subject names.
-3. For each subject, based on skill level (Strong/Average/Weak), write 3–4 sentence career guidance.
-4. Suggest the top 3–5 career paths for this student with confidence scores (0-100%).
-5. Recommend relevant certifications or courses for each suggested career.
-6. Ensure all suggestions are practical, career-focused, and professional.
-7. Return JSON in this exact format:
+Please:
+1. Fix misspellings and normalize subject names.
+2. For each subject, provide "level" and a short "suggestion".
+3. Suggest top 3–5 career paths with confidence scores and relevant certificates.
 
+Return only JSON in this format:
 {{
-  "subjects": {{
-    "original_subject_name": "corrected_subject_name"
-  }},
-  "skills": {{
-    "corrected_subject_name": {{
-        "level": "Strong/Average/Weak",
-        "suggestion": "3-4 sentence career advice here"
-    }}
-  }},
-  "career_options": [
-    {{
-      "career": "Career Name",
-      "confidence": 95,
-      "suggestion": "Brief professional advice for career",
-      "certificates": ["Cert1", "Cert2"]
-    }}
-  ]
+  "subjects": {{"original": "corrected"}},
+  "skills": {{"subject": {{"level": "...", "suggestion": "..."}}}},
+  "career_options": [{{"career": "...", "confidence": 90, "suggestion": "...", "certificates": ["..."]}}]
 }}
 """
     try:
@@ -133,60 +88,26 @@ Instructions:
         updatedSkills = parsed.get("skills", {})
         careerOptions = parsed.get("career_options", [])
 
-        # --- 🧠 Sanitize updatedSkills (fix “[object Object]” issue) ---
+        # Clean updatedSkills
         cleanedSkills = {}
         for subj, val in updatedSkills.items():
             if isinstance(val, dict):
-                level = val.get("level", "Unknown")
-                suggestion = val.get("suggestion", "")
-                cleanedSkills[subj] = {"level": level, "suggestion": suggestion}
+                cleanedSkills[subj] = {
+                    "level": val.get("level", "Unknown"),
+                    "suggestion": val.get("suggestion", "")
+                }
             else:
                 cleanedSkills[subj] = {"level": str(val), "suggestion": ""}
-
-        updatedSkills = cleanedSkills
-
-        # --- 🧹 Clean career options (avoid duplicated suggestions) ---
-        cleanedCareers = []
-        for c in careerOptions:
-            if isinstance(c, dict):
-                career = c.get("career", "Unknown")
-                confidence = c.get("confidence", 0)
-                suggestion = c.get("suggestion", "")
-                certs = c.get("certificates", [])
-                cleanedCareers.append({
-                    "career": career,
-                    "confidence": confidence,
-                    "suggestion": suggestion,
-                    "certificates": certs
-                })
-        careerOptions = cleanedCareers
-
-                # --- 🧠 Sanitize updatedSkills to ensure values are simple strings ---
-        if isinstance(updatedSkills, dict):
-            for k, v in list(updatedSkills.items()):
-                if isinstance(v, dict):
-                    lvl = v.get("level") or v.get("suggestion")
-                    updatedSkills[k] = lvl if isinstance(lvl, str) else str(v)
-
-        return updatedSubjects, updatedSkills, careerOptions
+        return updatedSubjects, cleanedSkills, careerOptions
     except Exception as e:
         print(f"[Gemini Error] {e}")
-
-        # fallback: keep original subjects and empty suggestions, no careers
         return subjects, {k: {"level": v, "suggestion": ""} for k, v in mappedSkills.items()}, []
+
 
 # ---------------------------
 # Tesseract Path
 # ---------------------------
 pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
-
-# ---------------------------
-# Input Schema
-# ---------------------------
-class StudentInput(BaseModel):
-    python: int
-    sql: int
-    java: int
 
 # ---------------------------
 # Train ML Model
@@ -213,7 +134,7 @@ model = RandomForestClassifier(n_estimators=50, max_depth=8, random_state=42)
 model.fit(X, y)
 
 # ---------------------------
-# FastAPI App
+# FastAPI Setup
 # ---------------------------
 app = FastAPI(title="Career Prediction API (TOR/COG + Certificates 🚀)")
 
@@ -222,76 +143,10 @@ app.add_middleware(
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
-    # allow_headers=["*"],
 )
 
 # ---------------------------
-# Subject Groups & Buckets
-# ---------------------------
-subjectGroups = {
-    "programming": ["programming", "java", "oop", "object oriented", "software", "coding", "development", "elective"],
-    "databases": ["database", "sql", "dbms", "systems integration", "information systems", "data management"],
-    "ai_ml": ["python", "machine learning", "ai", "data mining", "analytics", "security", "assurance"],
-    "networking": ["networking", "networks", "cloud", "infrastructure"],
-    "webdev": ["html", "css", "javascript", "frontend", "backend", "php", "web"],
-    "systems": ["operating systems", "os", "architecture", "computer systems"]
-}
-
-bucketMap = {"programming": "Java", "databases": "SQL", "ai_ml": "Python"}
-
-ignore_keywords = [
-    "course", "description", "final", "remarks", "re-exam", "units",
-    "fullname", "year level", "program", "college", "student no",
-    "academic year", "date printed", "gwa", "credits", "republic", "city", "report",
-    "gender", "bachelor", "semester", "university"
-]
-
-# ---------------------------
-# Subject → Certificates Mapping
-# ---------------------------
-subjectCertMap = {
-    # Core Programming
-    "computer programming": ["PCAP – Python Certified Associate", "Oracle Certified Java Programmer", "C++ Certified Associate Programmer"],
-    "object-oriented programming": ["Oracle Java SE Programmer Certification", "C# Programming Certification (Microsoft)", "Python OOP Certification"],
-    "integrative programming and technologies": ["Full-Stack Web Developer Certificate (The Odin Project)", "Meta Full-Stack Developer Certificate", "JavaScript Specialist Certification"],
-    # Databases
-    "information management": ["Oracle Database SQL Associate", "Microsoft SQL Server Certification", "MongoDB Certified Developer Associate"],
-    "advance database systems": ["PostgreSQL Professional Certification", "MongoDB Certified Developer Associate", "Oracle MySQL Professional"],
-    # Web & Systems
-    "web systems and technologies": ["FreeCodeCamp Responsive Web Design", "Meta Front-End Developer Certificate", "W3C Front-End Web Developer Certificate"],
-    "system integration and architecture": ["AWS Solutions Architect", "Microsoft Azure Fundamentals", "Google Cloud Associate Engineer"],
-    "system administration and maintenance": ["CompTIA Linux+", "Microsoft Certified: Windows Server Administration", "Red Hat Certified System Administrator (RHCSA)"],
-    # Networking & Security
-    "networking 1": ["Cisco CCNA", "CompTIA Network+", "Juniper JNCIA"],
-    "networking 2": ["Cisco CCNP", "CompTIA Security+", "Fortinet NSE Certification"],
-    # Algorithms & Data
-    "data structure and algorithms": ["HackerRank Skills Certification (DSA)", "Google Kickstart Participation", "Coderbyte Algorithmic Certificate"],
-    "discrete structures for it": ["Mathematics for Computer Science (MITx)", "Coursera Discrete Math Specialization"],
-    # AI & Emerging Tech
-    "human computer interface": ["Google UX Design Certificate", "Adobe Certified Professional: UX Design", "Interaction Design Foundation Certificate"],
-    "science technology and society": ["Ethics in AI & Data Science (Coursera)", "Technology & Society Certificate"],
-    # General IT Foundation
-    "introduction to computing": ["IC3 Digital Literacy Certification", "CompTIA IT Fundamentals+"],
-    "hardware system and servicing": ["CompTIA A+", "PC Hardware Technician Certification"],
-    # Capstone / Research
-    "capstone project and research": ["Agile Scrum Certification", "Project Management Professional (PMP)", "Google Project Management Certificate"]
-}
-
-# ---------------------------
-# Hardcoded Career Certificates
-# ---------------------------
-careerCertSuggestions = {
-    "Software Engineer": ["AWS Cloud Practitioner", "Oracle Java SE"],
-    "Web Developer": ["FreeCodeCamp", "Meta Frontend Dev", "Responsive Web Design"],
-    "Data Scientist": ["Google Data Analytics", "TensorFlow Developer Cert."],
-    "Database Administrator": ["Oracle SQL Associate", "Microsoft SQL Server"],
-    "Cloud Solutions Architect": ["AWS Solutions Architect", "Azure Fundamentals"],
-    "Cybersecurity Specialist": ["CompTIA Security+", "Cisco CyberOps Associate"],
-    "General Studies": ["Short IT courses to explore career interests"]
-}
-
-# ---------------------------
-# Helpers
+# Helper Mappings
 # ---------------------------
 VALID_GRADES = [1.00, 1.25, 1.50, 1.75, 2.00, 2.25, 2.50, 2.75, 3.00, 5.00]
 
@@ -305,101 +160,6 @@ def snap_to_valid_grade(val: float):
     if val is None: return None
     return min(VALID_GRADES, key=lambda g: abs(g - val))
 
-# ---------------------------
-# OCR Fixes & Normalization
-# ---------------------------
-TEXT_FIXES = {
-    "tras beaives bstaegt": "Elective 5",
-    "wage system integration and rotate 2 es": "System Integration and Architecture 2",
-    "aot sten ainsaton and marenance": "System Administration and Maintenance",
-    "capa capstone pret and research 2 es": "Capstone Project and Research 2",
-    "mathnats nthe modem oa es": "Mathematics in the Modern World",
-    "advan database systems": "Advance Database Systems",
-    "capstone project and research 1 spparont cepsre": "Capstone Project and Research 1",
-    "web systems and technologies 2 soxtsrowebsystemsbtechroiogies": "Web Systems and Technologies 2",
-    "rane foreign languoge 2": "Foreign Language 2",
-    "Networking 1 2": "Networking 2",
-    "panik at lpunen 255": "Panitikan at Lipunan",
-    "lifeand works of rizal": "Life and Works of Rizal",
-    "conder cote soman cagesuntcanes": "Data Structure and Algorithms",
-    "negate proganmingandteomoege": "Integrative Programming and Technologies 1",
-    "foreign langage": "Foreign Language",
-    "hunan computer terface": "Human Computer Interface",
-    "infomation anogerent": "Information Management",
-    "toot": "Object-Oriented Programming 1",
-    "lective": "elective 4",
-    "hective": "elective",
-    "pen aire": "pe",
-    "pathfit": "pe",
-    "grmmunication": "communication",
-    "cobege": "college",
-    "phystal edeation": "physical education",
-    "inveductonto computing ws": "introduction to computing",
-    "inveductonto computing": "introduction to computing",
-    "rio harare system ard saving": "hardware system and servicing",
-    "hardware system ard saving": "hardware system and servicing",
-    "camper prararining": "computer programming",
-    "camper prararin": "computer programming",
-    "readhgs npop history": "readings in philippine history",
-    "scene technology and sooty": "science technology and society",
-    "atari": "art appreciation",
-    "natonl sncetrhing pega": "national service training program",
-    "diserete sturt for it": "discrete structures for it",
-    "networking": "networking 1",
-    "understanding the se": "understanding the self",
-    "purposve communication": "purposive communication",
-    "mathematics in the modem world so": "mathematics in the modern world"
-}
-
-REMOVE_LIST = [
-    "stone project ad reset",
-    "catege ommuniatons crass uniteamed",
-    "student",
-    "acaserie eer agpy gna",
-    "unknown subject",
-    "category", "communications", "class", "united", "student no", "fullname",
-    "report of grades", "republic", "city of", "wps", "office", "bsit"
-]
-
-def normalize_subject(code: Optional[str], desc: str) -> Optional[str]:
-    s = desc.lower().strip()
-    for bad in REMOVE_LIST:
-        if bad in s: return None
-    for wrong, correct in TEXT_FIXES.items():
-        if wrong in s: s = s.replace(wrong, correct)
-    if "elective" in s:
-        m = re.search(r'\d+', s)
-        num = m.group(0)[-1] if m else None
-        return f"Elective {num}" if num else "Elective"
-    if "pe" in s or "pathfit" in s: return "PE"
-    if "purposive" in s and "communication" in s: return "Purposive Communication"
-    if len(s) < 3: return None
-    return s.title()
-
-def _normalize_grade_str(num_str: str):
-    s = re.sub(r'[^0-9.]', '', str(num_str or '')).strip()
-    if not s: return None
-    try:
-        raw = float(s)
-    except:
-        return None
-    candidates = [raw, raw/10.0, raw/100.0]
-    valid = [c for c in candidates if 1.0 <= c <= 5.0]
-    return round(min(valid, key=lambda x: abs(x-2.5)), 2) if valid else round(raw,2)
-
-    data = pytesseract.image_to_data(img, output_type=pytesseract.Output.DICT)
-    lines = {}
-    for i, text in enumerate(data['text']):
-        if not text.strip():
-            continue
-        y = data['top'][i]
-        # Group words by vertical position
-        line_key = y // 15  # merge close y values
-        lines.setdefault(line_key, []).append(text)
-
-    # Combine words in each line
-    structured_text = "\n".join([" ".join(words) for words in lines.values()])
-    text = structured_text
 
 # ---------------------------
 # OCR Extraction
@@ -411,16 +171,9 @@ def extractSubjectGrades(text: str):
     mappedSkills = {}
     bucket_grades = {"Python": [], "SQL": [], "Java": []}
 
-    # Split OCR text into non-empty lines
     lines = [l.strip() for l in text.splitlines() if l.strip()]
-
     for raw_line in lines:
-        line = raw_line.strip()
-        if any(kw in line.lower() for kw in ignore_keywords):
-            continue
-
-        # Clean line: keep alphanumeric, period, dash, and space
-        clean = re.sub(r"[^\w\.\-\s]", " ", line)
+        clean = re.sub(r"[^\w\.\-\s]", " ", raw_line)
         clean = re.sub(r"\s{2,}", " ", clean).strip()
         if not clean:
             continue
@@ -429,246 +182,114 @@ def extractSubjectGrades(text: str):
         if len(parts) < 2:
             continue
 
-        subjCode = None
-        if len(parts) >= 2 and parts[0].isalpha() and parts[1].isdigit():
-            subjCode = f"{parts[0].upper()} {parts[1]}"
-            parts = parts[2:]
-        elif re.match(r"^[A-Z]{1,4}\d{1,3}$", parts[0].upper()):
-            subjCode = parts[0].upper()
-            parts = parts[1:]
-
-        if not parts:
-            continue
-
-        # --- Find numeric tokens (grade/unit) ---
         float_tokens = []
         for i, tok in enumerate(parts):
             tok_clean = re.sub(r"[^0-9.]", "", tok)
-            # Skip invalid tokens like '.' or ''
-            if not tok_clean or tok_clean == ".":
+            if not tok_clean:
                 continue
             try:
-                f_val = float(tok_clean)
-                float_tokens.append((i, tok_clean, f_val))
-            except ValueError:
+                float_tokens.append((i, float(tok_clean)))
+            except:
                 continue
 
         if not float_tokens:
             continue
 
-        idx, tok, rawf = float_tokens[0]
-        gradeVal = snap_to_valid_grade(_normalize_grade_str(tok))
-        unitsVal = float(float_tokens[-1][2]) if len(float_tokens) > 1 else None
-        grade_idx = idx
-
-        # --- Extract subject description tokens ---
-        desc_tokens = parts[:grade_idx] if grade_idx is not None else parts[:]
-        if desc_tokens and re.fullmatch(r"\d+", desc_tokens[0]):
-            desc_tokens = desc_tokens[1:]
-
-        subjDesc_raw = " ".join(desc_tokens).strip() or subjCode or "Unknown Subject"
-
-        # --- Clean up subject name ---
-        subjDesc_clean = normalize_subject(subjCode, subjDesc_raw)
-        if not subjDesc_clean:
+        idx, gradeVal = float_tokens[0]
+        subjDesc = " ".join(parts[:idx]).strip().title()
+        gradeVal = snap_to_valid_grade(gradeVal)
+        if not subjDesc or len(subjDesc) < 3:
             continue
 
-        subjDesc = subjDesc_clean.strip()
-
-                # --- 🧹 Clean up subject names and skip garbage OCR noise ---
-        subjDesc = subjDesc.strip()
-        subjDesc = re.sub(r'^[^\w]+|[^\w]+$', '', subjDesc)     # trim leading/trailing punctuation
-        subjDesc = re.sub(r'\s{2,}', ' ', subjDesc)            # collapse extra spaces
-
-        # Remove subjects that are too short or meaningless (like ". A")
-        alpha_only = re.sub(r'[^A-Za-z]', '', subjDesc)
-        if not subjDesc or len(alpha_only) < 2:
-            continue
-        if subjDesc.lower() in {"a", "b", "c", "d", "e", "f", "g"}:
-            continue
-
-
-        # --- Skip malformed or garbage subjects (OCR noise) ---
-        if (
-            not subjDesc
-            or subjDesc in [".", "-", "_", "•", "A", "B", "C"]
-            or len(subjDesc) < 2
-        ):
-            continue
-
-        # --- Categorize subject and map to skill level ---
-        category = "Major Subject" if "elective" in subjDesc.lower() else "IT Subject"
         mappedSkills[subjDesc] = grade_to_level(gradeVal)
-
-        # --- Assign to subject groups (e.g., Python, SQL, Java) ---
-        lower_desc = subjDesc.lower()
-        for group, keywords in subjectGroups.items():
-            if any(k in lower_desc for k in keywords):
-                assigned_bucket = bucketMap.get(group)
-                if assigned_bucket and gradeVal is not None:
-                    bucket_grades[assigned_bucket].append(gradeVal)
-                break
-
-        # --- Save structured data ---
-        subjects_structured.append({
-            "description": subjDesc,
-            "grade": gradeVal,
-            "units": float(unitsVal) if unitsVal else None,
-            "remarks": None,
-            "category": category
-        })
-
+        subjects_structured.append({"description": subjDesc, "grade": gradeVal})
         rawSubjects[subjDesc] = gradeVal
         normalizedText[subjDesc] = subjDesc
 
-    # --- Compute average grade per skill bucket ---
-    finalBuckets = {}
-    for b, grades in bucket_grades.items():
-        finalBuckets[b] = round(sum(grades) / len(grades), 2) if grades else 3.0
-
-    # Ensure default buckets exist
-    for key in ("Python", "SQL", "Java"):
-        finalBuckets.setdefault(key, 3.0)
-
-    print(f"[DEBUG] Found {len(subjects_structured)} subjects")
-
+    finalBuckets = {k: 3.0 for k in ["Python", "SQL", "Java"]}
     return subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets
 
 
-    
 # ---------------------------
 # Career Prediction
 # ---------------------------
-def predictCareerWithSuggestions(finalBuckets: dict, normalizedText: dict, mappedSkills: dict):
+def predictCareerWithSuggestions(finalBuckets, normalizedText, mappedSkills):
     dfInput = pd.DataFrame([{
         "Python": finalBuckets["Python"],
         "SQL": finalBuckets["SQL"],
         "Java": finalBuckets["Java"]
     }])
     proba = model.predict_proba(dfInput)[0]
-    careers = [{"career": targetEncoder.inverse_transform([i])[0], "confidence": round(float(p)*100,2)} for i,p in enumerate(proba)]
-    careers = sorted(careers,key=lambda x:x["confidence"],reverse=True)[:3]
-
-    it_keywords = ["programming","database","data","system","integration","architecture","software","network","computing","information","security","java","python","sql","web","algorithm","ai","machine learning"]
+    careers = [{"career": targetEncoder.inverse_transform([i])[0],
+                "confidence": round(float(p)*100,2)} for i,p in enumerate(proba)]
+    careers = sorted(careers, key=lambda x: x["confidence"], reverse=True)[:3]
 
     for c in careers:
-        suggestions=[]
-        cert_recs=[]
-        for subj, level in mappedSkills.items():
-            if not any(k in subj.lower() for k in it_keywords): continue
-            if level=="Strong":
-                suggestions.append(f"Excellent performance in {subj}! Keep it up.")
-            elif level=="Average":
-                suggestions.append(f"Good progress in {subj}, you can improve further.")
-            elif level=="Weak":
-                suggestions.append(f"Work on strengthening your foundation in {subj}.")
-            for key, certs in subjectCertMap.items():
-                if key in subj.lower(): cert_recs.extend(certs)
-
-        if "Developer" in c["career"] or "Engineer" in c["career"]:
-            suggestions.append("Build small coding projects to apply your knowledge.")
-        if "Data" in c["career"] or "AI" in c["career"]:
-            suggestions.append("Try Python/ML projects to enhance your data portfolio.")
-
-        c["suggestion"] = " ".join(suggestions[:8]) if suggestions else "Focus on IT-related subjects."
-        c["certificates"] = cert_recs if cert_recs else careerCertSuggestions.get(c["career"], ["Consider general IT certifications."])
+        c["suggestion"] = "Focus on IT-related subjects."
+        c["certificates"] = ["AWS", "SQL", "Java"]
     return careers
+
 
 # ---------------------------
 # Certificate Analysis
 # ---------------------------
 def analyzeCertificates(certFiles: List[UploadFile]):
-    results=[]
-    certificateSuggestions = {
-        "aws": "Your AWS certificate strengthens Cloud Architect and DevOps career paths.",
-        "ccna": "Your CCNA boosts Networking and Systems Administrator opportunities.",
-        "datascience": "Data Science certificate aligns well with AI/ML and Data Scientist roles.",
-        "webdev": "Web Development certificate enhances your frontend/backend profile.",
-        "python": "Python certification supports Data Science, AI, and Software Engineering careers."
-    }
+    results = []
     for cert in certFiles:
         certName = cert.filename.lower()
-        matched = [msg for key,msg in certificateSuggestions.items() if key in certName]
-        if not matched: matched = [f"Certificate '{cert.filename}' adds additional value to your career profile."]
-        results.append({"file": cert.filename, "suggestions": matched})
+        if "aws" in certName:
+            msg = "Your AWS cert strengthens Cloud Architect path."
+        elif "ccna" in certName:
+            msg = "Your CCNA boosts Networking opportunities."
+        else:
+            msg = f"Certificate '{cert.filename}' adds career value."
+        results.append({"file": cert.filename, "suggestions": [msg]})
     return results
+
+
 # ---------------------------
 # API Route
 # ---------------------------
 @app.post("/predict")
-async def ocrPredict(
-    file: UploadFile = File(...),
-    certificateFiles: List[UploadFile] = File(None)
-):
+async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[UploadFile] = File(None)):
     try:
-        # 📸 Read and preprocess image
         imageBytes = await file.read()
         img = Image.open(io.BytesIO(imageBytes))
         img = preprocess_image(img)
 
-        # 🔍 OCR extraction
-        try:
-            text = await asyncio.to_thread(
-                pytesseract.image_to_string,
-                img,
-                lang="eng",
-                config="--psm 6"
-            )
-        except Exception as e:
-            print(f"OCR failed: {e}")
+        text = await asyncio.to_thread(pytesseract.image_to_string, img, lang="eng", config="--psm 6")
+        if len(text.strip()) < 10:
             text = await asyncio.to_thread(pytesseract.image_to_string, img)
 
-        # 🧾 Extract subjects and grades
-        subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets = extractSubjectGrades(text.strip())
+        subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets = extractSubjectGrades(text)
 
-        # ✨ Gemini enhancement (only if subjects detected)
         if not mappedSkills:
             print("⚠️ No subjects detected — skipping Gemini enhancement.")
             updatedSubjects, updatedSkills, careerOptions = normalizedText, mappedSkills, []
         else:
             updatedSubjects, updatedSkills, careerOptions = await improveSubjectsWithGemini(normalizedText, mappedSkills)
 
-        # 🔁 Normalize Gemini skills (ensure strings only)
-        mappedLevels = {}
-        for k, v in updatedSkills.items():
-            if isinstance(v, dict) and "level" in v:
-                mappedLevels[k] = v["level"]
-            else:
-                mappedLevels[k] = v
-
-        # 🎯 Predict careers
+        mappedLevels = {k: (v["level"] if isinstance(v, dict) else v) for k, v in updatedSkills.items()}
         careerOptions = predictCareerWithSuggestions(finalBuckets, updatedSubjects, mappedLevels)
-        if not careerOptions:
-            careerOptions = [{
-                "career": "General Studies",
-                "confidence": 50.0,
-                "suggestion": "Add more subjects or improve grades.",
-                "certificates": careerCertSuggestions.get("General Studies", [])
-            }]
 
-        # 📜 Analyze uploaded certificates
+        if not careerOptions:
+            careerOptions = [{"career": "General Studies", "confidence": 50.0,
+                              "suggestion": "Add more subjects or improve grades.",
+                              "certificates": ["General IT Certifications"]}]
+
         certResults = analyzeCertificates(certificateFiles or []) if certificateFiles else [{"info": "No certificates uploaded"}]
 
-        # 🧾 Debug logs
-        print("Extracted text:", text[:500])
-        print("Detected subjects:", list(mappedSkills.keys()))
-        print("Final buckets:", finalBuckets)
-        print("Gemini response subjects:", list(updatedSubjects.values()))
+        print("🧾 OCR Extracted Text:", text[:300])
+        print("🧠 Detected subjects:", list(mappedSkills.keys()))
 
-        # 🧹 Clean data before returning to frontend
-        updatedSkills = clean_for_json(updatedSkills)
-        careerOptions = clean_for_json(careerOptions)
-        normalizedText = clean_for_json(normalizedText)
-
-        # ✅ Return structured response
         return {
             "careerPrediction": careerOptions[0]["career"],
-            "careerOptions": careerOptions,
-            "subjects_structured": subjects_structured,
+            "careerOptions": clean_for_json(careerOptions),
+            "subjects_structured": clean_for_json(subjects_structured),
             "rawSubjects": list(rawSubjects.items()),
-            "normalizedText": normalizedText,
-            "mappedSkills": updatedSkills,
-            "finalBuckets": finalBuckets,
+            "normalizedText": clean_for_json(normalizedText),
+            "mappedSkills": clean_for_json(updatedSkills),
+            "finalBuckets": clean_for_json(finalBuckets),
             "certificates": certResults
         }
 

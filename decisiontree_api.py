@@ -122,6 +122,12 @@ Instructions:
         parsed = json.loads(response.candidates[0].content.parts[0].text)
         updatedSubjects = parsed.get("subjects", {})
         updatedSkills = parsed.get("skills", {})
+        # --- Clean Gemini output ---
+        if isinstance(updatedSkills, dict):
+            for k, v in updatedSkills.items():
+                if isinstance(v, dict):
+                    updatedSkills[k] = v.get("level", str(v))
+
         careerOptions = parsed.get("career_options", [])
         return updatedSubjects, updatedSkills, careerOptions
     except Exception as e:
@@ -175,7 +181,7 @@ app.add_middleware(
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"],
+    # allow_headers=["*"],
 )
 
 # ---------------------------
@@ -364,34 +370,40 @@ def extractSubjectGrades(text: str):
     mappedSkills = {}
     bucket_grades = {"Python": [], "SQL": [], "Java": []}
 
+    # Split OCR text into non-empty lines
     lines = [l.strip() for l in text.splitlines() if l.strip()]
 
     for raw_line in lines:
         line = raw_line.strip()
-        if any(kw in line.lower() for kw in ignore_keywords): continue
+        if any(kw in line.lower() for kw in ignore_keywords):
+            continue
 
-        clean = re.sub(r'[^\w\.\-\s]', ' ', line)
-        clean = re.sub(r'\s{2,}', ' ', clean).strip()
-        if not clean: continue
+        # Clean line: keep alphanumeric, period, dash, and space
+        clean = re.sub(r"[^\w\.\-\s]", " ", line)
+        clean = re.sub(r"\s{2,}", " ", clean).strip()
+        if not clean:
+            continue
 
         parts = clean.split()
-        if len(parts) < 2: continue
+        if len(parts) < 2:
+            continue
 
         subjCode = None
-        if len(parts)>=2 and parts[0].isalpha() and parts[1].isdigit():
+        if len(parts) >= 2 and parts[0].isalpha() and parts[1].isdigit():
             subjCode = f"{parts[0].upper()} {parts[1]}"
             parts = parts[2:]
-        elif re.match(r'^[A-Z]{1,4}\d{1,3}$', parts[0].upper()):
+        elif re.match(r"^[A-Z]{1,4}\d{1,3}$", parts[0].upper()):
             subjCode = parts[0].upper()
             parts = parts[1:]
 
-        if not parts: continue
+        if not parts:
+            continue
 
-        # find numeric tokens (grade/unit)
+        # --- Find numeric tokens (grade/unit) ---
         float_tokens = []
         for i, tok in enumerate(parts):
-            tok_clean = re.sub(r'[^0-9.]', '', tok)
-            # Skip if it's empty or just a dot
+            tok_clean = re.sub(r"[^0-9.]", "", tok)
+            # Skip invalid tokens like '.' or ''
             if not tok_clean or tok_clean == ".":
                 continue
             try:
@@ -400,23 +412,41 @@ def extractSubjectGrades(text: str):
             except ValueError:
                 continue
 
-        if not float_tokens: continue
+        if not float_tokens:
+            continue
+
         idx, tok, rawf = float_tokens[0]
         gradeVal = snap_to_valid_grade(_normalize_grade_str(tok))
-        unitsVal = float(float_tokens[-1][2]) if len(float_tokens)>1 else None
+        unitsVal = float(float_tokens[-1][2]) if len(float_tokens) > 1 else None
         grade_idx = idx
 
+        # --- Extract subject description tokens ---
         desc_tokens = parts[:grade_idx] if grade_idx is not None else parts[:]
-        if desc_tokens and re.fullmatch(r'\d+', desc_tokens[0]): desc_tokens = desc_tokens[1:]
+        if desc_tokens and re.fullmatch(r"\d+", desc_tokens[0]):
+            desc_tokens = desc_tokens[1:]
+
         subjDesc_raw = " ".join(desc_tokens).strip() or subjCode or "Unknown Subject"
 
+        # --- Clean up subject name ---
         subjDesc_clean = normalize_subject(subjCode, subjDesc_raw)
-        if not subjDesc_clean: continue
+        if not subjDesc_clean:
+            continue
 
-        subjDesc = subjDesc_clean
+        subjDesc = subjDesc_clean.strip()
+
+        # --- Skip malformed or garbage subjects (OCR noise) ---
+        if (
+            not subjDesc
+            or subjDesc in [".", "-", "_", "•", "A", "B", "C"]
+            or len(subjDesc) < 2
+        ):
+            continue
+
+        # --- Categorize subject and map to skill level ---
         category = "Major Subject" if "elective" in subjDesc.lower() else "IT Subject"
         mappedSkills[subjDesc] = grade_to_level(gradeVal)
 
+        # --- Assign to subject groups (e.g., Python, SQL, Java) ---
         lower_desc = subjDesc.lower()
         for group, keywords in subjectGroups.items():
             if any(k in lower_desc for k in keywords):
@@ -425,6 +455,7 @@ def extractSubjectGrades(text: str):
                     bucket_grades[assigned_bucket].append(gradeVal)
                 break
 
+        # --- Save structured data ---
         subjects_structured.append({
             "description": subjDesc,
             "grade": gradeVal,
@@ -436,13 +467,14 @@ def extractSubjectGrades(text: str):
         rawSubjects[subjDesc] = gradeVal
         normalizedText[subjDesc] = subjDesc
 
+    # --- Compute average grade per skill bucket ---
     finalBuckets = {}
     for b, grades in bucket_grades.items():
-        finalBuckets[b] = round(sum(grades)/len(grades),2) if grades else 3.0
+        finalBuckets[b] = round(sum(grades) / len(grades), 2) if grades else 3.0
 
+    # Ensure default buckets exist
     for key in ("Python", "SQL", "Java"):
         finalBuckets.setdefault(key, 3.0)
-
 
     return subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets
 
@@ -504,6 +536,16 @@ def analyzeCertificates(certFiles: List[UploadFile]):
         if not matched: matched = [f"Certificate '{cert.filename}' adds additional value to your career profile."]
         results.append({"file": cert.filename, "suggestions": matched})
     return results
+
+def clean_for_json(data):
+    if isinstance(data, dict):
+        return {k: clean_for_json(v) for k, v in data.items()}
+    elif isinstance(data, list):
+        return [clean_for_json(x) for x in data]
+    elif isinstance(data, (int, float, str)) or data is None:
+        return data
+    else:
+        return str(data)
 
 # ---------------------------
 # API Route
@@ -576,4 +618,8 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
         }
 
     except Exception as e:
+                # --- Clean output before returning ---
+        updatedSkills = clean_for_json(updatedSkills)
+        careerOptions = clean_for_json(careerOptions)
+
         return {"error": str(e)}

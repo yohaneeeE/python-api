@@ -410,7 +410,7 @@ def _normalize_grade_str(num_str: str):
 async def improve_subjects_with_gemini(subjects: dict, skills: dict):
     """
     Use Gemini (new SDK) to clean, correct, and enhance subject names and skill mappings.
-    - Fix typos and grammar.
+    - Fix typograhical errors and grammar.
     - Normalize capitalization (e.g., 'programming 1' → 'Programming 1').
     - Keep skill values (Strong, Average, Weak) unchanged.
     - Return clean, valid JSON with the same structure.
@@ -429,6 +429,7 @@ async def improve_subjects_with_gemini(subjects: dict, skills: dict):
     - Keep all skill level values exactly as they are (“Strong”, “Average”, “Weak”).
     - Maintain the same structure as the input.
     - Do not add, remove, or rename fields.
+    - 3 to 4 sentences
     - Output valid JSON only (no explanations, no markdown, no extra text).
 
     Example:

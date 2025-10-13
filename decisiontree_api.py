@@ -16,6 +16,46 @@ import pytesseract
 import asyncio
 from fastapi.middleware.cors import CORSMiddleware
 from google import genai
+import cv2
+import numpy as np
+from PIL import Image
+
+def preprocess_image(img: Image.Image) -> Image.Image:
+    """
+    Preprocess an image to improve OCR accuracy:
+    - Convert to grayscale
+    - Remove noise
+    - Binarize
+    - Deskew
+    - Resize
+    """
+    img_cv = np.array(img.convert("L"))  # grayscale
+
+    # 1. Remove small noise
+    img_cv = cv2.medianBlur(img_cv, 3)
+
+    # 2. Binarize (black and white)
+    _, thresh = cv2.threshold(img_cv, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+    # 3. Deskew (straighten tilted text)
+    coords = np.column_stack(np.where(thresh > 0))
+    angle = cv2.minAreaRect(coords)[-1]
+    if angle < -45:
+        angle = -(90 + angle)
+    else:
+        angle = -angle
+
+    (h, w) = thresh.shape[:2]
+    M = cv2.getRotationMatrix2D((w // 2, h // 2), angle, 1.0)
+    deskewed = cv2.warpAffine(thresh, M, (w, h),
+                              flags=cv2.INTER_CUBIC,
+                              borderMode=cv2.BORDER_REPLICATE)
+
+    # 4. Resize (helps OCR detect smaller text)
+    deskewed = cv2.resize(deskewed, None, fx=1.5, fy=1.5,
+                          interpolation=cv2.INTER_LINEAR)
+
+    return Image.fromarray(deskewed)
 
 # ---------------------------
 # Gemini Client
@@ -23,6 +63,10 @@ from google import genai
 client = genai.Client()  # reads GEMINI_API_KEY from environment
 async def improveSubjectsWithGemini(subjects: dict, mappedSkills: dict):
     """
+    "Here’s the raw OCR transcript text:\n{text}\n"
+    "The system detected these subjects and grades:\n{rawSubjects}\n"
+    "Please correct any misspelled subjects and fill in missing grades if they can be inferred."
+
     Use Gemini to:
     1. Fix typos and normalize capitalization in subject names.
     2. Provide proper subject name mapping.
@@ -294,6 +338,20 @@ def _normalize_grade_str(num_str: str):
     valid = [c for c in candidates if 1.0 <= c <= 5.0]
     return round(min(valid, key=lambda x: abs(x-2.5)), 2) if valid else round(raw,2)
 
+    data = pytesseract.image_to_data(img, output_type=pytesseract.Output.DICT)
+    lines = {}
+    for i, text in enumerate(data['text']):
+        if not text.strip():
+            continue
+        y = data['top'][i]
+        # Group words by vertical position
+        line_key = y // 15  # merge close y values
+        lines.setdefault(line_key, []).append(text)
+
+    # Combine words in each line
+    structured_text = "\n".join([" ".join(words) for words in lines.values()])
+    text = structured_text
+
 # ---------------------------
 # OCR Extraction
 # ---------------------------
@@ -444,6 +502,22 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
     try:
         imageBytes = await file.read()
         img = Image.open(io.BytesIO(imageBytes))
+
+        # 🧠 Preprocess the image for better OCR accuracy
+        img = preprocess_image(img)
+
+        # 🔍 Perform OCR
+        try:
+            # psm 6 = Assume a uniform block of text (good for TOR tables)
+            text = await asyncio.to_thread(
+                pytesseract.image_to_string,
+                img,
+                lang="eng",
+                config="--psm 6"
+            )
+        except Exception as e:
+            print(f"OCR failed: {e}")
+            # Fallback to default OCR
         text = await asyncio.to_thread(pytesseract.image_to_string,img)
 
         subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets = extractSubjectGrades(text.strip())

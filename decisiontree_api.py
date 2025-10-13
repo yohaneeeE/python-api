@@ -374,7 +374,7 @@ def extractSubjectGrades(text: str):
         finalBuckets[b] = round(sum(grades)/len(grades),2) if grades else 3.0
 
     for key in ("Python", "SQL", "Java"):
-    finalBuckets.setdefault(key, 3.0)
+        finalBuckets.setdefault(key, 3.0)
 
 
     return subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets

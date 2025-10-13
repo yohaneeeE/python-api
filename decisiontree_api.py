@@ -722,11 +722,26 @@ def analyzeCertificates(certFiles: List[UploadFile]):
 @app.post("/predict")
 async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[UploadFile] = File(None)):
     try:
-        imageBytes = await file.read()
-        img = Image.open(io.BytesIO(imageBytes))
-        text = await asyncio.to_thread(pytesseract.image_to_string, img)
+        texts = []
 
-        subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets = await extractSubjectGrades(text.strip())
+        # Handle main TOR file
+        if file.filename.lower().endswith(".pdf"):
+            from pdf2image import convert_from_bytes
+            pdf_bytes = await file.read()
+            images = convert_from_bytes(pdf_bytes, dpi=300)
+            for img in images:
+                text = await asyncio.to_thread(pytesseract.image_to_string, img)
+                texts.append(text)
+        else:
+            img_bytes = await file.read()
+            img = Image.open(io.BytesIO(img_bytes))
+            text = await asyncio.to_thread(pytesseract.image_to_string, img)
+            texts.append(text)
+
+        # Combine all text for processing
+        full_text = "\n".join(texts)
+
+        subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets = await extractSubjectGrades(full_text.strip())
         careerOptions = predictCareerWithSuggestions(finalBuckets, normalizedText, mappedSkills)
 
         if not careerOptions:
@@ -739,7 +754,7 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
 
         certResults = []
         if certificateFiles:
-            certResults = analyzeCertificates(certificateFiles or [])
+            certResults = analyzeCertificates(certificateFiles)
         else:
             certResults = [{"info": "No certificates uploaded"}]
 
@@ -753,5 +768,6 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
             "finalBuckets": finalBuckets,
             "certificates": certResults
         }
+
     except Exception as e:
         return {"error": str(e)}

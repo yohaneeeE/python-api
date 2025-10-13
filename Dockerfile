@@ -13,7 +13,7 @@ WORKDIR /app
 # - Tesseract OCR
 # - poppler-utils (for pdfplumber)
 # - libglib2.0 & fonts for PaddleOCR
-# - (optional) libgl1 fallback for OpenCV GUI builds
+# - libgl1 (optional: fixes cv2 libGL issue)
 # ==============================
 RUN apt-get update && apt-get install -y \
     tesseract-ocr \
@@ -22,7 +22,7 @@ RUN apt-get update && apt-get install -y \
     libxrender1 \
     libxext6 \
     poppler-utils \
-    libgl1 \                # ✅ optional fallback, safe even if headless
+    libgl1 \
     && rm -rf /var/lib/apt/lists/*
 
 # ==============================

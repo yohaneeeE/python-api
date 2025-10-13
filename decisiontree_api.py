@@ -104,6 +104,15 @@ ignore_keywords = [
     "academic year", "date printed", "gwa", "credits", "republic", "city", "report",
     "gender", "bachelor", "semester", "university","bsit"
 ]
+
+ignore_pattern = re.compile(r"[A-Z]{2,}\s*\d+-[A-Z]{2,}\d*")
+
+filtered_lines = []
+for line in extracted_text.splitlines():
+    # Skip any line containing a section-like pattern
+    if re.search(ignore_pattern, line):
+        continue
+    filtered_lines.append(line)
 # ---------------------------
 # Subject → Certificates Mapping
 # ---------------------------

@@ -18,9 +18,6 @@ import json
 from google import genai
 import os
 from pdf2image import convert_from_bytes
-from gemini_utils import improve_subjects_with_gemini
-
-
 # Initialize Gemini client
 try:
     client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))

@@ -26,21 +26,26 @@ except Exception as e:
 
 async def improve_prediction_with_gemini(prediction_text: str) -> str:
     """
-    Use Gemini to improve grammar, fix typos, and add extra related suggestions.
-    Keeps the tone formal, avoids emojis.
+    Use Gemini to produce a natural,fix typos, polished, and human-like enhancement of the prediction summary.
+    It generates structured, readable output with short paragraphs, bullet lists, and professional tone.
     """
     if not client:
         return prediction_text
 
     prompt = f"""
-    You are an expert career counselor AI. Improve and reformat the following career prediction summary:
-    - Correct grammar and typos.
-    - Add 2–3 more relevant suggestions that align with IT or the predicted career.
-    - Maintain a professional and encouraging tone.
-    - Do not use emojis or slang.
-    - Keep the output concise but helpful.
+    You are a professional technical writer helping improve an AI career guidance system output.
+    Rewrite the text below into a polished, human-like, well-formatted summary suitable for a web UI section titled “Career Development Summary”.
+    
+    Guidelines:
+    - Structure it into 3–4 short sections (e.g., Overview, Strengths, Areas for Improvement, Recommendations).
+    - Use markdown-style bold headers (e.g., **Overview:**).
+    - Use bullet points for clarity (• or -).
+    - Avoid repetition, generic phrases, or filler text.
+    - Keep tone professional, human, and clear — not robotic or overly formal.
+    - Do not include emojis or markdown separators like ---.
+    - Keep length moderate (3 to 5 sentences).
 
-    Prediction Summary:
+    Text to improve:
     {prediction_text}
     """
 
@@ -53,7 +58,6 @@ async def improve_prediction_with_gemini(prediction_text: str) -> str:
     except Exception as e:
         print(f"Gemini API error: {e}")
         return prediction_text
-
 
 # ---------------------------
 # Windows Tesseract path (adjust if needed)

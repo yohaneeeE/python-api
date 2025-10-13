@@ -58,7 +58,6 @@ def preprocess_image(img: Image.Image) -> Image.Image:
 # ---------------------------
 client = genai.Client()  # reads GEMINI_API_KEY from environment
 
-
 async def improveSubjectsWithGemini(subjects: dict, mappedSkills: dict):
     prompt = f"""
 You are an expert career counselor AI. Here are the subjects and skill levels:
@@ -86,19 +85,28 @@ Return only JSON in this format:
         parsed = json.loads(response.candidates[0].content.parts[0].text)
         updatedSubjects = parsed.get("subjects", {})
         updatedSkills = parsed.get("skills", {})
+
+        # 🔁 Normalize Gemini skill data
+        mappedLevels = {}
+        for k, v in updatedSkills.items():
+            if isinstance(v, dict):
+                mappedLevels[k] = v.get("level", str(v))
+            else:
+                mappedLevels[k] = str(v)
+        updatedSkills = mappedLevels
+
         careerOptions = parsed.get("career_options", [])
 
-        # Clean updatedSkills
+        # 🧹 Ensure all are clean
         cleanedSkills = {}
         for subj, val in updatedSkills.items():
-            if isinstance(val, dict):
-                cleanedSkills[subj] = {
-                    "level": val.get("level", "Unknown"),
-                    "suggestion": val.get("suggestion", "")
-                }
-            else:
-                cleanedSkills[subj] = {"level": str(val), "suggestion": ""}
+            cleanedSkills[subj] = {
+                "level": str(val),
+                "suggestion": ""
+            }
+
         return updatedSubjects, cleanedSkills, careerOptions
+
     except Exception as e:
         print(f"[Gemini Error] {e}")
         return subjects, {k: {"level": v, "suggestion": ""} for k, v in mappedSkills.items()}, []
@@ -172,33 +180,23 @@ def extractSubjectGrades(text: str):
     bucket_grades = {"Python": [], "SQL": [], "Java": []}
 
     lines = [l.strip() for l in text.splitlines() if l.strip()]
+
     for raw_line in lines:
+        # Remove special characters but keep dots/numbers
         clean = re.sub(r"[^\w\.\-\s]", " ", raw_line)
         clean = re.sub(r"\s{2,}", " ", clean).strip()
         if not clean:
             continue
 
-        parts = clean.split()
-        if len(parts) < 2:
+        # 📘 Match patterns like "Object-Oriented Programming 1 2.50"
+        match = re.match(r"(.+?)\s+(\d\.\d{2})$", clean)
+        if not match:
             continue
 
-        float_tokens = []
-        for i, tok in enumerate(parts):
-            tok_clean = re.sub(r"[^0-9.]", "", tok)
-            if not tok_clean:
-                continue
-            try:
-                float_tokens.append((i, float(tok_clean)))
-            except:
-                continue
-
-        if not float_tokens:
-            continue
-
-        idx, gradeVal = float_tokens[0]
-        subjDesc = " ".join(parts[:idx]).strip().title()
-        gradeVal = snap_to_valid_grade(gradeVal)
-        if not subjDesc or len(subjDesc) < 3:
+        subjDesc = match.group(1).strip().title()
+        try:
+            gradeVal = snap_to_valid_grade(float(match.group(2)))
+        except:
             continue
 
         mappedSkills[subjDesc] = grade_to_level(gradeVal)
@@ -251,45 +249,94 @@ def analyzeCertificates(certFiles: List[UploadFile]):
 # API Route
 # ---------------------------
 @app.post("/predict")
-async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[UploadFile] = File(None)):
+async def ocrPredict(
+    file: UploadFile = File(...),
+    certificateFiles: List[UploadFile] = File(None)
+):
     try:
+        # 📸 Read and preprocess image
         imageBytes = await file.read()
         img = Image.open(io.BytesIO(imageBytes))
         img = preprocess_image(img)
 
-        text = await asyncio.to_thread(pytesseract.image_to_string, img, lang="eng", config="--psm 6")
-        if len(text.strip()) < 10:
+        # 🔍 OCR extraction
+        try:
+            text = await asyncio.to_thread(
+                pytesseract.image_to_string,
+                img,
+                lang="eng",
+                config="--psm 6"
+            )
+        except Exception as e:
+            print(f"OCR failed: {e}")
             text = await asyncio.to_thread(pytesseract.image_to_string, img)
 
-        subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets = extractSubjectGrades(text)
+        # 🧾 Extract subjects and grades
+        subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets = extractSubjectGrades(text.strip())
 
+        # ✨ Gemini enhancement (only if subjects detected)
         if not mappedSkills:
             print("⚠️ No subjects detected — skipping Gemini enhancement.")
             updatedSubjects, updatedSkills, careerOptions = normalizedText, mappedSkills, []
         else:
             updatedSubjects, updatedSkills, careerOptions = await improveSubjectsWithGemini(normalizedText, mappedSkills)
 
-        mappedLevels = {k: (v["level"] if isinstance(v, dict) else v) for k, v in updatedSkills.items()}
+        # 🧹 FIX 1: Convert any nested dicts to clean strings
+        def clean_value(v):
+            if isinstance(v, dict):
+                if "level" in v:
+                    return v["level"]
+                return json.dumps(v)
+            elif isinstance(v, (list, tuple)):
+                return ", ".join(map(str, v))
+            return str(v)
+
+        # Apply cleanup to skill mappings
+        mappedLevels = {k: clean_value(v) for k, v in updatedSkills.items()}
+
+        # 🎯 Predict careers
         careerOptions = predictCareerWithSuggestions(finalBuckets, updatedSubjects, mappedLevels)
-
         if not careerOptions:
-            careerOptions = [{"career": "General Studies", "confidence": 50.0,
-                              "suggestion": "Add more subjects or improve grades.",
-                              "certificates": ["General IT Certifications"]}]
+            careerOptions = [{
+                "career": "General Studies",
+                "confidence": 50.0,
+                "suggestion": "Add more subjects or improve grades.",
+                "certificates": careerCertSuggestions.get("General Studies", [])
+            }]
 
+        # 📜 Analyze uploaded certificates
         certResults = analyzeCertificates(certificateFiles or []) if certificateFiles else [{"info": "No certificates uploaded"}]
 
-        print("🧾 OCR Extracted Text:", text[:300])
-        print("🧠 Detected subjects:", list(mappedSkills.keys()))
+        # 🧾 Debug logs
+        print("Extracted text:", text[:500])
+        print("Detected subjects:", list(mappedSkills.keys()))
+        print("Final buckets:", finalBuckets)
 
+        # 🧹 FIX 2: Clean before returning JSON
+        def clean_for_json(data):
+            if isinstance(data, dict):
+                return {k: clean_for_json(v) for k, v in data.items()}
+            elif isinstance(data, list):
+                return [clean_for_json(v) for v in data]
+            elif isinstance(data, (int, float, str)) or data is None:
+                return data
+            else:
+                return str(data)
+
+        updatedSubjects = clean_for_json(updatedSubjects)
+        careerOptions = clean_for_json(careerOptions)
+        normalizedText = clean_for_json(normalizedText)
+        mappedLevels = clean_for_json(mappedLevels)
+
+        # ✅ Return structured JSON output
         return {
             "careerPrediction": careerOptions[0]["career"],
-            "careerOptions": clean_for_json(careerOptions),
-            "subjects_structured": clean_for_json(subjects_structured),
+            "careerOptions": careerOptions,
+            "subjects_structured": subjects_structured,
             "rawSubjects": list(rawSubjects.items()),
-            "normalizedText": clean_for_json(normalizedText),
-            "mappedSkills": clean_for_json(updatedSkills),
-            "finalBuckets": clean_for_json(finalBuckets),
+            "normalizedText": normalizedText,
+            "mappedSkills": mappedLevels,
+            "finalBuckets": finalBuckets,
             "certificates": certResults
         }
 

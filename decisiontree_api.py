@@ -451,7 +451,8 @@ async def improve_subjects_with_gemini(subjects: dict, skills: dict):
 # ---------------------------
 # OCR Extraction
 # ---------------------------
-def extractSubjectGrades(text: str):
+async def extractSubjectGrades(text: str):
+
     subjects_structured = []
     rawSubjects = OrderedDict()
     normalizedText = {}
@@ -704,7 +705,7 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
         img = Image.open(io.BytesIO(imageBytes))
         text = await asyncio.to_thread(pytesseract.image_to_string, img)
 
-        subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets = extractSubjectGrades(text.strip())
+        subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets = await extractSubjectGrades(text.strip())
         careerOptions = predictCareerWithSuggestions(finalBuckets, normalizedText, mappedSkills)
 
         if not careerOptions:

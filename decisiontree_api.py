@@ -14,8 +14,8 @@ from PIL import Image
 import pytesseract
 import asyncio
 from fastapi.middleware.cors import CORSMiddleware
-import google.generativeai as genai
 import json
+from google import genai
 
 # Initialize Gemini client
 try:
@@ -409,7 +409,7 @@ def _normalize_grade_str(num_str: str):
 
 async def improve_subjects_with_gemini(subjects: dict, skills: dict):
     """
-    Use Gemini to clean, correct, and enhance subject names and skill mappings.
+    Use Gemini (new SDK) to clean, correct, and enhance subject names and skill mappings.
     - Fix typos and grammar.
     - Normalize capitalization (e.g., 'programming 1' → 'Programming 1').
     - Keep skills (Strong, Average, Weak) unchanged.
@@ -422,7 +422,7 @@ async def improve_subjects_with_gemini(subjects: dict, skills: dict):
     You are an academic data cleaner AI.
     Below are extracted subjects and their skill levels (from OCR). 
     Clean them by fixing typos and capitalization, ensuring subjects look proper and readable.
-    
+
     Rules:
     - Keep subject titles concise (e.g., “Object Oriented Programming 1”).
     - Keep skill values (“Strong”, “Average”, “Weak”) as they are.
@@ -440,12 +440,16 @@ async def improve_subjects_with_gemini(subjects: dict, skills: dict):
             model="gemini-2.5-flash",
             contents=prompt
         )
-        text = response.text.strip()
-        cleaned = json.loads(text)
+        cleaned_text = response.text.strip()
+
+        # Ensure it’s valid JSON
+        cleaned = json.loads(cleaned_text)
         return cleaned.get("subjects", subjects), cleaned.get("skills", skills)
+
     except Exception as e:
         print(f"Gemini subjects cleanup error: {e}")
         return subjects, skills
+
 
 
 # ---------------------------

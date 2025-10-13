@@ -16,6 +16,8 @@ import asyncio
 from fastapi.middleware.cors import CORSMiddleware
 import json
 from google import genai
+import os
+from pdf2image import convert_from_bytes
 
 # Initialize Gemini client
 try:
@@ -721,15 +723,23 @@ def analyzeCertificates(certFiles: List[UploadFile]):
 # ---------------------------
 # Routes
 # ---------------------------@app.post("/predict")
+@app.post("/predict")
 async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[UploadFile] = File(None)):
     try:
         texts = []
 
-        # Only handle image files
-        img_bytes = await file.read()
-        img = Image.open(io.BytesIO(img_bytes))
-        text = await asyncio.to_thread(pytesseract.image_to_string, img)
-        texts.append(text)
+        # Handle PDF or image files
+        if file.filename.lower().endswith(".pdf"):
+            pages = convert_from_bytes(await file.read())
+            images = [img.convert("RGB") for img in pages]
+        else:
+            img = Image.open(io.BytesIO(await file.read())).convert("RGB")
+            images = [img]
+
+        # Extract text from all pages/images
+        for img in images:
+            text = await asyncio.to_thread(pytesseract.image_to_string, img)
+            texts.append(text)
 
         # Combine all text for processing
         full_text = "\n".join(texts)
@@ -764,3 +774,4 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
 
     except Exception as e:
         return {"error": str(e)}
+

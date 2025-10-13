@@ -391,7 +391,14 @@ def extractSubjectGrades(text: str):
         float_tokens = []
         for i, tok in enumerate(parts):
             tok_clean = re.sub(r'[^0-9.]', '', tok)
-            if tok_clean: float_tokens.append((i,tok_clean,float(tok_clean)))
+            # Skip if it's empty or just a dot
+            if not tok_clean or tok_clean == ".":
+                continue
+            try:
+                f_val = float(tok_clean)
+                float_tokens.append((i, tok_clean, f_val))
+            except ValueError:
+                continue
 
         if not float_tokens: continue
         idx, tok, rawf = float_tokens[0]

@@ -131,13 +131,36 @@ Instructions:
         parsed = json.loads(response.candidates[0].content.parts[0].text)
         updatedSubjects = parsed.get("subjects", {})
         updatedSkills = parsed.get("skills", {})
-        # --- Clean Gemini output ---
-        if isinstance(updatedSkills, dict):
-            for k, v in updatedSkills.items():
-                if isinstance(v, dict):
-                    updatedSkills[k] = v.get("level", str(v))
-
         careerOptions = parsed.get("career_options", [])
+
+        # --- 🧠 Sanitize updatedSkills (fix “[object Object]” issue) ---
+        cleanedSkills = {}
+        for subj, val in updatedSkills.items():
+            if isinstance(val, dict):
+                level = val.get("level", "Unknown")
+                suggestion = val.get("suggestion", "")
+                cleanedSkills[subj] = {"level": level, "suggestion": suggestion}
+            else:
+                cleanedSkills[subj] = {"level": str(val), "suggestion": ""}
+
+        updatedSkills = cleanedSkills
+
+        # --- 🧹 Clean career options (avoid duplicated suggestions) ---
+        cleanedCareers = []
+        for c in careerOptions:
+            if isinstance(c, dict):
+                career = c.get("career", "Unknown")
+                confidence = c.get("confidence", 0)
+                suggestion = c.get("suggestion", "")
+                certs = c.get("certificates", [])
+                cleanedCareers.append({
+                    "career": career,
+                    "confidence": confidence,
+                    "suggestion": suggestion,
+                    "certificates": certs
+                })
+        careerOptions = cleanedCareers
+
                 # --- 🧠 Sanitize updatedSkills to ensure values are simple strings ---
         if isinstance(updatedSkills, dict):
             for k, v in list(updatedSkills.items()):
@@ -147,6 +170,8 @@ Instructions:
 
         return updatedSubjects, updatedSkills, careerOptions
     except Exception as e:
+        print(f"[Gemini Error] {e}")
+
         # fallback: keep original subjects and empty suggestions, no careers
         return subjects, {k: {"level": v, "suggestion": ""} for k, v in mappedSkills.items()}, []
 
@@ -504,6 +529,8 @@ def extractSubjectGrades(text: str):
     # Ensure default buckets exist
     for key in ("Python", "SQL", "Java"):
         finalBuckets.setdefault(key, 3.0)
+
+    print(f"[DEBUG] Found {len(subjects_structured)} subjects")
 
     return subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets
 

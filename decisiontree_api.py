@@ -14,6 +14,7 @@ from PIL import Image
 import pytesseract
 import asyncio
 from fastapi.middleware.cors import CORSMiddleware
+from pdf2image import convert_from_bytes
 
 # Windows Tesseract path (adjust if needed)
 pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
@@ -646,9 +647,25 @@ def analyzeCertificates(certFiles: List[UploadFile]):
 async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[UploadFile] = File(None)):
     try:
         imageBytes = await file.read()
-        img = Image.open(io.BytesIO(imageBytes))
-        text = await asyncio.to_thread(pytesseract.image_to_string, img)
+        text = ""
 
+        # ✅ Handle PDF vs Image
+        if file.filename.lower().endswith(".pdf"):
+            # Convert PDF pages to images
+            pages = convert_from_bytes(imageBytes)
+            extracted_texts = []
+            for page in pages:
+                page_text = await asyncio.to_thread(pytesseract.image_to_string, page)
+                extracted_texts.append(page_text)
+            text = "\n".join(extracted_texts)
+        else:
+            # Regular image (PNG, JPG, etc.)
+            img = Image.open(io.BytesIO(imageBytes))
+            text = await asyncio.to_thread(pytesseract.image_to_string, img)
+
+        # ---------------------------
+        # OCR to Prediction
+        # ---------------------------
         subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets = extractSubjectGrades(text.strip())
         careerOptions = predictCareerWithSuggestions(finalBuckets, normalizedText, mappedSkills)
 

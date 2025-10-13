@@ -1,27 +1,26 @@
+
+
+# Use a lightweight Python image
 FROM python:3.10-slim
-
-RUN apt-get update && apt-get install -y tesseract-ocr && rm -rf /var/lib/apt/lists/*
-
-# Install Tesseract OCR and clean up
-RUN apt-get update && apt-get install -y tesseract-ocr libgl1 && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
 
-# Copy project files
-COPY . /app
-RUN pip install --no-cache-dir -r requirements.txt
+# Install system dependencies for Tesseract OCR
+RUN apt-get update && \
+    apt-get install -y tesseract-ocr libtesseract-dev poppler-utils && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-ENV PORT=8000
+# Copy all project files into the container
+COPY . .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir fastapi uvicorn pillow pytesseract scikit-learn pandas
+
+# Expose the port FastAPI will run on
 EXPOSE 8000
 
-CMD ["sh", "-c", "uvicorn decisiontree_api:app --host 0.0.0.0 --port ${PORT}"]
-
-# Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Expose Render's port
-EXPOSE 8000
-
-# Run FastAPI using Uvicorn
-CMD ["sh", "-c", "uvicorn decisiontree_api:app --host 0.0.0.0 --port ${PORT:-8000}"]
+# Command to run the FastAPI app
+# (Render expects CMD, not ENTRYPOINT)
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

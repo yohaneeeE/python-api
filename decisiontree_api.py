@@ -428,12 +428,18 @@ async def improve_subjects_with_gemini(subjects: dict, skills: dict ):
     Your task is to fix spelling mistakes, correct capitalization, and ensure the subject names
     are formatted clearly and professionally.
 
-    Rules:
-    - Keep all skill level values exactly as they are (“Strong”, “Average”, “Weak”).
-    - Maintain the same structure as the input.
+        Rules:
+    1. Correct all spelling mistakes.
+    2. Normalize capitalization (e.g., 'programming 1' → 'Programming 1').
+    3. Keep all skill level values exactly as they are (“Strong”, “Average”, “Weak”).
+    4. Maintain the same structure as the input.
+    5. Output valid JSON only (no explanations, no markdown, no extra text).
+    
+    Constraints:
+    
     - Do not add, remove, or rename fields.
-    - 3 to 4 sentences
-    - Output valid JSON only (no explanations, no markdown, no extra text).
+    - Use concise, professional formatting for subject names.
+    - Return JSON with the exact same keys as input.
 
     Example:
     Input:  {{ "subjects": {{"programming 1": "Strong"}}, "skills": {{"Python": "Average"}} }}

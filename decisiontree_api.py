@@ -15,20 +15,16 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
 from PIL import Image, ImageFilter
 import pytesseract
-
-# Try to import Gemini, fail gracefully if not installed
-try:
-    import google.generativeai as genai
-except ImportError:
-    genai = None
+from google import genai  # ✅ new correct Gemini client import
 
 # ---------- CONFIG ----------
 pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
 
-# Get Gemini key from environment (safer for Render)
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-if GEMINI_API_KEY and genai:
-    genai.configure(api_key=GEMINI_API_KEY)
+# Create Gemini client (reads GEMINI_API_KEY from environment automatically)
+try:
+    client = genai.Client()
+except Exception:
+    client = None
 
 # ---------- MACHINE LEARNING SETUP ----------
 df = pd.read_csv("cs_students.csv")
@@ -52,7 +48,7 @@ model = RandomForestClassifier(n_estimators=50, max_depth=8, random_state=42)
 model.fit(X, y)
 
 # ---------- FASTAPI ----------
-app = FastAPI(title="Career Prediction API (Enhanced OCR + Gemini)")
+app = FastAPI(title="Career Prediction API (Enhanced OCR + Gemini 2.5)")
 
 app.add_middleware(
     CORSMiddleware,
@@ -85,8 +81,7 @@ async def extract_text_from_image(image_bytes: bytes) -> str:
 # ---------- GEMINI HELPERS ----------
 async def gemini_clean_subjects_and_grades(ocr_text: str):
     """Use Gemini to clean OCR output, correct typos and normalize grades."""
-    if not genai or not GEMINI_API_KEY:
-        # Fallback if Gemini not installed or key missing
+    if not client:
         return {"subjects": [], "skills": {}}
 
     prompt = f"""
@@ -103,16 +98,19 @@ async def gemini_clean_subjects_and_grades(ocr_text: str):
     {ocr_text}
     """
 
-    model = genai.GenerativeModel("gemini-1.5-flash")
-    response = await asyncio.to_thread(model.generate_content, prompt)
     try:
+        response = await asyncio.to_thread(
+            client.models.generate_content,
+            model="gemini-2.5-flash",
+            contents=prompt
+        )
         return json.loads(response.text.strip())
     except Exception:
         return {"subjects": [], "skills": {}}
 
 async def gemini_generate_career_suggestions(finalBuckets, subjects):
     """Generate top careers and plain text suggestions (3–4 sentences)."""
-    if not genai or not GEMINI_API_KEY:
+    if not client:
         return {"careers": []}
 
     prompt = f"""
@@ -130,9 +128,12 @@ async def gemini_generate_career_suggestions(finalBuckets, subjects):
       ]
     }}
     """
-    model = genai.GenerativeModel("gemini-1.5-flash")
-    response = await asyncio.to_thread(model.generate_content, prompt)
     try:
+        response = await asyncio.to_thread(
+            client.models.generate_content,
+            model="gemini-2.5-flash",
+            contents=prompt
+        )
         return json.loads(response.text.strip())
     except Exception:
         return {"careers": []}
@@ -188,4 +189,4 @@ async def ocr_predict(file: UploadFile = File(...)):
 # ---------- ROOT ENDPOINT ----------
 @app.get("/")
 def root():
-    return {"status": "ok", "message": "Career Prediction API is running."}
+    return {"status": "ok", "message": "Career Prediction API (Gemini 2.5) is running."}

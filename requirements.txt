@@ -19,3 +19,5 @@ python-dotenv
 joblib
 pdf2image
 google-genai
+opencv-python-headless
+

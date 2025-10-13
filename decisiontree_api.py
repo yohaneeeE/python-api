@@ -242,7 +242,7 @@ REMOVE_LIST = [
     "acaserie eer agpy gna",
     "unknown subject",
     "category", "communications", "class", "united", "student no", "fullname",
-    "report of grades", "republic", "city of", "wps", "office"
+    "report of grades", "republic", "city of", "wps", "office", "bsit"
 ]
 
 def normalize_subject(code: Optional[str], desc: str) -> Optional[str]:

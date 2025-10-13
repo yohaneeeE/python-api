@@ -720,6 +720,7 @@ def analyzeCertificates(certFiles: List[UploadFile]):
         results.append({"file": cert.filename, "suggestions": matched})
     return results
 
+
 # ---------------------------
 # Routes
 # ---------------------------@app.post("/predict")
@@ -744,7 +745,13 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
         # Combine all text for processing
         full_text = "\n".join(texts)
 
+        # Extract subjects and skills
         subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets = await extractSubjectGrades(full_text.strip())
+
+        # --- ADD GEMINI PROCESSING HERE ---
+        subjects_structured, mappedSkills = await improveSubjectsWithGemini(subjects_structured, mappedSkills)
+
+        # Now predict careers using improved subjects/skills
         careerOptions = predictCareerWithSuggestions(finalBuckets, normalizedText, mappedSkills)
 
         if not careerOptions:

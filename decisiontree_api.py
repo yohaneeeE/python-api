@@ -1,9 +1,6 @@
-# filename: decisiontree_api.py
-import os
 import re
 import io
-import json
-import asyncio
+import os
 from collections import OrderedDict
 from typing import List, Optional
 
@@ -12,8 +9,9 @@ from fastapi import FastAPI, UploadFile, File
 from pydantic import BaseModel
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
-from PIL import Image, ImageFilter, ImageOps, ImageEnhance
+from PIL import Image
 import pytesseract
+import asyncio
 from fastapi.middleware.cors import CORSMiddleware
 from google import genai  # ✅ Gemini API
 
@@ -26,135 +24,55 @@ except Exception as e:
     client = None
     print(f"Gemini client not initialized: {e}")
 
-# ---------------------------
-# Windows Tesseract path (adjust if needed)
-# ---------------------------
-pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
-
-# ---------------------------
-# OCR Preprocessing
-# ---------------------------
-def preprocess_image(img: Image.Image) -> Image.Image:
-    """Enhance OCR accuracy via cleaning, thresholding, and upscaling."""
-    img = img.convert("L")  # grayscale
-    img = ImageOps.autocontrast(img)
-    img = img.filter(ImageFilter.MedianFilter(size=3))
-    enhancer = ImageEnhance.Sharpness(img)
-    img = enhancer.enhance(2.0)
-    w, h = img.size
-    img = img.resize((int(w * 1.8), int(h * 1.8)))
-    return img
-
-async def extract_text_from_image(image_bytes: bytes) -> str:
-    img = Image.open(io.BytesIO(image_bytes))
-    img = preprocess_image(img)
-    text = await asyncio.to_thread(
-        pytesseract.image_to_string, img, config="--oem 3 --psm 6 -l eng"
-    )
-    text = re.sub(r"[^A-Za-z0-9.\n\s-]", " ", text)
-    return text.strip()
-
-# ---------------------------
-# Gemini: Clean subjects and grades
-# ---------------------------
-async def gemini_clean_subjects_and_grades(ocr_text: str):
-    if not client:
-        return {"subjects": [], "skills": {}}
-
-    prompt = f"""
-    You are an OCR data corrector.
-    Clean and structure this text extracted from a university grade report.
-    - Fix typos, capitalization, and subject name errors.
-    - Ensure grades are valid numbers (e.g., 2 or 2.00 → 2.00).
-    - Return a JSON list of subjects with their grades.
-
-    Example:
-    {{
-      "subjects": [
-        {{"name": "Object-Oriented Programming", "grade": 2.50}},
-        {{"name": "Platform Technologies", "grade": 2.50}}
-      ]
-    }}
-
-    Text:
-    {ocr_text}
-    """
-
-    try:
-        response = client.models.generate_content(model="gemini-2.5-flash", contents=prompt)
-        cleaned = json.loads(response.text.strip())
-        return cleaned
-    except Exception as e:
-        print(f"Gemini clean error: {e}")
-        return {"subjects": [], "skills": {}}
-
-# ---------------------------
-# Gemini: Generate career suggestions
-# ---------------------------
-async def gemini_generate_career_suggestions(finalBuckets, subjects):
-    if not client:
-        return {"careers": []}
-
-    prompt = f"""
-    Based on the student's average skill grades:
-    {finalBuckets}
-
-    And subjects taken:
-    {subjects}
-
-    Suggest 3–4 best IT-related career paths (e.g., Software Engineer, Data Analyst, Web Developer).
-    For each, write 3–4 sentences of plain text advice.
-    Use a professional tone and avoid emojis or slang.
-
-    Output in JSON format:
-    {{
-      "careers": [
-        {{
-          "career": "Software Engineer",
-          "confidence": 90,
-          "suggestion": "You have strong programming skills..."
-        }}
-      ]
-    }}
-    """
-
-    try:
-        response = client.models.generate_content(model="gemini-2.5-flash", contents=prompt)
-        result = json.loads(response.text.strip())
-        return result
-    except Exception as e:
-        print(f"Gemini career error: {e}")
-        return {"careers": []}
-
-# ---------------------------
-# Grammar + suggestion improver
-# ---------------------------
 async def improve_prediction_with_gemini(prediction_text: str) -> str:
-    """Use Gemini to improve grammar, fix typos, and add extra related suggestions."""
+    """
+    Use Gemini to improve grammar, fix typos, and add extra related suggestions.
+    Keeps the tone formal, avoids emojis.
+    """
     if not client:
         return prediction_text
 
     prompt = f"""
     You are an expert career counselor AI. Improve and reformat the following career prediction summary:
     - Correct grammar and typos.
-    - Add 2–3 more relevant suggestions aligned with IT or the predicted career.
-    - Maintain a professional, encouraging tone.
-    - Keep the output concise and avoid emojis or slang.
+    - Add 2–3 more relevant suggestions that align with IT or the predicted career.
+    - Maintain a professional and encouraging tone.
+    - Do not use emojis or slang.
+    - Keep the output concise but helpful.
 
     Prediction Summary:
     {prediction_text}
     """
+
     try:
-        response = client.models.generate_content(model="gemini-2.5-flash", contents=prompt)
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt
+        )
         return response.text.strip()
     except Exception as e:
-        print(f"Gemini polish error: {e}")
+        print(f"Gemini API error: {e}")
         return prediction_text
 
+
 # ---------------------------
-# Machine Learning model setup
+# Windows Tesseract path (adjust if needed)
+# ---------------------------
+pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
+
+# ---------------------------
+# Input Schema
+# ---------------------------
+class StudentInput(BaseModel):
+    python: int
+    sql: int
+    java: int
+
+# ---------------------------
+# Train Structured Data Model
 # ---------------------------
 df = pd.read_csv("cs_students.csv")
+
 features = ["Python", "SQL", "Java"]
 target = "Future Career"
 
@@ -172,13 +90,15 @@ data[target] = targetEncoder.fit_transform(data[target])
 
 X = data[features]
 y = data[target]
+
 model = RandomForestClassifier(n_estimators=50, max_depth=8, random_state=42)
 model.fit(X, y)
 
 # ---------------------------
-# FastAPI Setup
+# FastAPI App with CORS
 # ---------------------------
-app = FastAPI(title="Career Prediction API (Gemini OCR Enhanced)")
+app = FastAPI(title="Career Prediction API (Gemini Enhanced)")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -188,61 +108,204 @@ app.add_middleware(
 )
 
 # ---------------------------
-# Main Prediction Endpoint
+# Subject Groups & Mappings
+# ---------------------------
+subjectGroups = {
+    "programming": ["programming", "java", "oop", "object oriented", "software", "coding", "development", "elective"],
+    "databases": ["database", "sql", "dbms", "systems integration", "information systems", "data management"],
+    "ai_ml": ["python", "machine learning", "ai", "data mining", "analytics", "security", "assurance"],
+    "networking": ["networking", "networks", "cloud", "infrastructure"],
+    "webdev": ["html", "css", "javascript", "frontend", "backend", "php", "web"],
+    "systems": ["operating systems", "os", "architecture", "computer systems"]
+}
+
+bucketMap = {"programming": "Java", "databases": "SQL", "ai_ml": "Python"}
+
+ignore_keywords = [
+    "course", "description", "final", "remarks", "re-exam", "units", "fullname", "year level", "program",
+    "college", "student no", "academic year", "date printed", "gwa", "credits", "republic", "city",
+    "report", "gender", "bachelor", "semester", "university"
+]
+
+# ---------------------------
+# Certificates Mapping
+# ---------------------------
+subjectCertMap = {
+    "computer programming": ["PCAP – Python Certified Associate", "Oracle Certified Java Programmer", "C++ Certified Associate Programmer"],
+    "object-oriented programming": ["Oracle Java SE Programmer Certification", "C# Programming Certification (Microsoft)", "Python OOP Certification"],
+    "integrative programming and technologies": ["Full-Stack Web Developer Certificate (The Odin Project)", "Meta Full-Stack Developer Certificate", "JavaScript Specialist Certification"],
+    "information management": ["Oracle Database SQL Associate", "Microsoft SQL Server Certification", "MongoDB Certified Developer Associate"],
+    "advance database systems": ["PostgreSQL Professional Certification", "MongoDB Certified Developer Associate", "Oracle MySQL Professional"],
+    "web systems and technologies": ["FreeCodeCamp Responsive Web Design", "Meta Front-End Developer Certificate", "W3C Front-End Web Developer Certificate"],
+    "system integration and architecture": ["AWS Solutions Architect", "Microsoft Azure Fundamentals", "Google Cloud Associate Engineer"],
+    "system administration and maintenance": ["CompTIA Linux+", "Microsoft Certified: Windows Server Administration", "Red Hat Certified System Administrator (RHCSA)"],
+    "networking 1": ["Cisco CCNA", "CompTIA Network+", "Juniper JNCIA"],
+    "networking 2": ["Cisco CCNP", "CompTIA Security+", "Fortinet NSE Certification"],
+    "data structure and algorithms": ["HackerRank Skills Certification (DSA)", "Google Kickstart Participation", "Coderbyte Algorithmic Certificate"],
+    "discrete structures for it": ["Mathematics for Computer Science (MITx)", "Coursera Discrete Math Specialization"],
+    "human computer interface": ["Google UX Design Certificate", "Adobe Certified Professional: UX Design", "Interaction Design Foundation Certificate"],
+    "science technology and society": ["Ethics in AI & Data Science (Coursera)", "Technology & Society Certificate"],
+    "introduction to computing": ["IC3 Digital Literacy Certification", "CompTIA IT Fundamentals+"],
+    "hardware system and servicing": ["CompTIA A+", "PC Hardware Technician Certification"],
+    "capstone project and research": ["Agile Scrum Certification", "Project Management Professional (PMP)", "Google Project Management Certificate"]
+}
+
+careerCertSuggestions = {
+    "Software Engineer": ["AWS Cloud Practitioner", "Oracle Java SE"],
+    "Web Developer": ["FreeCodeCamp", "Meta Frontend Dev", "Responsive Web Design"],
+    "Data Scientist": ["Google Data Analytics", "TensorFlow Developer Cert."],
+    "Database Administrator": ["Oracle SQL Associate", "Microsoft SQL Server"],
+    "Cloud Solutions Architect": ["AWS Solutions Architect", "Azure Fundamentals"],
+    "Cybersecurity Specialist": ["CompTIA Security+", "Cisco CyberOps Associate"],
+    "General Studies": ["Short IT courses to explore career interests"]
+}
+
+VALID_GRADES = [1.00, 1.25, 1.50, 1.75, 2.00, 2.25, 2.50, 2.75, 3.00, 5.00]
+
+def grade_to_level(grade: float) -> str:
+    if grade is None:
+        return "Unknown"
+    if grade <= 1.75:
+        return "Strong"
+    elif grade <= 2.5:
+        return "Average"
+    else:
+        return "Weak"
+
+def snap_to_valid_grade(val: float):
+    if val is None:
+        return None
+    return min(VALID_GRADES, key=lambda g: abs(g - val))
+
+# ---------------------------
+# OCR Extraction & Parsing
+# ---------------------------
+def extractSubjectGrades(text: str):
+    subjects_structured = []
+    rawSubjects = OrderedDict()
+    normalizedText = {}
+    mappedSkills = {}
+    bucket_grades = {"Python": [], "SQL": [], "Java": []}
+    lines = [l.strip() for l in text.splitlines() if l.strip()]
+
+    for raw_line in lines:
+        line = raw_line.strip()
+        if not line or any(kw in line.lower() for kw in ignore_keywords):
+            continue
+
+        clean = re.sub(r'[\t\r\f\v]+', ' ', line)
+        clean = re.sub(r'[^\w\.\-\s]', ' ', clean)
+        clean = re.sub(r'\s{2,}', ' ', clean).strip()
+        if not clean:
+            continue
+
+        parts = clean.split()
+        if len(parts) < 2:
+            continue
+
+        float_tokens = [(i, tok, float(tok)) for i, tok in enumerate(parts) if re.fullmatch(r'\d+(\.\d+)?', tok)]
+        if not float_tokens:
+            continue
+
+        gradeVal = float_tokens[-1][2]
+        gradeVal = snap_to_valid_grade(gradeVal)
+        subjDesc = " ".join(parts[:-1]).title()
+
+        if any(k in subjDesc.lower() for k in subjectGroups["ai_ml"]):
+            bucket_grades["Python"].append(gradeVal)
+        elif any(k in subjDesc.lower() for k in subjectGroups["databases"]):
+            bucket_grades["SQL"].append(gradeVal)
+        elif any(k in subjDesc.lower() for k in subjectGroups["programming"]):
+            bucket_grades["Java"].append(gradeVal)
+
+        mappedSkills[subjDesc] = grade_to_level(gradeVal)
+        subjects_structured.append({"description": subjDesc, "grade": gradeVal})
+
+    finalBuckets = {k: (round(sum(v) / len(v), 2) if v else 3.0) for k, v in bucket_grades.items()}
+    return subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets
+
+# ---------------------------
+# Career Prediction
+# ---------------------------
+def predictCareerWithSuggestions(finalBuckets: dict, normalizedText: dict, mappedSkills: dict):
+    dfInput = pd.DataFrame([{
+        "Python": finalBuckets["Python"],
+        "SQL": finalBuckets["SQL"],
+        "Java": finalBuckets["Java"],
+    }])
+    proba = model.predict_proba(dfInput)[0]
+    careers = [{"career": targetEncoder.inverse_transform([i])[0], "confidence": round(float(p) * 100, 2)} for i, p in enumerate(proba)]
+    careers = sorted(careers, key=lambda x: x["confidence"], reverse=True)[:3]
+
+    for c in careers:
+        suggestions = []
+        for subj, level in mappedSkills.items():
+            if level == "Strong":
+                suggestions.append(f"You performed strongly in {subj}. Consider pursuing certifications or advanced projects related to it.")
+            elif level == "Average":
+                suggestions.append(f"You have good progress in {subj}. Taking extra tutorials or projects can further improve your skills.")
+            elif level == "Weak":
+                suggestions.append(f"Your foundation in {subj} needs strengthening. Review key concepts or enroll in refresher courses.")
+        c["suggestion"] = " ".join(suggestions[:8]) if suggestions else "Focus on core IT subjects."
+        c["certificates"] = careerCertSuggestions.get(c["career"], ["Consider general IT certifications."])
+    return careers
+
+# ---------------------------
+# Certificate Analysis
+# ---------------------------
+def analyzeCertificates(certFiles: List[UploadFile]):
+    results = []
+    certificateSuggestions = {
+        "aws": "Your AWS certificate strengthens Cloud Architect and DevOps paths.",
+        "ccna": "Your CCNA boosts Networking and Systems Administrator roles.",
+        "datascience": "Your Data Science certificate aligns with AI/ML careers.",
+        "webdev": "Your Web Development certificate enhances frontend/backend profiles.",
+        "python": "Your Python certification supports Data Science and Software Engineering."
+    }
+    for cert in certFiles:
+        certName = cert.filename.lower()
+        matched = [msg for key, msg in certificateSuggestions.items() if key in certName]
+        if not matched:
+            matched = [f"Certificate '{cert.filename}' adds extra value to your portfolio."]
+        results.append({"file": cert.filename, "suggestions": matched})
+    return results
+
+# ---------------------------
+# Routes
 # ---------------------------
 @app.post("/predict")
-async def ocr_predict(file: UploadFile = File(...)):
+async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[UploadFile] = File(None)):
     try:
-        image_bytes = await file.read()
-        ocr_text = await extract_text_from_image(image_bytes)
+        imageBytes = await file.read()
+        img = Image.open(io.BytesIO(imageBytes))
+        text = await asyncio.to_thread(pytesseract.image_to_string, img)
 
-        # Step 1: Clean via Gemini
-        cleaned = await gemini_clean_subjects_and_grades(ocr_text)
-        subjects = cleaned.get("subjects", [])
+        subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets = extractSubjectGrades(text.strip())
+        careerOptions = predictCareerWithSuggestions(finalBuckets, normalizedText, mappedSkills)
 
-        # Step 2: Compute averages
-        def avg(vals): return round(sum(vals) / len(vals), 2) if vals else 3.0
-        py, sql, java = [], [], []
-        for subj in subjects:
-            name = subj.get("name", "").lower()
-            grade = subj.get("grade", 3.0)
-            if any(k in name for k in ["python", "ai", "machine learning"]):
-                py.append(grade)
-            elif any(k in name for k in ["sql", "database", "data"]):
-                sql.append(grade)
-            elif any(k in name for k in ["java", "oop", "programming"]):
-                java.append(grade)
+        # ✅ Enhance top suggestion using Gemini
+        if careerOptions:
+            raw_suggestion = careerOptions[0]["suggestion"]
+            improved_suggestion = await improve_prediction_with_gemini(raw_suggestion)
+            careerOptions[0]["suggestion"] = improved_suggestion
 
-        finalBuckets = {"Python": avg(py), "SQL": avg(sql), "Java": avg(java)}
+        if not careerOptions:
+            careerOptions = [{
+                "career": "General Studies",
+                "confidence": 50.0,
+                "suggestion": "Add more subjects or improve grades for a better match.",
+                "certificates": careerCertSuggestions["General Studies"]
+            }]
 
-        # Step 3: Predict using ML model
-        df_input = pd.DataFrame([finalBuckets])
-        proba = model.predict_proba(df_input)[0]
-        top_idx = proba.argmax()
-        topCareer = targetEncoder.inverse_transform([top_idx])[0]
-
-        # Step 4: Get Gemini suggestions
-        gemini_result = await gemini_generate_career_suggestions(finalBuckets, subjects)
-        careers = gemini_result.get("careers", [])
-        top_suggestion = careers[0]["suggestion"] if careers else f"You are suited for {topCareer}. Continue improving your technical and analytical skills."
-
-        # Step 5: Refine text
-        improved_suggestion = await improve_prediction_with_gemini(top_suggestion)
+        certResults = analyzeCertificates(certificateFiles or []) if certificateFiles else [{"info": "No certificates uploaded"}]
 
         return {
-            "careerPrediction": topCareer,
-            "careerOptions": careers,
-            "subjects_structured": subjects,
+            "careerPrediction": careerOptions[0]["career"],
+            "careerOptions": careerOptions,
+            "subjects_structured": subjects_structured,
+            "mappedSkills": mappedSkills,
             "finalBuckets": finalBuckets,
-            "rawOCR": ocr_text,
-            "summary": improved_suggestion
+            "certificates": certResults
         }
     except Exception as e:
         return {"error": str(e)}
-
-# ---------------------------
-# Root Endpoint
-# ---------------------------
-@app.get("/")
-def root():
-    return {"status": "ok", "message": "Career Prediction API (Gemini OCR Enhanced) is running."}

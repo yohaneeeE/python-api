@@ -16,6 +16,10 @@ import asyncio
 from fastapi.middleware.cors import CORSMiddleware
 import json
 from google import genai
+import cv2
+import numpy as np
+import re
+from PIL import Image
 
 # Initialize Gemini client
 try:
@@ -716,6 +720,65 @@ def analyzeCertificates(certFiles: List[UploadFile]):
         results.append({"file": cert.filename, "suggestions": matched})
     return results
 
+
+async def preprocess_image(image_bytes):
+    """Convert, enhance, and clean the uploaded image for better OCR accuracy."""
+    img_array = np.frombuffer(image_bytes, np.uint8)
+    img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
+
+    # Resize (increase resolution)
+    scale_percent = 150
+    width = int(img.shape[1] * scale_percent / 100)
+    height = int(img.shape[0] * scale_percent / 100)
+    img = cv2.resize(img, (width, height), interpolation=cv2.INTER_LINEAR)
+
+    # Convert to grayscale
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    # Remove noise and sharpen
+    gray = cv2.medianBlur(gray, 3)
+    _, thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+    # Morphological cleanup
+    kernel = np.ones((1, 1), np.uint8)
+    processed = cv2.dilate(thresh, kernel, iterations=1)
+    processed = cv2.erode(processed, kernel, iterations=1)
+
+    # Convert back to PIL Image for pytesseract
+    processed_img = Image.fromarray(processed)
+
+    # Optional: auto-rotate if text is sideways
+    try:
+        osd = pytesseract.image_to_osd(processed_img)
+        rotation = int(re.search('(?<=Rotate: )\d+', osd).group(0))
+        if rotation != 0:
+            processed_img = processed_img.rotate(-rotation, expand=True)
+    except Exception as e:
+        print("Rotation detection failed:", e)
+
+    return processed_img
+
+
+async def fix_ocr_text_with_gemini(text: str):
+    """Use Gemini to clean and fix OCR text errors."""
+    if not client:
+        return text
+
+    prompt = f"""
+    You are an OCR correction AI. The following text was extracted from a student's transcript of records.
+    Fix typos, correct spacing, and preserve grades (e.g., 1.50, 2.75, 3.00).
+    Output only the cleaned text, no explanations.
+
+    Text:
+    {text}
+    """
+    try:
+        response = client.models.generate_content(model="gemini-2.5-flash", contents=prompt)
+        return response.text.strip()
+    except Exception as e:
+        print("Gemini OCR correction error:", e)
+        return text
+
 # ---------------------------
 # Routes
 # ---------------------------
@@ -724,7 +787,16 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
     try:
         imageBytes = await file.read()
         img = Image.open(io.BytesIO(imageBytes))
-        text = await asyncio.to_thread(pytesseract.image_to_string, img)
+        # ✅ Preprocess image first
+        processed_img = await preprocess_image(await file.read())
+
+        # ✅ Use better OCR config
+        config = "--psm 6 --oem 3 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789./- "
+        text = await asyncio.to_thread(pytesseract.image_to_string, processed_img, config=config)
+
+        # ✅ Auto-fix OCR text using Gemini
+        text = await fix_ocr_text_with_gemini(text)
+
 
         subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets = await extractSubjectGrades(text.strip())
         careerOptions = predictCareerWithSuggestions(finalBuckets, normalizedText, mappedSkills)

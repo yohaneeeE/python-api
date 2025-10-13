@@ -17,4 +17,3 @@ python-multipart
 mysql-connector-python
 python-dotenv
 joblib
-

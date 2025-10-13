@@ -720,25 +720,16 @@ def analyzeCertificates(certFiles: List[UploadFile]):
 
 # ---------------------------
 # Routes
-# ---------------------------
-@app.post("/predict")
+# ---------------------------@app.post("/predict")
 async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[UploadFile] = File(None)):
     try:
         texts = []
 
-        # Handle main TOR file
-        if file.filename.lower().endswith(".pdf"):
-            from pdf2image import convert_from_bytes
-            pdf_bytes = await file.read()
-            images = convert_from_bytes(pdf_bytes, dpi=300)
-            for img in images:
-                text = await asyncio.to_thread(pytesseract.image_to_string, img)
-                texts.append(text)
-        else:
-            img_bytes = await file.read()
-            img = Image.open(io.BytesIO(img_bytes))
-            text = await asyncio.to_thread(pytesseract.image_to_string, img)
-            texts.append(text)
+        # Only handle image files
+        img_bytes = await file.read()
+        img = Image.open(io.BytesIO(img_bytes))
+        text = await asyncio.to_thread(pytesseract.image_to_string, img)
+        texts.append(text)
 
         # Combine all text for processing
         full_text = "\n".join(texts)

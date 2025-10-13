@@ -436,7 +436,7 @@ async def improve_subjects_with_gemini(subjects: dict, skills: dict ):
     5. Output valid JSON only (no explanations, no markdown, no extra text).
     
     Constraints:
-    
+
     - Do not add, remove, or rename fields.
     - Use concise, professional formatting for subject names.
     - Return JSON with the exact same keys as input.
@@ -729,12 +729,12 @@ def analyzeCertificates(certFiles: List[UploadFile]):
 # ---------------------------
 # Routes
 # ---------------------------@app.post("/predict")
+# Fix in /predict route
 @app.post("/predict")
 async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[UploadFile] = File(None)):
     try:
         texts = []
 
-        # Handle PDF or image files
         if file.filename.lower().endswith(".pdf"):
             pages = convert_from_bytes(await file.read())
             images = [img.convert("RGB") for img in pages]
@@ -742,22 +742,20 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
             img = Image.open(io.BytesIO(await file.read())).convert("RGB")
             images = [img]
 
-        # Extract text from all pages/images
         for img in images:
             text = await asyncio.to_thread(pytesseract.image_to_string, img)
             texts.append(text)
 
-        # Combine all text for processing
         full_text = "\n".join(texts)
 
         # Extract subjects and skills
         subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets = await extractSubjectGrades(full_text.strip())
 
-        # --- ADD GEMINI PROCESSING HERE ---
-        subjects_structured, mappedSkills = await improve_Subjects_With_Gemini(subjects_structured, mappedSkills)
+        # Only call Gemini once here to clean both subjects and skills
+        improvedSubjects, improvedSkills = await improve_subjects_with_gemini(normalizedText, mappedSkills)
 
-        # Now predict careers using improved subjects/skills
-        careerOptions = predictCareerWithSuggestions(finalBuckets, normalizedText, mappedSkills)
+        # Now predict careers
+        careerOptions = predictCareerWithSuggestions(finalBuckets, improvedSubjects, improvedSkills)
 
         if not careerOptions:
             careerOptions = [{
@@ -767,23 +765,18 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
                 "certificates": careerCertSuggestions["General Studies"]
             }]
 
-        certResults = []
-        if certificateFiles:
-            certResults = analyzeCertificates(certificateFiles)
-        else:
-            certResults = [{"info": "No certificates uploaded"}]
+        certResults = analyzeCertificates(certificateFiles) if certificateFiles else [{"info": "No certificates uploaded"}]
 
         return {
             "careerPrediction": careerOptions[0]["career"],
             "careerOptions": careerOptions,
             "subjects_structured": subjects_structured,
             "rawSubjects": list(rawSubjects.items()),
-            "normalizedText": normalizedText,
-            "mappedSkills": mappedSkills,
+            "normalizedText": improvedSubjects,
+            "mappedSkills": improvedSkills,
             "finalBuckets": finalBuckets,
             "certificates": certResults
         }
 
     except Exception as e:
         return {"error": str(e)}
-

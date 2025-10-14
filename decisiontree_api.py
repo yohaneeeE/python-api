@@ -161,8 +161,24 @@ careerCertSuggestions = {
 # ---------------------------
 VALID_GRADES = [1.00, 1.25, 1.50, 1.75, 2.00, 2.25, 2.50, 2.75, 3.00, 5.00]
 
+def grade_to_level(grade: float) -> str:
+    if grade is None:
+        return "Unknown"
+    if grade <= 1.75:
+        return "Strong"
+    elif grade <= 2.5:
+        return "Average"
+    else:
+        return "Weak"
 
+def snap_to_valid_grade(val: float):
+    if val is None:
+        return None
+    return min(VALID_GRADES, key=lambda g: abs(g - val))
 
+# ---------------------------
+# OCR fixes & helpers (used by normalize_subject)
+# ---------------------------
 TEXT_FIXES = {
     "tras beaives bstaegt": "Elective 5",
     "wage system integration and rotate 2 es": "System Integration and Architecture 2",
@@ -197,20 +213,15 @@ TEXT_FIXES = {
     "camper prararin": "computer programming",
     "readhgs npop history": "readings in philippine history",
     "scene technology and sooty": "science technology and society",
-    "scene technology and sooty": "science technology and society",
     "atari": "art appreciation",
     "natonl sncetrhing pega": "national service training program",
     "diserete sturt for it": "discrete structures for it",
     "networking": "networking 1",
     "understanding the se": "understanding the self",
-    "understanding The sef": "understanding the self",
-    "Understanding The Selff": "understanding the self",
     "purposve communication": "purposive communication",
     "mathematics in the modem world so": "mathematics in the modern world"
-
 }
 
-# Things that should NEVER appear (noise / random OCR junk)
 REMOVE_LIST = [
     "stone project ad reset",
     "catege ommuniatons crass uniteamed",
@@ -220,23 +231,34 @@ REMOVE_LIST = [
     "category", "communications", "class", "united", "student no", "fullname",
     "report of grades", "republic", "city of", "wps", "office"
 ]
-def grade_to_level(grade: float) -> str:
-    if grade is None:
-        return "Unknown"
-    if grade <= 1.75:
-        return "Strong"
-    elif grade <= 2.5:
-        return "Average"
-    else:
-        return "Weak"
 
-def snap_to_valid_grade(val: float):
-    if val is None:
+def normalize_subject_simple(raw_desc: str) -> Optional[str]:
+    """
+    Lightweight normalization: apply text-fixes, remove junk tokens, return Title-case or None.
+    """
+    if not raw_desc:
         return None
-    return min(VALID_GRADES, key=lambda g: abs(g - val))
+    s = raw_desc.lower().strip()
+    # replace obvious OCR mistakes
+    for wrong, correct in TEXT_FIXES.items():
+        if wrong in s:
+            s = s.replace(wrong, correct)
+    # remove punctuation, extra spaces
+    s = re.sub(r'[^a-z0-9\s]', ' ', s)
+    s = re.sub(r'\s{2,}', ' ', s).strip()
+    if not s:
+        return None
+    # filter remove-list
+    for bad in REMOVE_LIST:
+        if bad in s:
+            return None
+    # if too short, drop
+    if len(s) < 3:
+        return None
+    return s.title()
 
 # ---------------------------
-# OCR Parsing Function
+# OCR Parsing Function (fixed)
 # ---------------------------
 def extractSubjectGrades(text: str):
     subjects_structured = []
@@ -252,31 +274,65 @@ def extractSubjectGrades(text: str):
             continue
 
         clean = re.sub(r'[\t\r\f\v]+', ' ', line)
-        clean = re.sub(r'[^\w\.\-\s]', ' ', clean)
+        clean = re.sub(r'[^\w\.\-\s]', ' ', clean)   # allow dot/dash/space
         clean = re.sub(r'\s{2,}', ' ', clean).strip()
         if not clean:
             continue
 
         parts = clean.split()
-        float_tokens = [(i, tok, float(tok)) for i, tok in enumerate(parts) if re.fullmatch(r'\d+(\.\d+)?', tok)]
+        # find tokens that look like grades (1.00, 1.75, 2, 3.00 etc.)
+        float_tokens = []
+        for i, tok in enumerate(parts):
+            # sanitize token (remove trailing punctuation)
+            tok_clean = tok.strip().strip('.,;:')
+            if re.fullmatch(r'\d+(\.\d+)?', tok_clean):
+                try:
+                    f = float(tok_clean)
+                    float_tokens.append((i, tok_clean, f))
+                except:
+                    continue
+
         if not float_tokens:
             continue
 
-        gradeVal = float_tokens[-1][2]
-        gradeVal = snap_to_valid_grade(gradeVal)
-        subjDesc = " ".join(parts[:-1]).title()
+        # assume last numeric token is the grade (common in TORs)
+        idx, tok_str, grade_raw = float_tokens[-1]
+        gradeVal = snap_to_valid_grade(grade_raw)
+        # description tokens = everything before the grade token
+        desc_tokens = parts[:idx]
+        subj_raw = " ".join(desc_tokens).strip()
+        # fallback if subj_raw empty: try whole line except grade
+        if not subj_raw:
+            subj_raw = " ".join(parts[:-1]).strip()
 
-        if any(k in subjDesc.lower() for k in subjectGroups["ai_ml"]):
-            bucket_grades["Python"].append(gradeVal)
-        elif any(k in subjDesc.lower() for k in subjectGroups["databases"]):
-            bucket_grades["SQL"].append(gradeVal)
-        elif any(k in subjDesc.lower() for k in subjectGroups["programming"]):
-            bucket_grades["Java"].append(gradeVal)
+        subj_clean = normalize_subject_simple(subj_raw) or ("Unknown Subject")
+        subjDesc = subj_clean
 
-        mappedSkills[subjDesc] = grade_to_level(gradeVal)
-        subjects_structured.append({"description": subjDesc, "grade": gradeVal})
+        # map to buckets (by keywords in subject)
+        lower_desc = subjDesc.lower()
+        for group, keywords in subjectGroups.items():
+            if any(k in lower_desc for k in keywords):
+                assigned = bucketMap.get(group)
+                if assigned and gradeVal is not None:
+                    bucket_grades[assigned].append(gradeVal)
+                break
 
-    finalBuckets = {k: (round(sum(v) / len(v), 2) if v else 3.0) for k, v in bucket_grades.items()}
+        # populate structures
+        subjects_structured.append({
+            "description": subjDesc,
+            "grade": gradeVal,
+            "raw_line": raw_line
+        })
+        rawSubjects[subjDesc] = gradeVal
+        normalizedText[subjDesc] = subjDesc
+        mappedSkills[subjDesc] = grade_to_level(gradeVal) if gradeVal is not None else "Unknown"
+
+    # compute final buckets average (default 3.0 when empty)
+    finalBuckets = {}
+    for k in ("Python", "SQL", "Java"):
+        vals = bucket_grades.get(k, [])
+        finalBuckets[k] = round(sum(vals)/len(vals), 2) if vals else 3.0
+
     return subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets
 
 # ---------------------------
@@ -339,8 +395,8 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
         subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets = extractSubjectGrades(text.strip())
         careerOptions = predictCareerWithSuggestions(finalBuckets, normalizedText, mappedSkills)
 
-        # ✅ Enhance the top suggestion using Gemini
-        if careerOptions:
+        # ✅ Enhance the top suggestion using Gemini (if available)
+        if careerOptions and careerOptions[0].get("suggestion"):
             top_text = careerOptions[0]["suggestion"]
             improved_text = await improve_prediction_with_gemini(top_text)
             careerOptions[0]["suggestion"] = improved_text
@@ -359,6 +415,8 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
             "careerPrediction": careerOptions[0]["career"],
             "careerOptions": careerOptions,
             "subjects_structured": subjects_structured,
+            "rawSubjects": list(rawSubjects.items()),
+            "normalizedText": normalizedText,
             "mappedSkills": mappedSkills,
             "finalBuckets": finalBuckets,
             "certificates": certResults

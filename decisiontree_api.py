@@ -14,6 +14,46 @@ from PIL import Image
 import pytesseract
 import asyncio
 from fastapi.middleware.cors import CORSMiddleware
+from google import genai  # ✅ Gemini API
+
+
+---------------------
+try:
+    client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+except Exception as e:
+    client = None
+    print(f"Gemini client not initialized: {e}")
+
+async def improve_prediction_with_gemini(prediction_text: str) -> str:
+    """
+    Use Gemini to improve grammar, fix typos, and add extra related suggestions.
+    Keeps the tone formal, avoids emojis.
+    """
+    if not client:
+        return prediction_text
+
+    prompt = f"""
+    You are an expert career counselor AI. Improve and reformat the following career prediction summary:
+    - Correct grammar and typos.
+    - Add 2–3 more relevant suggestions that align with IT or the predicted career.
+    - Maintain a professional and encouraging tone.
+    - Do not use emojis or slang.
+    - Keep the output concise but helpful.
+
+    Prediction Summary:
+    {prediction_text}
+    """
+
+    try:
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt
+        )
+        return response.text.strip()
+    except Exception as e:
+        print(f"Gemini API error: {e}")
+        return prediction_text
+
 
 # Windows Tesseract path (adjust if needed)
 pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"

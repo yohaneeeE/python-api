@@ -17,32 +17,28 @@ import asyncio
 from fastapi.middleware.cors import CORSMiddleware
 
 # ---------------------------
-# Gemini Setup (AI Enhancement)
+# Gemini AI Integration
 # ---------------------------
 try:
     from google import genai
     client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 except Exception as e:
     client = None
-    print(f"Gemini client not initialized: {e}")
+    print(f"⚠️ Gemini client not initialized: {e}")
 
 async def improve_prediction_with_gemini(prediction_text: str) -> str:
-    """
-    Use Gemini to improve grammar, fix typos, and add extra related suggestions.
-    Keeps the tone formal, avoids emojis.
-    """
+    """Enhance the main career suggestion using Gemini for grammar + extra relevant tips."""
     if not client:
         return prediction_text
 
     prompt = f"""
-    You are an expert career counselor AI. Improve and reformat the following career prediction summary:
-    - Correct grammar and typos.
-    - Add 2–3 more relevant suggestions that align with IT or the predicted career.
-    - Maintain a professional and encouraging tone.
-    - Do not use emojis or slang.
-    - Keep the output concise but helpful.
+    You are a career advisor AI. Improve the following text:
+    - Fix grammar and typos
+    - Keep a formal, professional tone (no emojis)
+    - Add 2–3 related IT career insights or advice based on context
+    - Output only the improved version
 
-    Prediction Summary:
+    Text:
     {prediction_text}
     """
 
@@ -55,7 +51,6 @@ async def improve_prediction_with_gemini(prediction_text: str) -> str:
     except Exception as e:
         print(f"Gemini API error: {e}")
         return prediction_text
-
 
 # ---------------------------
 # Windows Tesseract path (adjust if needed)
@@ -99,7 +94,7 @@ model.fit(X, y)
 # ---------------------------
 # FastAPI App with CORS
 # ---------------------------
-app = FastAPI(title="Career Prediction API (Gemini + TOR/COG + Certificates)")
+app = FastAPI(title="Career Prediction API (Gemini + OCR Normalization + Certificates)")
 
 app.add_middleware(
     CORSMiddleware,
@@ -110,7 +105,7 @@ app.add_middleware(
 )
 
 # ---------------------------
-# Subject Groups & Buckets
+# Subject Classification and Settings
 # ---------------------------
 subjectGroups = {
     "programming": ["programming", "java", "oop", "object oriented", "software", "coding", "development", "elective"],
@@ -131,31 +126,26 @@ ignore_keywords = [
 ]
 
 # ---------------------------
-# Subject → Certificates Mapping
+# Certificate Maps
 # ---------------------------
 subjectCertMap = {
     "computer programming": ["PCAP – Python Certified Associate", "Oracle Certified Java Programmer", "C++ Certified Associate Programmer"],
-    "object-oriented programming": ["Oracle Java SE Programmer Certification", "C# Programming Certification (Microsoft)", "Python OOP Certification"],
-    "integrative programming and technologies": ["Full-Stack Web Developer Certificate (The Odin Project)", "Meta Full-Stack Developer Certificate", "JavaScript Specialist Certification"],
+    "object-oriented programming": ["Oracle Java SE Programmer Certification", "C# Programming Certification", "Python OOP Certification"],
     "information management": ["Oracle Database SQL Associate", "Microsoft SQL Server Certification", "MongoDB Certified Developer Associate"],
     "advance database systems": ["PostgreSQL Professional Certification", "MongoDB Certified Developer Associate", "Oracle MySQL Professional"],
     "web systems and technologies": ["FreeCodeCamp Responsive Web Design", "Meta Front-End Developer Certificate", "W3C Front-End Web Developer Certificate"],
-    "system integration and architecture": ["AWS Solutions Architect", "Microsoft Azure Fundamentals", "Google Cloud Associate Engineer"],
-    "system administration and maintenance": ["CompTIA Linux+", "Microsoft Certified: Windows Server Administration", "Red Hat Certified System Administrator (RHCSA)"],
+    "system integration and architecture": ["AWS Solutions Architect", "Azure Fundamentals", "Google Cloud Associate Engineer"],
+    "system administration and maintenance": ["CompTIA Linux+", "Windows Server Admin", "RHCSA"],
     "networking 1": ["Cisco CCNA", "CompTIA Network+", "Juniper JNCIA"],
-    "networking 2": ["Cisco CCNP", "CompTIA Security+", "Fortinet NSE Certification"],
-    "data structure and algorithms": ["HackerRank Skills Certification (DSA)", "Google Kickstart Participation", "Coderbyte Algorithmic Certificate"],
-    "discrete structures for it": ["Mathematics for Computer Science (MITx)", "Coursera Discrete Math Specialization"],
-    "human computer interface": ["Google UX Design Certificate", "Adobe Certified Professional: UX Design", "Interaction Design Foundation Certificate"],
-    "science technology and society": ["Ethics in AI & Data Science (Coursera)", "Technology & Society Certificate"],
-    "introduction to computing": ["IC3 Digital Literacy Certification", "CompTIA IT Fundamentals+"],
-    "hardware system and servicing": ["CompTIA A+", "PC Hardware Technician Certification"],
-    "capstone project and research": ["Agile Scrum Certification", "Project Management Professional (PMP)", "Google Project Management Certificate"]
+    "networking 2": ["Cisco CCNP", "CompTIA Security+", "Fortinet NSE"],
+    "data structure and algorithms": ["HackerRank DSA", "Google Kickstart", "Coderbyte Algorithms"],
+    "discrete structures for it": ["Math for CS (MITx)", "Coursera Discrete Math"],
+    "human computer interface": ["Google UX Design", "Adobe UX", "Interaction Design Foundation"],
+    "introduction to computing": ["IC3 Digital Literacy", "CompTIA ITF+"],
+    "hardware system and servicing": ["CompTIA A+", "PC Hardware Technician"],
+    "capstone project and research": ["Agile Scrum", "PMP", "Google Project Management"]
 }
 
-# ---------------------------
-# Career Certificate Suggestions
-# ---------------------------
 careerCertSuggestions = {
     "Software Engineer": ["AWS Cloud Practitioner", "Oracle Java SE"],
     "Web Developer": ["FreeCodeCamp", "Meta Frontend Dev", "Responsive Web Design"],
@@ -170,6 +160,8 @@ careerCertSuggestions = {
 # Grade Helpers
 # ---------------------------
 VALID_GRADES = [1.00, 1.25, 1.50, 1.75, 2.00, 2.25, 2.50, 2.75, 3.00, 5.00]
+
+
 
 TEXT_FIXES = {
     "tras beaives bstaegt": "Elective 5",
@@ -228,7 +220,6 @@ REMOVE_LIST = [
     "category", "communications", "class", "united", "student no", "fullname",
     "report of grades", "republic", "city of", "wps", "office"
 ]
-
 def grade_to_level(grade: float) -> str:
     if grade is None:
         return "Unknown"
@@ -245,7 +236,7 @@ def snap_to_valid_grade(val: float):
     return min(VALID_GRADES, key=lambda g: abs(g - val))
 
 # ---------------------------
-# OCR Extraction
+# OCR Parsing Function
 # ---------------------------
 def extractSubjectGrades(text: str):
     subjects_structured = []
@@ -267,9 +258,6 @@ def extractSubjectGrades(text: str):
             continue
 
         parts = clean.split()
-        if len(parts) < 2:
-            continue
-
         float_tokens = [(i, tok, float(tok)) for i, tok in enumerate(parts) if re.fullmatch(r'\d+(\.\d+)?', tok)]
         if not float_tokens:
             continue
@@ -292,7 +280,7 @@ def extractSubjectGrades(text: str):
     return subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets
 
 # ---------------------------
-# Career Prediction
+# Prediction Logic
 # ---------------------------
 def predictCareerWithSuggestions(finalBuckets: dict, normalizedText: dict, mappedSkills: dict):
     dfInput = pd.DataFrame([{
@@ -301,24 +289,25 @@ def predictCareerWithSuggestions(finalBuckets: dict, normalizedText: dict, mappe
         "Java": finalBuckets["Java"],
     }])
     proba = model.predict_proba(dfInput)[0]
-    careers = [{"career": targetEncoder.inverse_transform([i])[0], "confidence": round(float(p) * 100, 2)} for i, p in enumerate(proba)]
+    careers = [{"career": targetEncoder.inverse_transform([i])[0], "confidence": round(float(p)*100, 2)} for i, p in enumerate(proba)]
     careers = sorted(careers, key=lambda x: x["confidence"], reverse=True)[:3]
 
     for c in careers:
         suggestions = []
         for subj, level in mappedSkills.items():
             if level == "Strong":
-                suggestions.append(f"You performed strongly in {subj}. Consider certifications or projects related to it.")
+                suggestions.append(f"Excellent performance in {subj}. Explore certifications to enhance your credibility.")
             elif level == "Average":
-                suggestions.append(f"Good performance in {subj}. More practice can help you excel.")
+                suggestions.append(f"Good progress in {subj}. More practice could help you reach excellence.")
             elif level == "Weak":
-                suggestions.append(f"Consider reviewing {subj} to strengthen your foundation.")
+                suggestions.append(f"Consider reviewing {subj} to strengthen your fundamentals.")
+
         c["suggestion"] = " ".join(suggestions[:8]) if suggestions else "Focus on core IT subjects."
-        c["certificates"] = careerCertSuggestions.get(c["career"], ["Consider general IT certifications."])
+        c["certificates"] = careerCertSuggestions.get(c["career"], ["General IT certifications recommended."])
     return careers
 
 # ---------------------------
-# Certificate Analysis
+# Certificate File Analysis
 # ---------------------------
 def analyzeCertificates(certFiles: List[UploadFile]):
     results = []
@@ -333,7 +322,7 @@ def analyzeCertificates(certFiles: List[UploadFile]):
         certName = cert.filename.lower()
         matched = [msg for key, msg in certificateSuggestions.items() if key in certName]
         if not matched:
-            matched = [f"Certificate '{cert.filename}' adds extra value to your portfolio."]
+            matched = [f"Certificate '{cert.filename}' adds value to your career."]
         results.append({"file": cert.filename, "suggestions": matched})
     return results
 
@@ -350,11 +339,11 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
         subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets = extractSubjectGrades(text.strip())
         careerOptions = predictCareerWithSuggestions(finalBuckets, normalizedText, mappedSkills)
 
-        # ✅ Improve top suggestion using Gemini
+        # ✅ Enhance the top suggestion using Gemini
         if careerOptions:
-            raw_suggestion = careerOptions[0]["suggestion"]
-            improved_suggestion = await improve_prediction_with_gemini(raw_suggestion)
-            careerOptions[0]["suggestion"] = improved_suggestion
+            top_text = careerOptions[0]["suggestion"]
+            improved_text = await improve_prediction_with_gemini(top_text)
+            careerOptions[0]["suggestion"] = improved_text
 
         if not careerOptions:
             careerOptions = [{
@@ -374,5 +363,11 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
             "finalBuckets": finalBuckets,
             "certificates": certResults
         }
+
     except Exception as e:
         return {"error": str(e)}
+
+@app.get("/health")
+async def health_check():
+    """Simple health check endpoint."""
+    return {"status": "ok", "gemini_connected": bool(client), "model_trained": True}

@@ -3,7 +3,6 @@
 import re
 import io
 import os
-from collections import OrderedDict
 from typing import List, Optional
 
 import pandas as pd
@@ -53,7 +52,7 @@ async def improve_prediction_with_gemini(prediction_text: str) -> str:
         return prediction_text
 
 # ---------------------------
-# Windows Tesseract path (adjust if needed)
+# Tesseract Path (adjust if needed)
 # ---------------------------
 pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
 
@@ -92,20 +91,20 @@ model = RandomForestClassifier(n_estimators=50, max_depth=8, random_state=42)
 model.fit(X, y)
 
 # ---------------------------
-# FastAPI App with CORS
+# FastAPI App + CORS
 # ---------------------------
 app = FastAPI(title="Career Prediction API (Gemini + OCR + Certificates)")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # allow all origins
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # ---------------------------
-# Subject & Certificate Maps
+# Subject Keywords
 # ---------------------------
 subjectGroups = {
     "programming": ["programming", "java", "oop", "object oriented", "software", "coding", "development", "elective"],
@@ -117,13 +116,6 @@ subjectGroups = {
 }
 
 bucketMap = {"programming": "Java", "databases": "SQL", "ai_ml": "Python"}
-
-ignore_keywords = [
-    "course", "description", "final", "remarks", "re-exam", "units",
-    "fullname", "year level", "program", "college", "student no",
-    "academic year", "gwa", "credits", "republic", "city",
-    "report", "gender", "bachelor", "semester", "university"
-]
 
 careerCertSuggestions = {
     "Software Engineer": ["AWS Cloud Practitioner", "Oracle Java SE"],
@@ -137,58 +129,61 @@ careerCertSuggestions = {
 
 VALID_GRADES = [1.00, 1.25, 1.50, 1.75, 2.00, 2.25, 2.50, 2.75, 3.00, 5.00]
 
-# TEXT_FIXES = {
-#     "tras beaives bstaegt": "Elective 5",
-#     "wage system integration and rotate 2 es": "System Integration and Architecture 2",
-#     "aot sten ainsaton and marenance": "System Administration and Maintenance",
-#     "capa capstone pret and research 2 es": "Capstone Project and Research 2",
-#     "mathnats nthe modem oa es": "Mathematics in the Modern World",
-#     "advan database systems": "Advance Database Systems",
-#     "capstone project and research 1 spparont cepsre": "Capstone Project and Research 1",
-#     "web systems and technologies 2 soxtsrowebsystemsbtechroiogies": "Web Systems and Technologies 2",
-#     "rane foreign languoge 2": "Foreign Language 2",
-#     "Networking 1 2": "Networking 2",
-#     "panik at lpunen 255": "Panitikan at Lipunan",
-#     "lifeand works of rizal": "Life and Works of Rizal",
-#     "conder cote soman cagesuntcanes": "Data Structure and Algorithms",
-#     "negate proganmingandteomoege": "Integrative Programming and Technologies 1",
-#     "foreign langage": "Foreign Language",
-#     "hunan computer terface": "Human Computer Interface",
-#     "infomation anogerent": "Information Management",
-#     "toot": "Object-Oriented Programming 1",
-#     "lective": "elective 4",
-#     "hective": "elective",
-#     "pen aire": "pe",
-#     "pathfit": "pe",
-#     "grmmunication": "communication",
-#     "cobege": "college",
-#     "phystal edeation": "physical education",
-#     "inveductonto computing ws": "introduction to computing",
-#     "inveductonto computing": "introduction to computing",
-#     "rio harare system ard saving": "hardware system and servicing",
-#     "hardware system ard saving": "hardware system and servicing",
-#     "camper prararining": "computer programming",
-#     "camper prararin": "computer programming",
-#     "readhgs npop history": "readings in philippine history",
-#     "scene technology and sooty": "science technology and society",
-#     "atari": "art appreciation",
-#     "natonl sncetrhing pega": "national service training program",
-#     "diserete sturt for it": "discrete structures for it",
-#     "networking": "networking 1",
-#     "understanding the se": "understanding the self",
-#     "purposve communication": "purposive communication",
-#     "mathematics in the modem world so": "mathematics in the modern world"
-# }
+TEXT_FIXES = {
+    "tras beaives bstaegt": "Elective 5",
+    "wage system integration and rotate 2 es": "System Integration and Architecture 2",
+    "aot sten ainsaton and marenance": "System Administration and Maintenance",
+    "capa capstone pret and research 2 es": "Capstone Project and Research 2",
+    "mathnats nthe modem oa es": "Mathematics in the Modern World",
+    "advan database systems": "Advance Database Systems",
+    "capstone project and research 1 spparont cepsre": "Capstone Project and Research 1",
+    "web systems and technologies 2 soxtsrowebsystemsbtechroiogies": "Web Systems and Technologies 2",
+    "rane foreign languoge 2": "Foreign Language 2",
+    "Networking 1 2": "Networking 2",
+    "panik at lpunen 255": "Panitikan at Lipunan",
+    "lifeand works of rizal": "Life and Works of Rizal",
+    "conder cote soman cagesuntcanes": "Data Structure and Algorithms",
+    "negate proganmingandteomoege": "Integrative Programming and Technologies 1",
+    "foreign langage": "Foreign Language",
+    "hunan computer terface": "Human Computer Interface",
+    "infomation anogerent": "Information Management",
+    "toot": "Object-Oriented Programming 1",
+    "lective": "elective 4",
+    "hective": "elective",
+    "pen aire": "pe",
+    "pathfit": "pe",
+    "grmmunication": "communication",
+    "cobege": "college",
+    "phystal edeation": "physical education",
+    "inveductonto computing ws": "introduction to computing",
+    "inveductonto computing": "introduction to computing",
+    "rio harare system ard saving": "hardware system and servicing",
+    "hardware system ard saving": "hardware system and servicing",
+    "camper prararining": "computer programming",
+    "camper prararin": "computer programming",
+    "readhgs npop history": "readings in philippine history",
+    "scene technology and sooty": "science technology and society",
+    "atari": "art appreciation",
+    "natonl sncetrhing pega": "national service training program",
+    "diserete sturt for it": "discrete structures for it",
+    "networking": "networking 1",
+    "understanding the se": "understanding the self",
+    "purposve communication": "purposive communication",
+    "mathematics in the modem world so": "mathematics in the modern world"
+}
 
-# REMOVE_LIST = [
-#     "stone project ad reset",
-#     "catege ommuniatons crass uniteamed",
-#     "student",
-#     "acaserie eer agpy gna",
-#     "unknown subject",
-#     "category", "communications", "class", "united", "student no", "fullname",
-#     "report of grades", "republic", "city of", "wps", "office"
-# ]
+REMOVE_LIST = [
+    "stone project ad reset",
+    "catege ommuniatons crass uniteamed",
+    "student",
+    "acaserie eer agpy gna",
+    "unknown subject",
+    "category", "communications", "class", "united", "student no", "fullname",
+    "report of grades", "republic", "city of", "wps", "office"
+]
+# ---------------------------
+# Helper Functions
+# ---------------------------
 def grade_to_level(grade: float) -> str:
     if grade is None:
         return "Unknown"
@@ -205,7 +200,7 @@ def snap_to_valid_grade(val: float):
     return min(VALID_GRADES, key=lambda g: abs(g - val))
 
 # ---------------------------
-# OCR Parsing Function
+# OCR Subject Extraction
 # ---------------------------
 def extractSubjectGrades(text: str):
     subjects_structured = []
@@ -215,40 +210,50 @@ def extractSubjectGrades(text: str):
     lines = [l.strip() for l in text.splitlines() if l.strip()]
 
     for raw_line in lines:
-        line = raw_line.strip()
-        if not line or any(kw in line.lower() for kw in ignore_keywords):
+        line = raw_line.strip().lower()
+        # Skip obvious non-grade lines
+        if any(line.startswith(kw) for kw in ["course description", "remarks", "final", "student no", "gwa", "college", "university"]):
             continue
 
-        clean = re.sub(r'[\t\r\f\v]+', ' ', line)
-        clean = re.sub(r'[^\w\.\-\s]', ' ', clean)
+        # Clean OCR noise
+        clean = re.sub(r'[^\w\.\-\s,]', ' ', line)
         clean = re.sub(r'\s{2,}', ' ', clean).strip()
         if not clean:
             continue
 
-        parts = clean.split()
-        float_tokens = [(i, tok, float(tok)) for i, tok in enumerate(parts) if re.fullmatch(r'\d+(\.\d+)?', tok)]
+        # Normalize commas to dots
+        clean = clean.replace(",", ".")
+
+        tokens = clean.split()
+        float_tokens = [(i, tok, float(tok)) for i, tok in enumerate(tokens) if re.fullmatch(r'\d+(\.\d+)?', tok)]
         if not float_tokens:
             continue
 
         gradeVal = float_tokens[-1][2]
         gradeVal = snap_to_valid_grade(gradeVal)
-        subjDesc = " ".join(parts[:-1]).title()
+        subjDesc = " ".join(tokens[:-1]).title()
 
-        if any(k in subjDesc.lower() for k in subjectGroups["ai_ml"]):
-            bucket_grades["Python"].append(gradeVal)
-        elif any(k in subjDesc.lower() for k in subjectGroups["databases"]):
-            bucket_grades["SQL"].append(gradeVal)
-        elif any(k in subjDesc.lower() for k in subjectGroups["programming"]):
-            bucket_grades["Java"].append(gradeVal)
+        # Assign subject to group
+        for bucket, keywords in subjectGroups.items():
+            if any(k in subjDesc.lower() for k in keywords):
+                mappedBucket = bucketMap.get(bucket)
+                if mappedBucket:
+                    bucket_grades[mappedBucket].append(gradeVal)
+                break
 
         mappedSkills[subjDesc] = grade_to_level(gradeVal)
         subjects_structured.append({"description": subjDesc, "grade": gradeVal})
 
     finalBuckets = {k: (round(sum(v) / len(v), 2) if v else 3.0) for k, v in bucket_grades.items()}
+
+    print("✅ Extracted Subjects:", subjects_structured)
+    print("✅ Skill Mapping:", mappedSkills)
+    print("✅ Final Buckets:", finalBuckets)
+
     return subjects_structured, mappedSkills, finalBuckets
 
 # ---------------------------
-# Prediction Logic
+# Career Prediction
 # ---------------------------
 def predictCareerWithSuggestions(finalBuckets: dict, mappedSkills: dict):
     dfInput = pd.DataFrame([{
@@ -274,7 +279,7 @@ def predictCareerWithSuggestions(finalBuckets: dict, mappedSkills: dict):
     return careers
 
 # ---------------------------
-# Certificate File Analysis
+# Certificate Analysis
 # ---------------------------
 def analyzeCertificates(certFiles: List[UploadFile]):
     results = []
@@ -294,7 +299,7 @@ def analyzeCertificates(certFiles: List[UploadFile]):
     return results
 
 # ---------------------------
-# Routes
+# API Routes
 # ---------------------------
 @app.post("/predict")
 async def ocrPredict(file: UploadFile = File(...), certificateFiles: Optional[List[UploadFile]] = None):

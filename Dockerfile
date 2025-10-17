@@ -2,8 +2,7 @@ FROM python:3.10-slim
 
 WORKDIR /app
 COPY . /app
-COPY cs_students.csv /app/cs_students.csv   # ✅ ensure CSV is copied
-
+COPY cs_students.csv 
 RUN apt-get update && apt-get install -y \
     tesseract-ocr \
     poppler-utils \

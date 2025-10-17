@@ -14,9 +14,12 @@ from PIL import Image
 import pytesseract
 import asyncio
 from fastapi.middleware.cors import CORSMiddleware
+import platform
 
-# Windows Tesseract path (adjust if needed)
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+if platform.system() == "Windows":
+    pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+else:
+    pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
 
 # ---------------------------
 # Input Schema

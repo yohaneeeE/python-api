@@ -14,12 +14,9 @@ from PIL import Image
 import pytesseract
 import asyncio
 from fastapi.middleware.cors import CORSMiddleware
-import platform
 
-if platform.system() == "Windows":
-    pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-else:
-    pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
+# Windows Tesseract path (adjust if needed)
+pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 # ---------------------------
 # Input Schema
@@ -645,7 +642,7 @@ def analyzeCertificates(certFiles: List[UploadFile]):
 # ---------------------------
 # Routes
 # ---------------------------
-@app.post("/predict")
+@app.post("predict")
 async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[UploadFile] = File(None)):
     try:
         imageBytes = await file.read()

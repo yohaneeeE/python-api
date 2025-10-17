@@ -1,5 +1,5 @@
 # filename: decisiontree_api.py
-
+import mysql.connector
 import re
 import io
 from collections import OrderedDict
@@ -14,19 +14,9 @@ from PIL import Image
 import pytesseract
 import asyncio
 from fastapi.middleware.cors import CORSMiddleware
-import json
-from google import genai
-
-# Initialize Gemini client
-try:
-    client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
-except Exception as e:
-    client = None
-    print(f"Gemini client not initialized: {e}")
-
 
 # Windows Tesseract path (adjust if needed)
-pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
+pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 # ---------------------------
 # Input Schema
@@ -407,73 +397,10 @@ def _normalize_grade_str(num_str: str):
 
     return round(raw, 2)
 
-async def improve_subjects_with_gemini(subjects: dict, skills: dict):
-    """
-    Use Gemini (new SDK) to clean, correct, and enhance subject names and skill mappings.
-    - Fix typograhical errors and grammar.
-    - Normalize capitalization (e.g., 'programming 1' → 'Programming 1').
-    - Keep skill values (Strong, Average, Weak) unchanged.
-    - Return clean, valid JSON with the same structure.
-    """
-
-    if not client:
-        return subjects, skills
-
-    prompt = f"""
-    You are an academic data cleaner AI.
-    The following are subjects and their corresponding skill levels extracted from OCR.
-    Your task is to fix spelling mistakes, correct capitalization, and ensure the subject names
-    are formatted clearly and professionally.
-
-    Rules:
-    - Keep all skill level values exactly as they are (“Strong”, “Average”, “Weak”).
-    - Maintain the same structure as the input.
-    - Do not add, remove, or rename fields.
-    - 3 to 4 sentences
-    - Output valid JSON only (no explanations, no markdown, no extra text).
-
-    Example:
-    Input:  {{ "subjects": {{"programming 1": "Strong"}}, "skills": {{"Python": "Average"}} }}
-    Output: {{ "subjects": {{"Programming 1": "Strong"}}, "skills": {{"Python": "Average"}} }}
-
-    Input:
-    {{
-        "subjects": {json.dumps(subjects, ensure_ascii=False)},
-        "skills": {json.dumps(skills, ensure_ascii=False)}
-    }}
-    """
-
-    try:
-        # Use Gemini to clean the text
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt
-        )
-
-        cleaned_text = response.text.strip()
-
-        # Some Gemini outputs may include backticks or explanations — strip those
-        cleaned_text = re.sub(r"^```json|```$", "", cleaned_text, flags=re.MULTILINE).strip()
-
-        # Attempt to parse Gemini output as JSON
-        cleaned = json.loads(cleaned_text)
-
-        # Gracefully fallback to originals if any part is missing
-        return cleaned.get("subjects", subjects), cleaned.get("skills", skills)
-
-    except json.JSONDecodeError:
-        print("Gemini returned invalid JSON — fallback to raw subjects.")
-        return subjects, skills
-    except Exception as e:
-        print(f"Gemini subjects cleanup error: {e}")
-        return subjects, skills
-
-
 # ---------------------------
 # OCR Extraction
 # ---------------------------
-async def extractSubjectGrades(text: str):
-
+def extractSubjectGrades(text: str):
     subjects_structured = []
     rawSubjects = OrderedDict()
     normalizedText = {}
@@ -619,11 +546,7 @@ async def extractSubjectGrades(text: str):
     for k in ("Python", "SQL", "Java"):
         finalBuckets.setdefault(k, 3.0)
 
-    # 🧠 Clean extracted subjects and skills with Gemini
-    improvedSubjects, improvedSkills = await improve_subjects_with_gemini(normalizedText, mappedSkills)
-
-    return subjects_structured, rawSubjects, improvedSubjects, improvedSkills, finalBuckets
-
+    return subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets
 
 # ---------------------------
 # Career Prediction with Smarter Suggestions (IT-only focus + Subject Certs)
@@ -719,14 +642,14 @@ def analyzeCertificates(certFiles: List[UploadFile]):
 # ---------------------------
 # Routes
 # ---------------------------
-@app.post("/predict")
+@app.post("/ocrPredict")
 async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[UploadFile] = File(None)):
     try:
         imageBytes = await file.read()
         img = Image.open(io.BytesIO(imageBytes))
         text = await asyncio.to_thread(pytesseract.image_to_string, img)
 
-        subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets = await extractSubjectGrades(text.strip())
+        subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets = extractSubjectGrades(text.strip())
         careerOptions = predictCareerWithSuggestions(finalBuckets, normalizedText, mappedSkills)
 
         if not careerOptions:

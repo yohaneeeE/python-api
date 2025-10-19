@@ -4,7 +4,7 @@ import re
 import io
 from collections import OrderedDict
 from typing import List, Optional
-
+import platform
 import pandas as pd
 from fastapi import FastAPI, UploadFile, File
 from pydantic import BaseModel

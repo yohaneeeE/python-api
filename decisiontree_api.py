@@ -197,7 +197,13 @@ TEXT_FIXES = {
     "understanding The sef": "understanding the self",
     "Understanding The Selff": "understanding the self",
     "purposve communication": "purposive communication",
-    "mathematics in the modem world so": "mathematics in the modern world"
+    "mathematics in the modem world so": "mathematics in the modern world",
+    "lective": "Elective",
+    "hective": "Elective",
+    "pen aire": "PE",
+    "pathfit": "PE",
+    "grmmunication": "Communication",
+    "cobege": "College"
 
 }
 
@@ -209,13 +215,7 @@ REMOVE_LIST = [
     "acaserie eer agpy gna",
     "unknown subject",
     "category", "communications", "class", "united", "student no", "fullname",
-    "report of grades", "republic", "city of", "wps", "office",
-    "lective": "Elective",
-    "hective": "Elective",
-    "pen aire": "PE",
-    "pathfit": "PE",
-    "grmmunication": "Communication",
-    "cobege": "College"
+    "report of grades", "republic", "city of", "wps", "office"
 ]
 
 def grade_to_level(grade: float) -> str:
@@ -232,6 +232,7 @@ def snap_to_valid_grade(val: float):
     if val is None:
         return None
     return min(VALID_GRADES, key=lambda g: abs(g - val))
+
 
 
 def clean_subject_text(desc: str) -> str:

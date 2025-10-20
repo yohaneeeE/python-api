@@ -575,14 +575,17 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
             certResults = [{"info": "No certificates uploaded"}]
 
         # Gemini enhancement (optional)
-        gemini_enhancement = await enhance_with_gemini(careerOptions,) if genai_client else None
+        gemini_enhancement = await enhance_with_gemini(careerOptions) if genai_client else None
 
         return {
             "careerPrediction": careerOptions[0]["career"],
             "careerOptions": careerOptions,
             "geminiSuggestions": gemini_enhancement,
+            "subjects_structured": subjects_structured,
             "rawSubjects": list(rawSubjects.items()),
             "normalizedText": normalizedText,
+            "mappedSkills": mappedSkills,
+            "finalBuckets": finalBuckets,
             "certificates": certResults
         }
     except Exception as e:

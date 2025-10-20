@@ -161,6 +161,12 @@ VALID_GRADES = [1.00, 1.25, 1.50, 1.75, 2.00, 2.25, 2.50, 2.75, 3.00, 5.00]
 
 # Known OCR misreads to fix (add more as you discover them)
 TEXT_FIXES = {
+    "lective": "Elective",
+    "hective": "Elective",
+    "pen aire": "PE",
+    "pathfit": "PE",
+    "grmmunication": "Communication",
+    "cobege": "College",
     "tras beaives bstaegt": "Elective 5",
     "wage system integration and rotate 2 es": "System Integration and Architecture 2",
     "aot sten ainsaton and marenance": "System Administration and Maintenance",
@@ -232,15 +238,6 @@ def snap_to_valid_grade(val: float):
     if val is None:
         return None
     return min(VALID_GRADES, key=lambda g: abs(g - val))
-
-TEXT_FIXES = {
-    "lective": "Elective",
-    "hective": "Elective",
-    "pen aire": "PE",
-    "pathfit": "PE",
-    "grmmunication": "Communication",
-    "cobege": "College"
-}
 
 def clean_subject_text(desc: str) -> str:
     d = (desc or "").lower()
@@ -599,3 +596,4 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
 @app.get("/")
 def root():
     return {"status": "ok", "message": "Career Prediction API running."}
+

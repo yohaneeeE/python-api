@@ -1,27 +1,21 @@
-# Use lightweight Python image
-FROM python:3.10-slim
+FROM python:3.12-slim
 
-# Set work directory
-WORKDIR /app
-
-# Copy all files
-COPY . .
-
-# Install required system packages
-# Install Tesseract + English language data
+# Install Tesseract OCR
 RUN apt-get update && apt-get install -y \
     tesseract-ocr \
-    tesseract-ocr-eng \
     libtesseract-dev \
-    poppler-utils \
-    libgl1 \
-    && rm -rf /var/lib/apt/lists/*
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
+WORKDIR /app
+
+# Copy dependencies
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose port
+# Copy source code
+COPY . .
+
+# Expose port Render expects
 EXPOSE 8000
 
-# Run the app
-CMD ["uvicorn", "decisiontree_api:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

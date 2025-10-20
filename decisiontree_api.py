@@ -527,7 +527,7 @@ You are a helpful career advisor for BSIT students.
 Given this student's analysis:
 - Top career predictions: {careerOptions}
 
-Provide 3 concise, practical, and personalized suggestions (mention technologies, projects, or certs).
+Provide 3 different, concise, practical, and personalized suggestions (mention technologies, projects, or certs).
 Keep output under 2-3 sentences and use a motivational friendly tone and make no redundancy in your answers for every bullet.
 """
         response = await asyncio.to_thread(
@@ -581,11 +581,8 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
             "careerPrediction": careerOptions[0]["career"],
             "careerOptions": careerOptions,
             "geminiSuggestions": gemini_enhancement,
-            "subjects_structured": subjects_structured,
             "rawSubjects": list(rawSubjects.items()),
             "normalizedText": normalizedText,
-            "mappedSkills": mappedSkills,
-            "finalBuckets": finalBuckets,
             "certificates": certResults
         }
     except Exception as e:

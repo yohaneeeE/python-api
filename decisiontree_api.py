@@ -420,6 +420,7 @@ def extractSubjectGrades(text: str):
             "bucket": assigned_bucket  # may be None if no bucket matched
         }
 
+
         subjects_structured.append({
             "code": subjCode,
             "description": subjDesc,
@@ -528,7 +529,7 @@ Given this student's analysis:
 - Top career predictions: {careerOptions}
 
 Provide 3 concise, practical, and personalized suggestions (mention technologies, projects, or certs).
-Keep output under 3 sentences and use a motivational friendly tone.
+Keep output under 2-3 sentences and use a motivational friendly tone no redundancy in every bullet.
 """
         response = await asyncio.to_thread(
             genai_client.models.generate_content,

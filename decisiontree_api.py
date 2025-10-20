@@ -78,7 +78,7 @@ model.fit(X, y)
 # ---------------------------
 # FastAPI App with CORS
 # ---------------------------
-app = FastAPI(title="Career Prediction API (TOR/COG + Certificates 🚀)")
+app = FastAPI(title="Career Prediction API (COG + Certificates 🚀)")
 
 app.add_middleware(
     CORSMiddleware,
@@ -157,6 +157,66 @@ careerCertSuggestions = {
 # OCR Fixes
 # ---------------------------
 VALID_GRADES = [1.00, 1.25, 1.50, 1.75, 2.00, 2.25, 2.50, 2.75, 3.00, 5.00]
+
+
+# Known OCR misreads to fix (add more as you discover them)
+TEXT_FIXES = {
+    "tras beaives bstaegt": "Elective 5",
+    "wage system integration and rotate 2 es": "System Integration and Architecture 2",
+    "aot sten ainsaton and marenance": "System Administration and Maintenance",
+    "capa capstone pret and research 2 es": "Capstone Project and Research 2",
+    "mathnats nthe modem oa es": "Mathematics in the Modern World",
+    "advan database systems": "Advance Database Systems",
+    "capstone project and research 1 spparont cepsre": "Capstone Project and Research 1",
+    "web systems and technologies 2 soxtsrowebsystemsbtechroiogies": "Web Systems and Technologies 2",
+    "rane foreign languoge 2": "Foreign Language 2",
+    "Networking 1 2": "Networking 2",
+    "panik at lpunen 255": "Panitikan at Lipunan",
+    "lifeand works of rizal": "Life and Works of Rizal",
+    "conder cote soman cagesuntcanes": "Data Structure and Algorithms",
+    "negate proganmingandteomoege": "Integrative Programming and Technologies 1",
+    "foreign langage": "Foreign Language",
+    "hunan computer terface": "Human Computer Interface",
+    "infomation anogerent": "Information Management",
+    "toot": "Object-Oriented Programming 1",
+    "lective": "elective 4",
+    "hective": "elective",
+    "pen aire": "pe",
+    "pathfit": "pe",
+    "grmmunication": "communication",
+    "cobege": "college",
+    "phystal edeation": "physical education",
+    "inveductonto computing ws": "introduction to computing",
+    "inveductonto computing": "introduction to computing",
+    "rio harare system ard saving": "hardware system and servicing",
+    "hardware system ard saving": "hardware system and servicing",
+    "camper prararining": "computer programming",
+    "camper prararin": "computer programming",
+    "readhgs npop history": "readings in philippine history",
+    "scene technology and sooty": "science technology and society",
+    "scene technology and sooty": "science technology and society",
+    "atari": "art appreciation",
+    "natonl sncetrhing pega": "national service training program",
+    "diserete sturt for it": "discrete structures for it",
+    "networking": "networking 1",
+    "understanding the se": "understanding the self",
+    "understanding The sef": "understanding the self",
+    "Understanding The Selff": "understanding the self",
+    "purposve communication": "purposive communication",
+    "mathematics in the modem world so": "mathematics in the modern world"
+
+}
+
+# Things that should NEVER appear (noise / random OCR junk)
+REMOVE_LIST = [
+    "stone project ad reset",
+    "catege ommuniatons crass uniteamed",
+    "student",
+    "acaserie eer agpy gna",
+    "unknown subject",
+    "category", "communications", "class", "united", "student no", "fullname",
+    "report of grades", "republic", "city of", "wps", "office"
+]
 
 def grade_to_level(grade: float) -> str:
     if grade is None:
@@ -460,7 +520,7 @@ def analyzeCertificates(certFiles: List[UploadFile]):
 # ---------------------------
 # Gemini Enhancement (optional)
 # ---------------------------
-async def enhance_with_gemini(careerOptions, mappedSkills, finalBuckets):
+async def enhance_with_gemini(careerOptions, finalBuckets):
     if not genai_client:
         return None
     try:
@@ -468,11 +528,10 @@ async def enhance_with_gemini(careerOptions, mappedSkills, finalBuckets):
 You are a helpful career advisor for BSIT students.
 Given this student's analysis:
 - Final numeric buckets: {finalBuckets}
-- Mapped skill levels and buckets: {mappedSkills}
 - Top career predictions: {careerOptions}
 
 Provide 3 concise, practical, and personalized suggestions (mention technologies, projects, or certs).
-Keep output under 5 sentences and use a motivational friendly tone.
+Keep output under 3 sentences and use a motivational friendly tone.
 """
         response = await asyncio.to_thread(
             genai_client.models.generate_content,
@@ -519,7 +578,7 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
             certResults = [{"info": "No certificates uploaded"}]
 
         # Gemini enhancement (optional)
-        gemini_enhancement = await enhance_with_gemini(careerOptions, mappedSkills, finalBuckets) if genai_client else None
+        gemini_enhancement = await enhance_with_gemini(careerOptions,finalBuckets) if genai_client else None
 
         return {
             "careerPrediction": careerOptions[0]["career"],

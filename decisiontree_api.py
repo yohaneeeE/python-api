@@ -4,7 +4,7 @@ import re
 import io
 from collections import OrderedDict
 from typing import List, Optional
-import platform
+
 import pandas as pd
 from fastapi import FastAPI, UploadFile, File
 from pydantic import BaseModel
@@ -15,17 +15,9 @@ import pytesseract
 import asyncio
 from fastapi.middleware.cors import CORSMiddleware
 
+# Windows Tesseract path (adjust if needed)
+pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
-pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
-
-# Windows Tesseract path (adjust if needed)import platform
-if platform.system() == "Windows":
-    pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-else:
-    pytesseract.pytesseract.tesseract_cmd = "tesseract"
-
-
-print(pytesseract.get_tesseract_version())
 # ---------------------------
 # Input Schema
 # ---------------------------
@@ -37,7 +29,7 @@ class StudentInput(BaseModel):
 # ---------------------------
 # Train Structured Data Model
 # ---------------------------
-df = pd.read_csv(r"D:\XAMPP\htdocs\CaSco\bsit_students.csv")
+df = pd.read_csv("cs_students.csv")
 
 features = ["Python", "SQL", "Java"]
 target = "Future Career"
@@ -650,14 +642,12 @@ def analyzeCertificates(certFiles: List[UploadFile]):
 # ---------------------------
 # Routes
 # ---------------------------
-@app.post("/predict")
+@app.post("/ocrPredict")
 async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[UploadFile] = File(None)):
     try:
         imageBytes = await file.read()
         img = Image.open(io.BytesIO(imageBytes))
         text = await asyncio.to_thread(pytesseract.image_to_string, img)
-
-        print("DEBUG OCR TEXT:", text[:500])
 
         subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets = extractSubjectGrades(text.strip())
         careerOptions = predictCareerWithSuggestions(finalBuckets, normalizedText, mappedSkills)
@@ -688,5 +678,3 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
         }
     except Exception as e:
         return {"error": str(e)}
-
-print("OCR OUTPUT LENGTH:", len(text))

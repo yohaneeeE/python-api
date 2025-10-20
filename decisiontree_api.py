@@ -518,18 +518,17 @@ def analyzeCertificates(certFiles: List[UploadFile]):
 # ---------------------------
 # Gemini Enhancement (optional)
 # ---------------------------
-async def enhance_with_gemini(careerOptions, finalBuckets):
+async def enhance_with_gemini(careerOptions,):
     if not genai_client:
         return None
     try:
         prompt = f"""
 You are a helpful career advisor for BSIT students.
 Given this student's analysis:
-- Final numeric buckets: {finalBuckets}
 - Top career predictions: {careerOptions}
 
 Provide 3 concise, practical, and personalized suggestions (mention technologies, projects, or certs).
-Keep output under 2-3 sentences and use a motivational friendly tone no redundancy in every bullet.
+Keep output under 2-3 sentences and use a motivational friendly tone and make no redundancy in your answers for every bullet.
 """
         response = await asyncio.to_thread(
             genai_client.models.generate_content,
@@ -576,7 +575,7 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
             certResults = [{"info": "No certificates uploaded"}]
 
         # Gemini enhancement (optional)
-        gemini_enhancement = await enhance_with_gemini(careerOptions,finalBuckets) if genai_client else None
+        gemini_enhancement = await enhance_with_gemini(careerOptions,) if genai_client else None
 
         return {
             "careerPrediction": careerOptions[0]["career"],

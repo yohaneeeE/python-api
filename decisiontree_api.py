@@ -24,6 +24,8 @@ if platform.system() == "Windows":
 else:
     pytesseract.pytesseract.tesseract_cmd = "tesseract"
 
+
+print(pytesseract.get_tesseract_version())
 # ---------------------------
 # Input Schema
 # ---------------------------
@@ -35,7 +37,7 @@ class StudentInput(BaseModel):
 # ---------------------------
 # Train Structured Data Model
 # ---------------------------
-df = pd.read_csv("bsit_students.csv")
+df = pd.read_csv(r"D:\XAMPP\htdocs\CaSco\bsit_students.csv")
 
 features = ["Python", "SQL", "Java"]
 target = "Future Career"
@@ -686,3 +688,5 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
         }
     except Exception as e:
         return {"error": str(e)}
+
+print("OCR OUTPUT LENGTH:", len(text))

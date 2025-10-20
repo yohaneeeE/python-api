@@ -15,6 +15,9 @@ import pytesseract
 import asyncio
 from fastapi.middleware.cors import CORSMiddleware
 
+
+pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
+
 # Windows Tesseract path (adjust if needed)import platform
 if platform.system() == "Windows":
     pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
@@ -32,7 +35,7 @@ class StudentInput(BaseModel):
 # ---------------------------
 # Train Structured Data Model
 # ---------------------------
-df = pd.read_csv("cs_students.csv")
+df = pd.read_csv("bsit_students.csv")
 
 features = ["Python", "SQL", "Java"]
 target = "Future Career"
@@ -651,6 +654,8 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
         imageBytes = await file.read()
         img = Image.open(io.BytesIO(imageBytes))
         text = await asyncio.to_thread(pytesseract.image_to_string, img)
+
+        print("DEBUG OCR TEXT:", text[:500])
 
         subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets = extractSubjectGrades(text.strip())
         careerOptions = predictCareerWithSuggestions(finalBuckets, normalizedText, mappedSkills)

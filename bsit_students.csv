@@ -1,0 +1,1001 @@
+Student ID,Name,Gender,Age,GPA,Major,Interested Domain,Projects,Future Career,Python,SQL,Java
+1,Emily Cruz,Female,20,3.31,BSIT,IoT,Smart Home Prototype,Mobile App Developer,Average,Weak,Weak
+2,John Martin,Male,20,3.84,BSIT,IoT,Embedded Device Controller,Machine Learning Engineer,Average,Average,Strong
+3,Charlotte Santos,Female,21,3.15,BSIT,Database Management,SQL Optimization Tool,Web Developer,Average,Average,Average
+4,Henry Martin,Male,19,3.47,BSIT,Cloud Computing,AWS Deployment,Graphics Programmer,Average,Average,Strong
+5,Joseph Santos,Male,19,2.84,BSIT,Data Science,Sales Forecasting Model,QA Engineer,Average,Average,Average
+6,Joseph Reyes,Male,20,2.62,BSIT,IoT,Smart Home Prototype,Mobile App Developer,Average,Average,Weak
+7,Matthew Clarke,Male,22,3.27,BSIT,Web Development,E-commerce Website,QA Engineer,Weak,Average,Average
+8,Gabriel Santos,Male,20,3.55,BSIT,IoT,Embedded Device Controller,Cloud Solutions Architect,Strong,Average,Weak
+9,Adrian Martin,Male,20,2.46,BSIT,Cloud Computing,Dockerized Microservices,Machine Learning Engineer,Strong,Weak,Average
+10,Isabella Garcia,Female,22,2.77,BSIT,IoT,Embedded Device Controller,Mobile App Developer,Weak,Average,Strong
+11,Nora Smith,Female,22,3.83,BSIT,Software Development,Inventory Management System,Web Developer,Average,Weak,Strong
+12,Zara Torres,Female,20,3.75,BSIT,Data Science,Customer Segmentation,QA Engineer,Strong,Average,Weak
+13,Zara Smith,Female,22,3.01,BSIT,Database Management,Data Warehouse ETL,Machine Learning Engineer,Weak,Weak,Strong
+14,David Torres,Male,22,3.21,BSIT,Machine Learning,Chatbot Development,IoT Developer,Strong,Average,Average
+15,Joseph Martin,Male,23,2.97,BSIT,Cloud Computing,Dockerized Microservices,AI Researcher,Strong,Average,Weak
+16,John Thompson,Male,22,2.61,BSIT,Mobile App Development,iOS App,Software Engineer,Weak,Average,Strong
+17,Olivia Harris,Female,20,3.06,BSIT,Machine Learning,Fraud Detection Model,Machine Learning Engineer,Weak,Strong,Weak
+18,Lucas Moore,Male,21,2.96,BSIT,Web Development,Portfolio Website,Software Engineer,Average,Average,Strong
+19,Joseph Martin,Male,21,2.91,BSIT,Cybersecurity,Network Intrusion Detection,AI Researcher,Strong,Strong,Weak
+20,Nora Smith,Female,26,3.35,BSIT,Cybersecurity,Penetration Testing Report,Cloud Solutions Architect,Average,Weak,Average
+21,Benjamin Smith,Male,26,3.13,BSIT,Artificial Intelligence,Speech Recognition System,Cloud Solutions Architect,Strong,Strong,Strong
+22,Joseph Wilson,Male,20,3.9,BSIT,Web Development,Portfolio Website,DevOps Engineer,Average,Weak,Average
+23,Zara Miller,Female,19,2.42,BSIT,Data Science,Data Analysis Pipeline,IoT Developer,Average,Average,Strong
+24,Sophia Lee,Female,19,3.16,BSIT,IoT,IoT Dashboard,Data Analyst,Average,Average,Average
+25,William Reyes,Male,22,2.31,BSIT,Data Science,Data Analysis Pipeline,AI Researcher,Average,Average,Weak
+26,William Thomas,Male,24,3.44,BSIT,Cybersecurity,Secure Login System,Information Security Analyst,Weak,Strong,Strong
+27,Zara Smith,Female,22,2.33,BSIT,Data Science,Sales Forecasting Model,Information Security Analyst,Average,Weak,Average
+28,Grace Davis,Female,22,2.89,BSIT,Software Development,DevOps Automation,Information Security Analyst,Strong,Strong,Average
+29,John Anderson,Male,23,3.0,BSIT,Artificial Intelligence,Knowledge Graph Prototype,Graphics Programmer,Strong,Weak,Strong
+30,Chloe Thompson,Female,22,2.96,BSIT,Cloud Computing,GCP Migration Project,Software Engineer,Average,Strong,Strong
+31,Chloe Davis,Female,22,3.01,BSIT,Computer Graphics,3D Modeling Project,Mobile App Developer,Strong,Strong,Weak
+32,Robert Moore,Male,18,2.88,BSIT,Database Management,Query Performance Analyzer,Systems Analyst,Average,Average,Weak
+33,Lily Johnson,Female,23,3.33,BSIT,Artificial Intelligence,Speech Recognition System,Information Security Analyst,Strong,Strong,Weak
+34,Matthew Brown,Male,25,3.93,BSIT,Software Development,Inventory Management System,IoT Developer,Average,Average,Average
+35,Matthew Miller,Male,22,3.31,BSIT,Mobile App Development,Mobile Game,Database Administrator,Strong,Average,Average
+36,Gabriel Davis,Male,20,3.19,BSIT,Cloud Computing,AWS Deployment,Graphics Programmer,Strong,Average,Strong
+37,Amelia Thomas,Female,21,4.0,BSIT,Mobile App Development,Cross-Platform App,IoT Developer,Strong,Strong,Average
+38,Benjamin Santos,Male,20,2.92,BSIT,Machine Learning,Chatbot Development,Cloud Solutions Architect,Average,Average,Strong
+39,Lily Martin,Female,23,3.11,BSIT,Mobile App Development,Cross-Platform App,AI Researcher,Average,Average,Strong
+40,Charlotte Reyes,Female,19,3.46,BSIT,Computer Graphics,Animation Pipeline,Web Developer,Strong,Strong,Average
+41,Joseph Garcia,Male,18,3.21,BSIT,Data Science,Data Visualization Dashboard,Cloud Solutions Architect,Average,Average,Strong
+42,William Clarke,Male,22,3.65,BSIT,Data Science,Data Visualization Dashboard,Machine Learning Engineer,Weak,Strong,Average
+43,James Jackson,Male,19,2.72,BSIT,Computer Graphics,Animation Pipeline,Systems Analyst,Strong,Average,Strong
+44,Adrian Jackson,Male,24,3.31,BSIT,Artificial Intelligence,Knowledge Graph Prototype,Information Security Analyst,Strong,Strong,Average
+45,Daniel Martinez,Male,21,3.13,BSIT,Database Management,Data Warehouse ETL,Data Analyst,Average,Strong,Weak
+46,Olivia Moore,Female,21,2.92,BSIT,Computer Graphics,3D Modeling Project,Cloud Solutions Architect,Weak,Strong,Average
+47,Emily Torres,Female,22,2.25,BSIT,Software Development,DevOps Automation,QA Engineer,Strong,Strong,Strong
+48,Ava White,Female,20,3.34,BSIT,Cloud Computing,Cloud Monitoring Setup,Software Engineer,Average,Average,Strong
+49,Abigail Garcia,Female,26,2.35,BSIT,Mobile App Development,Android App,Web Developer,Average,Weak,Weak
+50,Joseph Jackson,Male,21,3.01,BSIT,Cloud Computing,Dockerized Microservices,Systems Analyst,Strong,Average,Strong
+51,Adrian Johnson,Male,26,2.86,BSIT,IoT,Smart Home Prototype,Systems Analyst,Weak,Weak,Strong
+52,Ava Garcia,Female,21,3.67,BSIT,Data Science,Sales Forecasting Model,AI Researcher,Strong,Strong,Weak
+53,Isabella Torres,Female,23,3.39,BSIT,Web Development,Full-Stack Web App,Mobile App Developer,Average,Strong,Average
+54,Olivia Thompson,Female,22,3.16,BSIT,IoT,Sensor Data Collector,Web Developer,Average,Average,Average
+55,Maya Johnson,Female,21,2.85,BSIT,Computer Graphics,Animation Pipeline,Software Engineer,Strong,Strong,Weak
+56,Abigail Santos,Female,19,3.37,BSIT,Machine Learning,Recommendation System,Mobile App Developer,Average,Average,Average
+57,Harper Anderson,Female,23,3.28,BSIT,Artificial Intelligence,Computer Vision Project,Systems Analyst,Weak,Average,Average
+58,Charlotte White,Female,20,3.05,BSIT,Software Development,Inventory Management System,Information Security Analyst,Strong,Strong,Weak
+59,Olivia Rodriguez,Female,22,2.53,BSIT,Artificial Intelligence,Knowledge Graph Prototype,AI Researcher,Strong,Weak,Weak
+60,Gabriel Thomas,Male,21,3.25,BSIT,Computer Graphics,Animation Pipeline,Cloud Solutions Architect,Strong,Average,Average
+61,Liam Martinez,Male,20,3.14,BSIT,Computer Graphics,Game Graphics Module,Machine Learning Engineer,Weak,Average,Strong
+62,Zara Lee,Female,20,2.86,BSIT,Data Science,Sales Forecasting Model,Information Security Analyst,Average,Weak,Weak
+63,Michael Martin,Male,20,3.74,BSIT,Artificial Intelligence,NLP Pipeline,QA Engineer,Average,Average,Average
+64,Harper White,Female,19,3.0,BSIT,Data Science,Data Visualization Dashboard,AI Researcher,Weak,Average,Weak
+65,Ella Brown,Female,26,3.7,BSIT,Mobile App Development,iOS App,Systems Analyst,Average,Average,Strong
+66,Ella Thompson,Female,22,3.66,BSIT,Mobile App Development,Android App,Systems Analyst,Weak,Weak,Average
+67,David Miller,Male,18,2.69,BSIT,Software Development,Social Media Platform,Machine Learning Engineer,Average,Average,Weak
+68,Matthew Clarke,Male,22,3.36,BSIT,Cybersecurity,Cyber Defense Simulation,Web Developer,Average,Average,Strong
+69,Olivia Johnson,Female,20,2.96,BSIT,Mobile App Development,Cross-Platform App,AI Researcher,Weak,Average,Strong
+70,Mark Jackson,Male,19,3.82,BSIT,Web Development,Responsive Web Design,DevOps Engineer,Average,Average,Weak
+71,Maya Thompson,Female,25,3.8,BSIT,Software Development,Social Media Platform,Systems Analyst,Strong,Average,Strong
+72,Gabriel Moore,Male,22,3.2,BSIT,Artificial Intelligence,NLP Pipeline,AI Researcher,Strong,Average,Average
+73,Mark Wilson,Male,22,2.65,BSIT,Web Development,Responsive Web Design,Web Developer,Average,Average,Strong
+74,Paul Smith,Male,22,3.6,BSIT,Computer Graphics,3D Modeling Project,Cloud Solutions Architect,Weak,Average,Average
+75,Henry Torres,Male,18,3.18,BSIT,Software Development,DevOps Automation,Data Analyst,Average,Weak,Strong
+76,Robert Wilson,Male,22,3.41,BSIT,Computer Graphics,3D Modeling Project,Web Developer,Weak,Strong,Weak
+77,Mia White,Female,25,3.04,BSIT,Cloud Computing,Cloud Monitoring Setup,AI Researcher,Weak,Average,Average
+78,Zara Cruz,Female,24,3.8,BSIT,Data Science,Customer Segmentation,Systems Analyst,Average,Average,Strong
+79,Ella Cruz,Female,20,1.94,BSIT,Artificial Intelligence,Computer Vision Project,AI Researcher,Average,Average,Average
+80,Noah Davis,Male,26,2.43,BSIT,Cybersecurity,Cyber Defense Simulation,Machine Learning Engineer,Strong,Average,Average
+81,Benjamin Taylor,Male,26,3.35,BSIT,Machine Learning,Fraud Detection Model,Software Engineer,Weak,Strong,Average
+82,Isabella Harris,Female,24,2.64,BSIT,Web Development,E-commerce Website,Cloud Solutions Architect,Strong,Strong,Weak
+83,Harper Anderson,Female,22,3.07,BSIT,Database Management,Query Performance Analyzer,Database Administrator,Average,Strong,Average
+84,Ava Clarke,Female,22,3.3,BSIT,Software Development,Enterprise App,DevOps Engineer,Weak,Strong,Strong
+85,Robert Santos,Male,20,3.55,BSIT,Web Development,Full-Stack Web App,Database Administrator,Average,Weak,Average
+86,Charlotte Miller,Female,20,3.26,BSIT,Mobile App Development,Mobile Game,Mobile App Developer,Average,Average,Average
+87,Abigail Martinez,Female,22,3.56,BSIT,Software Development,Enterprise App,Web Developer,Average,Average,Strong
+88,Matthew Jackson,Male,23,2.93,BSIT,Cybersecurity,Cyber Defense Simulation,QA Engineer,Average,Weak,Average
+89,Ella Smith,Female,26,3.03,BSIT,Mobile App Development,Android App,Data Analyst,Average,Average,Average
+90,Sienna Thomas,Female,20,2.93,BSIT,Cybersecurity,Secure Login System,IoT Developer,Strong,Strong,Average
+91,James Clarke,Male,22,3.04,BSIT,Mobile App Development,Cross-Platform App,DevOps Engineer,Weak,Strong,Average
+92,Adrian Thomas,Male,22,3.6,BSIT,Software Development,Enterprise App,Information Security Analyst,Strong,Strong,Average
+93,Isabella Jackson,Female,25,3.86,BSIT,IoT,Embedded Device Controller,QA Engineer,Strong,Average,Strong
+94,Adrian Jones,Male,21,4.0,BSIT,IoT,IoT Dashboard,Mobile App Developer,Average,Average,Average
+95,Victoria Smith,Female,22,3.53,BSIT,Mobile App Development,iOS App,IoT Developer,Weak,Strong,Average
+96,William Johnson,Male,25,3.08,BSIT,Software Development,DevOps Automation,Web Developer,Weak,Strong,Average
+97,Nora Moore,Female,22,3.08,BSIT,IoT,Smart Home Prototype,QA Engineer,Average,Average,Strong
+98,Ethan Davis,Male,21,2.38,BSIT,Cybersecurity,Secure Login System,Web Developer,Strong,Average,Strong
+99,Sophia Taylor,Female,20,4.0,BSIT,Artificial Intelligence,NLP Pipeline,IoT Developer,Weak,Average,Strong
+100,William Thompson,Male,20,3.01,BSIT,Computer Graphics,Game Graphics Module,Mobile App Developer,Weak,Strong,Average
+101,Samuel Smith,Male,20,4.0,BSIT,Computer Graphics,Animation Pipeline,Systems Analyst,Weak,Average,Weak
+102,Daniel Thompson,Male,21,3.08,BSIT,Machine Learning,Recommendation System,Software Engineer,Weak,Average,Weak
+103,Ethan Harris,Male,22,2.93,BSIT,Mobile App Development,Android App,DevOps Engineer,Strong,Strong,Average
+104,Sophia White,Female,23,3.28,BSIT,Cloud Computing,AWS Deployment,AI Researcher,Strong,Average,Strong
+105,William Brown,Male,19,2.82,BSIT,Database Management,Query Performance Analyzer,Mobile App Developer,Average,Weak,Average
+106,Nora Cruz,Female,24,2.83,BSIT,Cloud Computing,Cloud Monitoring Setup,Data Analyst,Weak,Average,Average
+107,James Anderson,Male,21,3.0,BSIT,Machine Learning,Fraud Detection Model,Web Developer,Strong,Weak,Average
+108,William Martin,Male,19,2.87,BSIT,Computer Graphics,Animation Pipeline,IoT Developer,Weak,Average,Average
+109,Sophia Wilson,Female,22,2.89,BSIT,Cybersecurity,Penetration Testing Report,IoT Developer,Average,Strong,Average
+110,Isabella Torres,Female,20,3.62,BSIT,Cybersecurity,Cyber Defense Simulation,QA Engineer,Average,Strong,Average
+111,Nora Smith,Female,22,2.86,BSIT,Web Development,E-commerce Website,Information Security Analyst,Strong,Average,Average
+112,William Thompson,Male,22,2.69,BSIT,Data Science,Sales Forecasting Model,DevOps Engineer,Average,Weak,Strong
+113,Noah Miller,Male,21,3.08,BSIT,Mobile App Development,Android App,Data Analyst,Weak,Weak,Strong
+114,Lucas White,Male,22,2.52,BSIT,Cloud Computing,Dockerized Microservices,Machine Learning Engineer,Strong,Weak,Average
+115,Gabriel White,Male,22,3.1,BSIT,Mobile App Development,Android App,Software Engineer,Weak,Strong,Strong
+116,James Smith,Male,21,3.46,BSIT,Cloud Computing,GCP Migration Project,Data Scientist,Average,Strong,Average
+117,Chloe Brown,Female,21,3.18,BSIT,Artificial Intelligence,NLP Pipeline,QA Engineer,Strong,Average,Average
+118,Benjamin Smith,Male,25,2.77,BSIT,Machine Learning,Fraud Detection Model,QA Engineer,Weak,Average,Average
+119,Benjamin Harris,Male,19,3.65,BSIT,Cybersecurity,Secure Login System,Systems Analyst,Weak,Average,Weak
+120,Ethan Thomas,Male,22,2.72,BSIT,IoT,Sensor Data Collector,Machine Learning Engineer,Weak,Average,Weak
+121,David Miller,Male,25,2.89,BSIT,Mobile App Development,Mobile Game,IoT Developer,Strong,Average,Strong
+122,Grace Garcia,Female,21,2.88,BSIT,Artificial Intelligence,Knowledge Graph Prototype,IoT Developer,Average,Average,Weak
+123,Henry Johnson,Male,19,3.28,BSIT,Data Science,Data Visualization Dashboard,AI Researcher,Weak,Strong,Strong
+124,Maya Clarke,Female,20,3.06,BSIT,Mobile App Development,Mobile Game,Graphics Programmer,Weak,Weak,Strong
+125,David Harris,Male,22,3.81,BSIT,Artificial Intelligence,Computer Vision Project,Database Administrator,Average,Average,Average
+126,Grace Brown,Female,21,3.35,BSIT,Computer Graphics,3D Modeling Project,Information Security Analyst,Average,Strong,Strong
+127,Mia Anderson,Female,19,2.74,BSIT,Software Development,DevOps Automation,Data Scientist,Average,Strong,Average
+128,Mia Reyes,Female,22,2.44,BSIT,IoT,Smart Home Prototype,IoT Developer,Average,Average,Weak
+129,Joseph Anderson,Male,25,2.91,BSIT,Machine Learning,Chatbot Development,Web Developer,Average,Strong,Average
+130,Zara Johnson,Female,22,3.22,BSIT,Mobile App Development,iOS App,Mobile App Developer,Average,Weak,Strong
+131,Charlotte Cruz,Female,21,2.69,BSIT,Cybersecurity,Cyber Defense Simulation,Mobile App Developer,Average,Strong,Average
+132,Ella White,Female,24,3.52,BSIT,Cybersecurity,Secure Login System,IoT Developer,Strong,Strong,Average
+133,Benjamin Harris,Male,22,3.92,BSIT,Mobile App Development,iOS App,QA Engineer,Average,Average,Average
+134,Paul Jones,Male,20,3.04,BSIT,Machine Learning,Recommendation System,AI Researcher,Strong,Weak,Average
+135,Henry Thomas,Male,25,2.85,BSIT,Database Management,Database Schema Design,Cloud Solutions Architect,Strong,Strong,Weak
+136,Grace Garcia,Female,19,3.4,BSIT,Software Development,DevOps Automation,DevOps Engineer,Strong,Strong,Strong
+137,Emily Martinez,Female,20,3.76,BSIT,Mobile App Development,Mobile Game,Web Developer,Strong,Weak,Average
+138,Sienna Jackson,Female,19,3.97,BSIT,Artificial Intelligence,NLP Pipeline,IoT Developer,Average,Weak,Weak
+139,Ava Thompson,Female,21,3.11,BSIT,Database Management,SQL Optimization Tool,Graphics Programmer,Average,Weak,Average
+140,Sophia Clarke,Female,21,3.05,BSIT,Database Management,Data Warehouse ETL,DevOps Engineer,Weak,Strong,Average
+141,Maya Cruz,Female,23,3.45,BSIT,Database Management,Database Schema Design,QA Engineer,Strong,Strong,Average
+142,Olivia Santos,Female,23,3.48,BSIT,Artificial Intelligence,NLP Pipeline,Information Security Analyst,Average,Strong,Strong
+143,Benjamin Martin,Male,21,3.76,BSIT,Software Development,Inventory Management System,QA Engineer,Strong,Strong,Weak
+144,Benjamin Cruz,Male,21,3.33,BSIT,Cloud Computing,Dockerized Microservices,Data Scientist,Average,Average,Strong
+145,David Cruz,Male,21,2.02,BSIT,Machine Learning,Recommendation System,Database Administrator,Average,Average,Average
+146,Charlotte Santos,Female,21,3.75,BSIT,Artificial Intelligence,NLP Pipeline,DevOps Engineer,Average,Average,Strong
+147,Sophia Brown,Female,22,2.8,BSIT,IoT,Sensor Data Collector,Software Engineer,Weak,Average,Strong
+148,David Rodriguez,Male,23,3.47,BSIT,Database Management,Data Warehouse ETL,Cloud Solutions Architect,Strong,Average,Weak
+149,Henry Torres,Male,19,3.45,BSIT,Database Management,Data Warehouse ETL,Machine Learning Engineer,Strong,Strong,Weak
+150,Isabella Martinez,Female,23,3.49,BSIT,Artificial Intelligence,Computer Vision Project,Mobile App Developer,Weak,Strong,Average
+151,Abigail Miller,Female,24,3.04,BSIT,IoT,IoT Dashboard,IoT Developer,Average,Weak,Average
+152,Charlotte Santos,Female,22,3.26,BSIT,IoT,Sensor Data Collector,Systems Analyst,Average,Weak,Strong
+153,Ava White,Female,18,2.84,BSIT,Computer Graphics,Game Graphics Module,Mobile App Developer,Strong,Weak,Average
+154,Victoria Harris,Female,21,3.07,BSIT,Cloud Computing,AWS Deployment,Data Scientist,Strong,Average,Average
+155,Chloe Garcia,Female,24,3.31,BSIT,Machine Learning,Chatbot Development,Cloud Solutions Architect,Average,Strong,Strong
+156,Robert Anderson,Male,25,2.64,BSIT,Cybersecurity,Secure Login System,Graphics Programmer,Strong,Strong,Average
+157,Nora Martinez,Female,19,3.04,BSIT,Computer Graphics,Game Graphics Module,Mobile App Developer,Strong,Weak,Average
+158,Sienna Anderson,Female,23,3.67,BSIT,Mobile App Development,Android App,QA Engineer,Strong,Weak,Strong
+159,Joseph Torres,Male,22,3.13,BSIT,IoT,IoT Dashboard,IoT Developer,Strong,Average,Strong
+160,Ella Jackson,Female,19,3.13,BSIT,Web Development,E-commerce Website,AI Researcher,Average,Average,Average
+161,Noah Cruz,Male,26,2.97,BSIT,Database Management,SQL Optimization Tool,Database Administrator,Weak,Average,Average
+162,Benjamin Lee,Male,21,3.53,BSIT,Machine Learning,Recommendation System,Data Analyst,Average,Average,Strong
+163,Mark Wilson,Male,21,3.54,BSIT,Artificial Intelligence,Computer Vision Project,Machine Learning Engineer,Average,Weak,Average
+164,Victoria Wilson,Female,22,3.41,BSIT,Data Science,Data Visualization Dashboard,Data Scientist,Average,Strong,Strong
+165,Gabriel Martin,Male,20,3.05,BSIT,Computer Graphics,3D Modeling Project,Systems Analyst,Average,Strong,Average
+166,Mia Jones,Female,21,3.15,BSIT,Database Management,Data Warehouse ETL,Systems Analyst,Weak,Weak,Average
+167,Noah White,Male,21,3.7,BSIT,Machine Learning,Recommendation System,Data Analyst,Strong,Weak,Strong
+168,Noah Harris,Male,23,3.88,BSIT,Computer Graphics,3D Modeling Project,DevOps Engineer,Average,Average,Weak
+169,James Moore,Male,22,3.39,BSIT,IoT,Smart Home Prototype,Mobile App Developer,Average,Strong,Strong
+170,Maya Rodriguez,Female,22,2.58,BSIT,Mobile App Development,Mobile Game,Data Scientist,Average,Strong,Average
+171,Ava Johnson,Female,22,3.12,BSIT,Artificial Intelligence,Speech Recognition System,Cloud Solutions Architect,Strong,Average,Average
+172,Sophia Santos,Female,19,2.95,BSIT,Cybersecurity,Secure Login System,IoT Developer,Average,Average,Strong
+173,Adrian Anderson,Male,22,2.84,BSIT,IoT,IoT Dashboard,Mobile App Developer,Average,Strong,Average
+174,Liam Torres,Male,20,2.48,BSIT,Cybersecurity,Cyber Defense Simulation,Database Administrator,Average,Average,Strong
+175,Ella Jones,Female,22,2.38,BSIT,Cloud Computing,Dockerized Microservices,Systems Analyst,Strong,Average,Average
+176,Chloe Jackson,Female,22,2.97,BSIT,Artificial Intelligence,Computer Vision Project,Machine Learning Engineer,Average,Average,Average
+177,Gabriel Rodriguez,Male,20,2.96,BSIT,IoT,Sensor Data Collector,Software Engineer,Weak,Average,Average
+178,Mia Smith,Female,25,2.77,BSIT,Machine Learning,Fraud Detection Model,IoT Developer,Average,Strong,Average
+179,Grace Wilson,Female,22,3.35,BSIT,Mobile App Development,iOS App,Graphics Programmer,Strong,Strong,Strong
+180,Robert Johnson,Male,26,3.11,BSIT,Cloud Computing,Cloud Monitoring Setup,Data Scientist,Strong,Strong,Strong
+181,Emily Wilson,Female,22,4.0,BSIT,Software Development,DevOps Automation,IoT Developer,Average,Average,Strong
+182,Joseph Jones,Male,21,3.91,BSIT,Artificial Intelligence,Speech Recognition System,DevOps Engineer,Average,Strong,Strong
+183,Charlotte Lee,Female,23,3.8,BSIT,Computer Graphics,Animation Pipeline,Web Developer,Average,Weak,Strong
+184,Daniel Smith,Male,20,2.75,BSIT,Cybersecurity,Cyber Defense Simulation,Systems Analyst,Average,Average,Average
+185,Harper Clarke,Female,21,3.25,BSIT,Artificial Intelligence,Speech Recognition System,Data Scientist,Strong,Average,Strong
+186,James Clarke,Male,24,3.79,BSIT,Software Development,Inventory Management System,Mobile App Developer,Weak,Strong,Average
+187,Chloe Moore,Female,22,3.77,BSIT,IoT,Sensor Data Collector,Systems Analyst,Weak,Strong,Strong
+188,Henry Harris,Male,22,2.85,BSIT,Data Science,Data Analysis Pipeline,Software Engineer,Average,Strong,Weak
+189,Paul Jackson,Male,19,3.35,BSIT,Data Science,Data Visualization Dashboard,Systems Analyst,Average,Weak,Average
+190,Ella Cruz,Female,18,3.71,BSIT,Software Development,Social Media Platform,DevOps Engineer,Weak,Weak,Strong
+191,Sophia Brown,Female,26,2.88,BSIT,Machine Learning,Chatbot Development,Systems Analyst,Average,Strong,Strong
+192,Abigail Taylor,Female,21,3.26,BSIT,IoT,Sensor Data Collector,IoT Developer,Strong,Weak,Strong
+193,William Cruz,Male,26,3.54,BSIT,Software Development,DevOps Automation,IoT Developer,Strong,Average,Average
+194,William Martinez,Male,20,2.62,BSIT,Data Science,Data Analysis Pipeline,Systems Analyst,Strong,Average,Strong
+195,David Jones,Male,22,2.64,BSIT,Web Development,E-commerce Website,DevOps Engineer,Weak,Average,Average
+196,Sophia Garcia,Female,21,3.4,BSIT,Software Development,Enterprise App,QA Engineer,Strong,Average,Strong
+197,Ava Wilson,Female,24,3.68,BSIT,Cloud Computing,Dockerized Microservices,Information Security Analyst,Weak,Strong,Strong
+198,Hannah Martin,Female,21,3.16,BSIT,Database Management,Query Performance Analyzer,Systems Analyst,Average,Average,Average
+199,Adrian White,Male,20,3.32,BSIT,Machine Learning,Fraud Detection Model,Data Analyst,Average,Average,Average
+200,Matthew Davis,Male,21,3.98,BSIT,Data Science,Data Visualization Dashboard,QA Engineer,Weak,Average,Strong
+201,Samuel Lee,Male,18,3.85,BSIT,Mobile App Development,iOS App,AI Researcher,Weak,Strong,Strong
+202,Joseph Cruz,Male,19,3.52,BSIT,Artificial Intelligence,Computer Vision Project,DevOps Engineer,Average,Weak,Strong
+203,Lily Jackson,Female,22,3.0,BSIT,Computer Graphics,3D Modeling Project,AI Researcher,Weak,Strong,Average
+204,Amelia Thomas,Female,20,3.44,BSIT,Web Development,E-commerce Website,DevOps Engineer,Weak,Average,Strong
+205,Hannah Wilson,Female,19,3.01,BSIT,Cybersecurity,Cyber Defense Simulation,Graphics Programmer,Average,Average,Average
+206,Victoria Jackson,Female,20,3.54,BSIT,Database Management,Database Schema Design,Data Scientist,Strong,Strong,Strong
+207,Sophia Harris,Female,18,3.75,BSIT,IoT,Smart Home Prototype,Systems Analyst,Weak,Weak,Average
+208,William Smith,Male,20,2.41,BSIT,Artificial Intelligence,Speech Recognition System,Software Engineer,Average,Average,Average
+209,John Martin,Male,22,3.69,BSIT,Software Development,Inventory Management System,Software Engineer,Average,Average,Strong
+210,James Harris,Male,19,3.24,BSIT,Cybersecurity,Secure Login System,QA Engineer,Average,Strong,Weak
+211,Abigail Thompson,Female,20,3.09,BSIT,Data Science,Data Analysis Pipeline,Web Developer,Strong,Average,Average
+212,Olivia White,Female,23,2.88,BSIT,IoT,IoT Dashboard,Mobile App Developer,Strong,Strong,Strong
+213,Ava Davis,Female,24,3.02,BSIT,Software Development,Social Media Platform,Data Analyst,Weak,Strong,Average
+214,Noah Smith,Male,25,2.72,BSIT,Mobile App Development,iOS App,Systems Analyst,Strong,Strong,Average
+215,Maya Taylor,Female,22,2.82,BSIT,Machine Learning,Image Classifier,Graphics Programmer,Average,Average,Weak
+216,Samuel Torres,Male,22,3.1,BSIT,Mobile App Development,Mobile Game,Systems Analyst,Average,Average,Average
+217,Adrian Taylor,Male,21,2.95,BSIT,Data Science,Customer Segmentation,Systems Analyst,Average,Weak,Average
+218,Mia Cruz,Female,21,2.67,BSIT,Database Management,SQL Optimization Tool,Web Developer,Weak,Average,Average
+219,Robert Moore,Male,21,2.81,BSIT,Web Development,Portfolio Website,Database Administrator,Average,Average,Strong
+220,Emily Wilson,Female,21,3.06,BSIT,Data Science,Sales Forecasting Model,Mobile App Developer,Average,Average,Weak
+221,William Brown,Male,20,3.15,BSIT,Data Science,Customer Segmentation,Information Security Analyst,Strong,Strong,Average
+222,William Wilson,Male,18,3.53,BSIT,Cloud Computing,Dockerized Microservices,QA Engineer,Average,Strong,Average
+223,Samuel Garcia,Male,20,2.71,BSIT,Artificial Intelligence,Speech Recognition System,Data Scientist,Strong,Strong,Average
+224,Gabriel Rodriguez,Male,21,2.83,BSIT,Software Development,DevOps Automation,Database Administrator,Weak,Average,Average
+225,Nora Smith,Female,25,2.59,BSIT,Artificial Intelligence,Speech Recognition System,QA Engineer,Average,Strong,Strong
+226,Liam Rodriguez,Male,20,3.35,BSIT,Machine Learning,Fraud Detection Model,Systems Analyst,Average,Average,Average
+227,Hannah Martin,Female,18,3.81,BSIT,Computer Graphics,3D Rendering Demo,Web Developer,Strong,Average,Average
+228,Sophia Thompson,Female,26,3.08,BSIT,IoT,Embedded Device Controller,Systems Analyst,Average,Strong,Weak
+229,Daniel Harris,Male,23,2.63,BSIT,Cybersecurity,Cyber Defense Simulation,Database Administrator,Average,Strong,Average
+230,Ethan Smith,Male,21,2.98,BSIT,Software Development,DevOps Automation,Data Analyst,Strong,Weak,Weak
+231,Henry Davis,Male,21,3.1,BSIT,Artificial Intelligence,Speech Recognition System,Web Developer,Strong,Strong,Weak
+232,Charlotte Cruz,Female,20,3.35,BSIT,Machine Learning,Chatbot Development,Database Administrator,Average,Strong,Weak
+233,Lucas Taylor,Male,18,3.0,BSIT,Mobile App Development,Mobile Game,Cloud Solutions Architect,Weak,Weak,Strong
+234,Maya Jones,Female,23,3.03,BSIT,Computer Graphics,Game Graphics Module,Database Administrator,Average,Average,Average
+235,Zara Clarke,Female,20,2.89,BSIT,Data Science,Customer Segmentation,Database Administrator,Strong,Average,Strong
+236,Samuel Thompson,Male,19,3.46,BSIT,Machine Learning,Recommendation System,Web Developer,Weak,Weak,Average
+237,Samuel Garcia,Male,22,2.79,BSIT,Computer Graphics,Game Graphics Module,Graphics Programmer,Weak,Average,Weak
+238,Sienna Johnson,Female,24,3.41,BSIT,Web Development,Responsive Web Design,Data Scientist,Weak,Average,Average
+239,Hannah Reyes,Female,21,3.09,BSIT,Machine Learning,Image Classifier,Mobile App Developer,Average,Strong,Average
+240,Charlotte Torres,Female,21,2.78,BSIT,Artificial Intelligence,NLP Pipeline,Mobile App Developer,Average,Strong,Strong
+241,Sophia Torres,Female,22,2.04,BSIT,Data Science,Sales Forecasting Model,Information Security Analyst,Strong,Weak,Average
+242,James Torres,Male,23,2.85,BSIT,Cybersecurity,Secure Login System,QA Engineer,Strong,Average,Weak
+243,Joseph Davis,Male,23,2.75,BSIT,Mobile App Development,iOS App,Database Administrator,Strong,Average,Strong
+244,James Garcia,Male,25,2.99,BSIT,Cloud Computing,AWS Deployment,Information Security Analyst,Strong,Weak,Strong
+245,Noah Rodriguez,Male,23,2.99,BSIT,Mobile App Development,Cross-Platform App,IoT Developer,Average,Average,Strong
+246,Paul Cruz,Male,20,2.79,BSIT,Database Management,Query Performance Analyzer,AI Researcher,Average,Strong,Strong
+247,Abigail Clarke,Female,22,3.11,BSIT,Computer Graphics,3D Modeling Project,Machine Learning Engineer,Strong,Strong,Average
+248,Liam Anderson,Male,22,3.31,BSIT,Machine Learning,Fraud Detection Model,Systems Analyst,Weak,Average,Weak
+249,Abigail Smith,Female,19,3.47,BSIT,Web Development,Responsive Web Design,Machine Learning Engineer,Strong,Strong,Strong
+250,Matthew Brown,Male,22,2.86,BSIT,Software Development,Social Media Platform,Database Administrator,Average,Average,Strong
+251,Ava Moore,Female,22,3.19,BSIT,Artificial Intelligence,NLP Pipeline,Data Scientist,Weak,Average,Average
+252,James Moore,Male,22,3.18,BSIT,Artificial Intelligence,NLP Pipeline,Machine Learning Engineer,Average,Strong,Weak
+253,Mia Taylor,Female,23,3.2,BSIT,IoT,Sensor Data Collector,Web Developer,Average,Weak,Average
+254,Joseph Clarke,Male,23,2.99,BSIT,Cloud Computing,Cloud Monitoring Setup,QA Engineer,Weak,Strong,Weak
+255,Benjamin Thomas,Male,25,3.11,BSIT,Software Development,Social Media Platform,Machine Learning Engineer,Average,Average,Strong
+256,Ella Davis,Female,21,3.4,BSIT,Computer Graphics,Game Graphics Module,DevOps Engineer,Average,Average,Strong
+257,Ava White,Female,21,3.23,BSIT,Data Science,Data Analysis Pipeline,Database Administrator,Average,Weak,Strong
+258,Robert Torres,Male,21,3.77,BSIT,Data Science,Data Analysis Pipeline,Mobile App Developer,Weak,Average,Weak
+259,Zara Wilson,Female,22,2.79,BSIT,Cloud Computing,AWS Deployment,IoT Developer,Average,Average,Average
+260,Paul Davis,Male,26,3.2,BSIT,Machine Learning,Recommendation System,Cloud Solutions Architect,Strong,Strong,Average
+261,Lucas Cruz,Male,25,3.22,BSIT,Cloud Computing,AWS Deployment,AI Researcher,Average,Weak,Average
+262,Charlotte Jones,Female,18,3.5,BSIT,Machine Learning,Image Classifier,Data Scientist,Strong,Average,Average
+263,Ethan Garcia,Male,23,3.66,BSIT,Data Science,Data Analysis Pipeline,Database Administrator,Strong,Average,Weak
+264,Olivia White,Female,21,2.74,BSIT,Database Management,SQL Optimization Tool,AI Researcher,Strong,Strong,Weak
+265,Isabella Rodriguez,Female,23,3.99,BSIT,Web Development,E-commerce Website,Software Engineer,Average,Average,Weak
+266,Sophia Martin,Female,23,3.21,BSIT,IoT,Embedded Device Controller,Machine Learning Engineer,Average,Average,Strong
+267,David Thompson,Male,21,2.34,BSIT,Machine Learning,Chatbot Development,Systems Analyst,Strong,Weak,Average
+268,Ella Anderson,Female,19,3.19,BSIT,Artificial Intelligence,NLP Pipeline,Database Administrator,Strong,Average,Average
+269,Gabriel White,Male,26,3.31,BSIT,Computer Graphics,Game Graphics Module,Data Scientist,Weak,Average,Weak
+270,John Anderson,Male,18,2.56,BSIT,IoT,Embedded Device Controller,QA Engineer,Strong,Average,Weak
+271,Hannah White,Female,25,3.42,BSIT,Software Development,Social Media Platform,Software Engineer,Strong,Strong,Strong
+272,David Thompson,Male,19,3.16,BSIT,Machine Learning,Fraud Detection Model,Web Developer,Weak,Weak,Average
+273,Noah Taylor,Male,22,3.17,BSIT,Software Development,Enterprise App,Web Developer,Strong,Weak,Weak
+274,Henry Jackson,Male,20,2.85,BSIT,Data Science,Customer Segmentation,Systems Analyst,Weak,Average,Average
+275,Liam Santos,Male,22,3.94,BSIT,Database Management,Database Schema Design,Web Developer,Strong,Weak,Average
+276,Robert Smith,Male,25,3.39,BSIT,Artificial Intelligence,Computer Vision Project,Web Developer,Weak,Strong,Weak
+277,Ava Garcia,Female,20,2.71,BSIT,IoT,Smart Home Prototype,Mobile App Developer,Average,Strong,Weak
+278,Amelia Clarke,Female,21,3.56,BSIT,Machine Learning,Image Classifier,Data Analyst,Strong,Strong,Weak
+279,Gabriel Moore,Male,23,3.12,BSIT,IoT,Embedded Device Controller,Data Scientist,Average,Strong,Average
+280,William Johnson,Male,22,3.26,BSIT,Mobile App Development,iOS App,IoT Developer,Average,Average,Weak
+281,William Moore,Male,20,3.57,BSIT,IoT,Smart Home Prototype,Cloud Solutions Architect,Strong,Average,Average
+282,Gabriel Harris,Male,21,2.88,BSIT,Software Development,Enterprise App,Software Engineer,Average,Weak,Strong
+283,Mark Harris,Male,21,2.95,BSIT,Machine Learning,Image Classifier,Machine Learning Engineer,Strong,Average,Strong
+284,Daniel Thompson,Male,23,3.05,BSIT,Cloud Computing,Dockerized Microservices,Data Analyst,Strong,Strong,Weak
+285,Chloe Thompson,Female,18,2.9,BSIT,Mobile App Development,iOS App,Mobile App Developer,Strong,Strong,Strong
+286,Charlotte White,Female,18,2.28,BSIT,Web Development,E-commerce Website,Mobile App Developer,Weak,Average,Weak
+287,Amelia Garcia,Female,21,3.52,BSIT,Database Management,SQL Optimization Tool,Software Engineer,Weak,Average,Weak
+288,Chloe Brown,Female,21,3.85,BSIT,IoT,Embedded Device Controller,Mobile App Developer,Weak,Average,Weak
+289,Lucas Clarke,Male,25,3.05,BSIT,Computer Graphics,Animation Pipeline,Machine Learning Engineer,Average,Strong,Average
+290,Ella Garcia,Female,20,3.0,BSIT,Web Development,Responsive Web Design,QA Engineer,Strong,Strong,Weak
+291,Sienna Rodriguez,Female,22,3.57,BSIT,Database Management,SQL Optimization Tool,Machine Learning Engineer,Average,Strong,Average
+292,Grace Jackson,Female,18,3.48,BSIT,Cybersecurity,Penetration Testing Report,DevOps Engineer,Weak,Average,Weak
+293,Benjamin Jackson,Male,22,4.0,BSIT,Artificial Intelligence,Knowledge Graph Prototype,Database Administrator,Strong,Weak,Average
+294,Ava Miller,Female,21,3.04,BSIT,Web Development,Full-Stack Web App,Software Engineer,Average,Strong,Weak
+295,Benjamin Miller,Male,22,2.38,BSIT,Data Science,Customer Segmentation,Mobile App Developer,Average,Strong,Strong
+296,Sienna Moore,Female,19,2.95,BSIT,Data Science,Customer Segmentation,Machine Learning Engineer,Strong,Average,Average
+297,Ella Wilson,Female,20,3.7,BSIT,Artificial Intelligence,Computer Vision Project,Software Engineer,Strong,Average,Average
+298,Amelia Jones,Female,18,3.36,BSIT,Machine Learning,Recommendation System,Web Developer,Average,Weak,Strong
+299,Harper Brown,Female,22,2.91,BSIT,Cloud Computing,Dockerized Microservices,Data Scientist,Average,Average,Average
+300,Matthew Thompson,Male,19,3.45,BSIT,IoT,Smart Home Prototype,Web Developer,Average,Strong,Average
+301,Ava Martin,Female,19,2.83,BSIT,Computer Graphics,3D Modeling Project,Mobile App Developer,Strong,Average,Weak
+302,Sophia Harris,Female,22,3.52,BSIT,Computer Graphics,Game Graphics Module,Web Developer,Strong,Average,Strong
+303,Joseph Davis,Male,19,2.14,BSIT,Cloud Computing,GCP Migration Project,QA Engineer,Average,Strong,Average
+304,Olivia Brown,Female,21,3.75,BSIT,Cloud Computing,Dockerized Microservices,QA Engineer,Average,Average,Strong
+305,Sienna Thompson,Female,21,2.84,BSIT,Machine Learning,Image Classifier,Data Analyst,Strong,Strong,Strong
+306,Hannah Martinez,Female,21,3.4,BSIT,Artificial Intelligence,Knowledge Graph Prototype,Software Engineer,Strong,Average,Average
+307,Benjamin Anderson,Male,22,3.63,BSIT,Software Development,Inventory Management System,Software Engineer,Average,Strong,Strong
+308,Isabella Rodriguez,Female,19,3.34,BSIT,Artificial Intelligence,Speech Recognition System,Information Security Analyst,Average,Average,Weak
+309,Hannah Cruz,Female,21,2.81,BSIT,Web Development,E-commerce Website,Web Developer,Average,Average,Weak
+310,Maya Smith,Female,20,3.16,BSIT,Cybersecurity,Network Intrusion Detection,Machine Learning Engineer,Weak,Weak,Average
+311,Ethan Jackson,Male,21,3.06,BSIT,Web Development,E-commerce Website,Database Administrator,Average,Average,Strong
+312,Adrian Thomas,Male,21,3.05,BSIT,Software Development,Social Media Platform,Information Security Analyst,Weak,Weak,Strong
+313,Daniel Clarke,Male,20,3.36,BSIT,Computer Graphics,3D Rendering Demo,QA Engineer,Strong,Strong,Weak
+314,Charlotte Lee,Female,23,3.76,BSIT,Cybersecurity,Secure Login System,Mobile App Developer,Strong,Average,Strong
+315,Hannah Taylor,Female,23,2.93,BSIT,Software Development,DevOps Automation,Mobile App Developer,Weak,Average,Strong
+316,Samuel Lee,Male,20,3.27,BSIT,IoT,Smart Home Prototype,AI Researcher,Weak,Strong,Average
+317,Harper Clarke,Female,22,3.46,BSIT,Machine Learning,Chatbot Development,Data Analyst,Average,Strong,Strong
+318,William Cruz,Male,18,2.99,BSIT,Artificial Intelligence,Speech Recognition System,Information Security Analyst,Average,Average,Strong
+319,Amelia Anderson,Female,22,3.29,BSIT,Artificial Intelligence,Speech Recognition System,Graphics Programmer,Average,Weak,Average
+320,Mark Garcia,Male,23,3.69,BSIT,Computer Graphics,Game Graphics Module,IoT Developer,Strong,Average,Weak
+321,Liam Moore,Male,23,3.05,BSIT,Software Development,DevOps Automation,QA Engineer,Weak,Weak,Average
+322,Victoria Davis,Female,21,3.47,BSIT,IoT,Embedded Device Controller,Graphics Programmer,Average,Weak,Strong
+323,Joseph Anderson,Male,21,2.41,BSIT,Artificial Intelligence,Computer Vision Project,Database Administrator,Average,Weak,Weak
+324,Grace Clarke,Female,19,2.83,BSIT,Artificial Intelligence,Speech Recognition System,Machine Learning Engineer,Average,Weak,Strong
+325,Olivia Garcia,Female,22,2.93,BSIT,Artificial Intelligence,Knowledge Graph Prototype,Software Engineer,Weak,Weak,Average
+326,Paul Davis,Male,18,2.9,BSIT,Web Development,E-commerce Website,Machine Learning Engineer,Average,Average,Weak
+327,Gabriel Wilson,Male,20,3.35,BSIT,Software Development,DevOps Automation,DevOps Engineer,Average,Average,Strong
+328,Mark Thomas,Male,23,2.9,BSIT,Machine Learning,Fraud Detection Model,Software Engineer,Strong,Strong,Weak
+329,Charlotte Jones,Female,21,3.14,BSIT,IoT,IoT Dashboard,Systems Analyst,Average,Weak,Strong
+330,Emily Johnson,Female,22,3.11,BSIT,Cloud Computing,Cloud Monitoring Setup,Cloud Solutions Architect,Weak,Average,Strong
+331,John Wilson,Male,21,3.59,BSIT,Mobile App Development,iOS App,Cloud Solutions Architect,Strong,Weak,Weak
+332,James White,Male,20,3.49,BSIT,Cybersecurity,Secure Login System,QA Engineer,Average,Weak,Strong
+333,Michael Martin,Male,21,3.44,BSIT,Database Management,Database Schema Design,Software Engineer,Weak,Strong,Weak
+334,David Torres,Male,21,4.0,BSIT,Data Science,Customer Segmentation,IoT Developer,Average,Strong,Average
+335,Robert Johnson,Male,23,2.82,BSIT,Cloud Computing,AWS Deployment,Web Developer,Strong,Strong,Weak
+336,Robert Anderson,Male,21,3.66,BSIT,Artificial Intelligence,Speech Recognition System,Data Analyst,Weak,Average,Average
+337,Henry Martinez,Male,23,3.03,BSIT,Cloud Computing,GCP Migration Project,Web Developer,Weak,Strong,Strong
+338,Isabella Moore,Female,24,2.78,BSIT,Artificial Intelligence,Knowledge Graph Prototype,Data Scientist,Strong,Strong,Average
+339,Mia White,Female,24,3.51,BSIT,Web Development,Portfolio Website,Information Security Analyst,Average,Weak,Strong
+340,Maya Cruz,Female,22,3.47,BSIT,IoT,IoT Dashboard,Graphics Programmer,Average,Strong,Weak
+341,Ava White,Female,21,3.02,BSIT,Computer Graphics,3D Rendering Demo,Software Engineer,Average,Weak,Strong
+342,Charlotte Brown,Female,23,2.85,BSIT,Database Management,Database Schema Design,Database Administrator,Strong,Strong,Weak
+343,Daniel Brown,Male,21,3.34,BSIT,Artificial Intelligence,Knowledge Graph Prototype,Database Administrator,Weak,Average,Average
+344,Adrian Martin,Male,18,2.79,BSIT,Data Science,Customer Segmentation,Data Analyst,Strong,Weak,Average
+345,Michael Rodriguez,Male,23,2.86,BSIT,Mobile App Development,Mobile Game,DevOps Engineer,Average,Strong,Strong
+346,Noah Thomas,Male,23,3.79,BSIT,Software Development,Inventory Management System,DevOps Engineer,Weak,Strong,Strong
+347,Hannah Jones,Female,20,3.27,BSIT,Cloud Computing,GCP Migration Project,AI Researcher,Strong,Weak,Average
+348,Sophia Clarke,Female,23,3.39,BSIT,Mobile App Development,Android App,Systems Analyst,Strong,Average,Average
+349,Emily Harris,Female,22,2.8,BSIT,Mobile App Development,Mobile Game,Data Analyst,Average,Strong,Average
+350,Mia Jones,Female,21,3.06,BSIT,Mobile App Development,Cross-Platform App,Graphics Programmer,Strong,Average,Strong
+351,Benjamin Anderson,Male,26,3.0,BSIT,Cloud Computing,Dockerized Microservices,QA Engineer,Strong,Strong,Strong
+352,Amelia Davis,Female,20,3.26,BSIT,Software Development,Inventory Management System,Data Analyst,Average,Strong,Strong
+353,Noah Santos,Male,19,2.93,BSIT,Mobile App Development,Mobile Game,IoT Developer,Strong,Strong,Strong
+354,Zara Jones,Female,18,3.57,BSIT,Machine Learning,Image Classifier,IoT Developer,Strong,Average,Strong
+355,Mia Johnson,Female,22,3.01,BSIT,Web Development,Full-Stack Web App,QA Engineer,Average,Average,Average
+356,Ava Cruz,Female,22,3.84,BSIT,Cloud Computing,GCP Migration Project,Graphics Programmer,Strong,Strong,Average
+357,Lily Taylor,Female,21,3.34,BSIT,Computer Graphics,3D Rendering Demo,Software Engineer,Strong,Weak,Strong
+358,Abigail Rodriguez,Female,24,2.61,BSIT,IoT,IoT Dashboard,Systems Analyst,Average,Strong,Weak
+359,Amelia Wilson,Female,21,3.36,BSIT,Machine Learning,Image Classifier,Cloud Solutions Architect,Average,Average,Average
+360,Emily Anderson,Female,21,3.18,BSIT,Machine Learning,Image Classifier,Data Scientist,Strong,Average,Strong
+361,Ella White,Female,23,3.05,BSIT,Database Management,Database Schema Design,Data Scientist,Average,Strong,Weak
+362,Ethan Rodriguez,Male,24,3.15,BSIT,IoT,IoT Dashboard,Database Administrator,Average,Weak,Strong
+363,Nora Torres,Female,26,3.79,BSIT,Artificial Intelligence,Computer Vision Project,Data Analyst,Weak,Strong,Weak
+364,Lily Jones,Female,21,3.23,BSIT,Computer Graphics,Animation Pipeline,Software Engineer,Strong,Strong,Average
+365,Abigail White,Female,18,3.41,BSIT,Computer Graphics,3D Rendering Demo,Web Developer,Weak,Strong,Average
+366,David Davis,Male,22,3.04,BSIT,Cybersecurity,Cyber Defense Simulation,QA Engineer,Weak,Average,Strong
+367,Hannah Clarke,Female,23,3.75,BSIT,Web Development,Responsive Web Design,DevOps Engineer,Average,Weak,Weak
+368,Nora Brown,Female,22,3.47,BSIT,Cybersecurity,Secure Login System,Cloud Solutions Architect,Average,Average,Average
+369,James Martin,Male,18,3.17,BSIT,Mobile App Development,Android App,DevOps Engineer,Strong,Average,Average
+370,Sienna Brown,Female,20,3.06,BSIT,Artificial Intelligence,Knowledge Graph Prototype,Cloud Solutions Architect,Average,Weak,Weak
+371,Nora Wilson,Female,25,3.57,BSIT,IoT,IoT Dashboard,Software Engineer,Average,Average,Weak
+372,Samuel Taylor,Male,22,3.67,BSIT,Data Science,Customer Segmentation,Machine Learning Engineer,Average,Strong,Average
+373,Zara Garcia,Female,20,3.34,BSIT,Cybersecurity,Network Intrusion Detection,Data Scientist,Average,Average,Weak
+374,Nora Jackson,Female,22,3.95,BSIT,Data Science,Customer Segmentation,IoT Developer,Average,Weak,Strong
+375,William Reyes,Male,22,3.65,BSIT,Cybersecurity,Secure Login System,AI Researcher,Average,Average,Average
+376,Maya Thompson,Female,21,3.53,BSIT,Database Management,Query Performance Analyzer,Data Scientist,Weak,Strong,Weak
+377,Ethan Garcia,Male,22,2.98,BSIT,Artificial Intelligence,Speech Recognition System,Systems Analyst,Strong,Average,Weak
+378,Mia Martin,Female,20,3.6,BSIT,IoT,Smart Home Prototype,DevOps Engineer,Weak,Weak,Average
+379,Gabriel Thompson,Male,21,2.47,BSIT,Computer Graphics,Animation Pipeline,Graphics Programmer,Strong,Average,Average
+380,Benjamin Rodriguez,Male,24,2.73,BSIT,Mobile App Development,Cross-Platform App,Data Scientist,Average,Average,Average
+381,Sienna Reyes,Female,20,2.77,BSIT,Machine Learning,Chatbot Development,DevOps Engineer,Strong,Strong,Weak
+382,Matthew Thomas,Male,20,3.16,BSIT,IoT,Sensor Data Collector,Graphics Programmer,Strong,Average,Average
+383,Michael Johnson,Male,26,2.92,BSIT,Computer Graphics,Animation Pipeline,QA Engineer,Strong,Average,Average
+384,Benjamin Thomas,Male,22,3.76,BSIT,Data Science,Customer Segmentation,Cloud Solutions Architect,Strong,Weak,Average
+385,Mark Lee,Male,18,3.52,BSIT,Cybersecurity,Network Intrusion Detection,Graphics Programmer,Average,Weak,Weak
+386,James Reyes,Male,20,2.91,BSIT,Database Management,SQL Optimization Tool,AI Researcher,Average,Strong,Average
+387,Daniel Johnson,Male,19,3.02,BSIT,Computer Graphics,3D Rendering Demo,Data Analyst,Average,Weak,Average
+388,Benjamin Lee,Male,26,3.08,BSIT,IoT,Smart Home Prototype,Data Analyst,Strong,Average,Average
+389,Henry Lee,Male,26,3.36,BSIT,Cloud Computing,GCP Migration Project,Systems Analyst,Average,Strong,Average
+390,Robert Cruz,Male,22,3.02,BSIT,Artificial Intelligence,NLP Pipeline,Machine Learning Engineer,Average,Weak,Weak
+391,Hannah Garcia,Female,22,3.58,BSIT,Mobile App Development,Android App,Data Analyst,Strong,Average,Average
+392,Samuel Martin,Male,23,3.97,BSIT,IoT,Embedded Device Controller,Graphics Programmer,Average,Strong,Average
+393,Mark Torres,Male,21,2.64,BSIT,Mobile App Development,Android App,Cloud Solutions Architect,Weak,Average,Strong
+394,Adrian Moore,Male,20,2.85,BSIT,Web Development,Portfolio Website,Mobile App Developer,Average,Average,Average
+395,Noah Moore,Male,21,3.53,BSIT,Software Development,Inventory Management System,QA Engineer,Average,Average,Strong
+396,Joseph Moore,Male,22,3.68,BSIT,Computer Graphics,3D Modeling Project,Data Scientist,Average,Average,Average
+397,Ethan Torres,Male,22,3.13,BSIT,IoT,Smart Home Prototype,DevOps Engineer,Weak,Strong,Strong
+398,Paul Taylor,Male,23,2.42,BSIT,Computer Graphics,3D Rendering Demo,Data Scientist,Average,Average,Strong
+399,Victoria Lee,Female,21,3.46,BSIT,Data Science,Data Analysis Pipeline,DevOps Engineer,Average,Strong,Average
+400,Sienna Johnson,Female,25,3.31,BSIT,Machine Learning,Fraud Detection Model,AI Researcher,Average,Strong,Strong
+401,Samuel Harris,Male,21,3.23,BSIT,Web Development,Full-Stack Web App,Machine Learning Engineer,Average,Strong,Weak
+402,Benjamin Thomas,Male,22,3.44,BSIT,Cloud Computing,GCP Migration Project,Graphics Programmer,Weak,Strong,Strong
+403,Nora Thompson,Female,21,3.51,BSIT,Mobile App Development,iOS App,AI Researcher,Strong,Average,Average
+404,David Harris,Male,20,3.13,BSIT,Data Science,Customer Segmentation,Data Analyst,Average,Strong,Average
+405,Mark Torres,Male,20,2.83,BSIT,IoT,Embedded Device Controller,Data Analyst,Average,Weak,Weak
+406,Daniel Reyes,Male,22,3.78,BSIT,Database Management,Query Performance Analyzer,Database Administrator,Average,Average,Strong
+407,Noah Brown,Male,22,3.35,BSIT,Cybersecurity,Secure Login System,Data Scientist,Strong,Average,Strong
+408,Joseph Rodriguez,Male,22,3.51,BSIT,Software Development,Enterprise App,Machine Learning Engineer,Weak,Weak,Average
+409,David Reyes,Male,25,3.15,BSIT,Computer Graphics,3D Rendering Demo,QA Engineer,Average,Average,Average
+410,Maya Martinez,Female,21,3.2,BSIT,Computer Graphics,Animation Pipeline,Cloud Solutions Architect,Weak,Average,Weak
+411,Victoria Martin,Female,18,2.74,BSIT,Machine Learning,Fraud Detection Model,Web Developer,Weak,Average,Average
+412,Gabriel Jones,Male,21,3.85,BSIT,Mobile App Development,Cross-Platform App,Data Scientist,Average,Weak,Strong
+413,Mark Moore,Male,20,3.08,BSIT,Cloud Computing,Dockerized Microservices,AI Researcher,Weak,Weak,Average
+414,James Cruz,Male,20,2.83,BSIT,Cybersecurity,Cyber Defense Simulation,QA Engineer,Average,Weak,Strong
+415,John Miller,Male,21,3.76,BSIT,IoT,IoT Dashboard,Systems Analyst,Average,Average,Strong
+416,James Santos,Male,20,3.83,BSIT,Cybersecurity,Secure Login System,AI Researcher,Strong,Weak,Strong
+417,Ethan Martin,Male,22,3.34,BSIT,Cloud Computing,AWS Deployment,Database Administrator,Strong,Strong,Weak
+418,Nora Miller,Female,26,2.86,BSIT,Software Development,Inventory Management System,Database Administrator,Average,Average,Strong
+419,Liam Jackson,Male,22,3.35,BSIT,Database Management,Query Performance Analyzer,IoT Developer,Average,Weak,Strong
+420,Noah Anderson,Male,22,3.39,BSIT,Software Development,DevOps Automation,Information Security Analyst,Strong,Strong,Strong
+421,Abigail Moore,Female,20,3.33,BSIT,Cybersecurity,Secure Login System,DevOps Engineer,Strong,Weak,Weak
+422,David White,Male,22,3.04,BSIT,Web Development,Responsive Web Design,Graphics Programmer,Strong,Weak,Average
+423,Benjamin Wilson,Male,20,3.17,BSIT,Machine Learning,Chatbot Development,Graphics Programmer,Strong,Weak,Average
+424,Mark Jackson,Male,26,2.77,BSIT,Computer Graphics,Animation Pipeline,Graphics Programmer,Average,Strong,Average
+425,Samuel Jackson,Male,22,2.86,BSIT,Computer Graphics,Animation Pipeline,Data Analyst,Average,Average,Strong
+426,Ethan Moore,Male,20,2.81,BSIT,Software Development,Social Media Platform,Software Engineer,Average,Strong,Average
+427,Victoria Torres,Female,21,3.62,BSIT,Software Development,Enterprise App,Systems Analyst,Weak,Average,Average
+428,Robert Santos,Male,23,3.22,BSIT,Cloud Computing,Cloud Monitoring Setup,Machine Learning Engineer,Average,Average,Weak
+429,Sienna Santos,Female,22,3.06,BSIT,Software Development,DevOps Automation,Machine Learning Engineer,Strong,Weak,Strong
+430,Harper Santos,Female,22,3.84,BSIT,Cybersecurity,Secure Login System,Software Engineer,Weak,Strong,Weak
+431,Ella Martinez,Female,19,3.15,BSIT,Data Science,Sales Forecasting Model,Software Engineer,Strong,Average,Average
+432,Abigail Santos,Female,23,3.22,BSIT,Database Management,SQL Optimization Tool,QA Engineer,Strong,Average,Average
+433,Charlotte Davis,Female,24,3.2,BSIT,Web Development,Portfolio Website,Systems Analyst,Strong,Average,Strong
+434,Michael Davis,Male,21,3.59,BSIT,Data Science,Sales Forecasting Model,AI Researcher,Average,Strong,Strong
+435,Nora Harris,Female,19,2.87,BSIT,Database Management,SQL Optimization Tool,QA Engineer,Average,Average,Weak
+436,Matthew Thompson,Male,19,3.24,BSIT,Cybersecurity,Network Intrusion Detection,Software Engineer,Average,Average,Average
+437,David Rodriguez,Male,19,3.67,BSIT,IoT,Smart Home Prototype,Software Engineer,Average,Weak,Average
+438,Mark Rodriguez,Male,21,3.5,BSIT,Computer Graphics,Animation Pipeline,Systems Analyst,Strong,Strong,Weak
+439,William Martinez,Male,24,2.77,BSIT,Software Development,DevOps Automation,Machine Learning Engineer,Average,Average,Average
+440,Sienna Martin,Female,20,3.24,BSIT,Computer Graphics,Game Graphics Module,AI Researcher,Average,Average,Average
+441,Paul Taylor,Male,22,3.61,BSIT,Database Management,Database Schema Design,Database Administrator,Strong,Average,Average
+442,Victoria Torres,Female,22,2.83,BSIT,Mobile App Development,Cross-Platform App,Database Administrator,Average,Average,Strong
+443,William Miller,Male,24,3.34,BSIT,Data Science,Data Analysis Pipeline,Mobile App Developer,Strong,Average,Average
+444,Sophia Thomas,Female,20,3.64,BSIT,Data Science,Data Analysis Pipeline,Data Analyst,Strong,Average,Strong
+445,Michael Thomas,Male,22,3.58,BSIT,Database Management,SQL Optimization Tool,QA Engineer,Average,Strong,Strong
+446,Joseph Harris,Male,19,3.04,BSIT,Cybersecurity,Cyber Defense Simulation,Machine Learning Engineer,Weak,Average,Average
+447,Nora Cruz,Female,22,3.18,BSIT,Mobile App Development,Cross-Platform App,IoT Developer,Average,Average,Average
+448,Benjamin Harris,Male,21,2.52,BSIT,Machine Learning,Fraud Detection Model,Data Analyst,Average,Average,Strong
+449,Lucas Cruz,Male,21,3.23,BSIT,Cloud Computing,Dockerized Microservices,Database Administrator,Strong,Average,Average
+450,Ella Lee,Female,18,3.7,BSIT,Machine Learning,Recommendation System,Software Engineer,Weak,Weak,Strong
+451,Harper Martin,Female,21,2.73,BSIT,Data Science,Data Analysis Pipeline,AI Researcher,Average,Weak,Average
+452,Liam Brown,Male,22,2.98,BSIT,Mobile App Development,iOS App,DevOps Engineer,Weak,Average,Average
+453,Maya Jones,Female,22,3.0,BSIT,Mobile App Development,Mobile Game,Web Developer,Strong,Strong,Strong
+454,James Torres,Male,20,3.82,BSIT,IoT,Smart Home Prototype,IoT Developer,Strong,Average,Average
+455,Adrian Thompson,Male,19,2.92,BSIT,Web Development,Responsive Web Design,AI Researcher,Strong,Average,Weak
+456,Benjamin Garcia,Male,19,3.2,BSIT,Data Science,Data Visualization Dashboard,Mobile App Developer,Average,Average,Average
+457,William Torres,Male,19,2.77,BSIT,IoT,Sensor Data Collector,Graphics Programmer,Average,Strong,Weak
+458,Lucas Anderson,Male,22,3.03,BSIT,Mobile App Development,Android App,Web Developer,Average,Average,Average
+459,Emily Torres,Female,20,3.75,BSIT,Artificial Intelligence,Computer Vision Project,AI Researcher,Average,Strong,Weak
+460,Olivia Jones,Female,23,3.16,BSIT,Cybersecurity,Penetration Testing Report,QA Engineer,Strong,Average,Average
+461,Ella Jackson,Female,21,2.88,BSIT,Cybersecurity,Penetration Testing Report,Graphics Programmer,Average,Average,Average
+462,Mia Santos,Female,22,3.77,BSIT,Web Development,Responsive Web Design,Mobile App Developer,Strong,Average,Average
+463,Joseph Santos,Male,22,3.75,BSIT,Web Development,Portfolio Website,Cloud Solutions Architect,Average,Average,Strong
+464,James Smith,Male,20,3.39,BSIT,IoT,Embedded Device Controller,Machine Learning Engineer,Strong,Average,Strong
+465,Victoria Lee,Female,22,3.38,BSIT,Artificial Intelligence,NLP Pipeline,Software Engineer,Average,Average,Average
+466,Ethan Reyes,Male,21,3.63,BSIT,IoT,IoT Dashboard,Machine Learning Engineer,Strong,Strong,Average
+467,Matthew Taylor,Male,24,3.24,BSIT,Computer Graphics,Animation Pipeline,Machine Learning Engineer,Weak,Strong,Average
+468,Benjamin Harris,Male,25,3.11,BSIT,Mobile App Development,iOS App,Cloud Solutions Architect,Weak,Weak,Strong
+469,Adrian Garcia,Male,20,3.52,BSIT,Cybersecurity,Penetration Testing Report,Information Security Analyst,Average,Strong,Strong
+470,William Clarke,Male,25,3.58,BSIT,Machine Learning,Recommendation System,Web Developer,Average,Strong,Weak
+471,Emily Torres,Female,21,4.0,BSIT,Software Development,DevOps Automation,DevOps Engineer,Strong,Strong,Average
+472,Isabella Garcia,Female,20,3.03,BSIT,Mobile App Development,Cross-Platform App,Mobile App Developer,Average,Weak,Strong
+473,Mark Garcia,Male,21,2.7,BSIT,Database Management,Database Schema Design,QA Engineer,Average,Average,Weak
+474,John Martinez,Male,25,2.81,BSIT,Cybersecurity,Penetration Testing Report,Systems Analyst,Weak,Weak,Strong
+475,Samuel White,Male,22,3.76,BSIT,Cloud Computing,Cloud Monitoring Setup,Systems Analyst,Weak,Strong,Average
+476,Samuel Cruz,Male,22,2.58,BSIT,Computer Graphics,3D Rendering Demo,Graphics Programmer,Weak,Average,Strong
+477,Ava Harris,Female,22,3.31,BSIT,Cloud Computing,AWS Deployment,Machine Learning Engineer,Average,Average,Average
+478,Abigail Miller,Female,21,3.19,BSIT,Mobile App Development,Android App,DevOps Engineer,Average,Weak,Average
+479,Isabella Miller,Female,23,3.77,BSIT,Machine Learning,Fraud Detection Model,Cloud Solutions Architect,Strong,Weak,Average
+480,Abigail Brown,Female,20,2.96,BSIT,IoT,Sensor Data Collector,DevOps Engineer,Strong,Weak,Strong
+481,Olivia Harris,Female,22,3.04,BSIT,Mobile App Development,iOS App,Cloud Solutions Architect,Average,Weak,Average
+482,Mia Miller,Female,24,2.12,BSIT,Machine Learning,Image Classifier,Cloud Solutions Architect,Average,Strong,Strong
+483,William Davis,Male,18,3.21,BSIT,Artificial Intelligence,Knowledge Graph Prototype,Graphics Programmer,Average,Average,Average
+484,Abigail Moore,Female,21,3.14,BSIT,Mobile App Development,Android App,Machine Learning Engineer,Strong,Average,Strong
+485,Robert Garcia,Male,19,3.07,BSIT,Web Development,Full-Stack Web App,Database Administrator,Strong,Weak,Average
+486,Liam Lee,Male,22,3.38,BSIT,Mobile App Development,iOS App,AI Researcher,Strong,Average,Strong
+487,Benjamin Brown,Male,23,3.28,BSIT,Artificial Intelligence,Computer Vision Project,Web Developer,Average,Average,Average
+488,Sienna Johnson,Female,19,3.08,BSIT,IoT,Smart Home Prototype,AI Researcher,Strong,Average,Strong
+489,Hannah Lee,Female,23,3.17,BSIT,Mobile App Development,Cross-Platform App,Data Analyst,Weak,Average,Strong
+490,Robert Lee,Male,20,3.72,BSIT,Software Development,Enterprise App,Software Engineer,Weak,Average,Strong
+491,Samuel Moore,Male,21,2.94,BSIT,IoT,Sensor Data Collector,Software Engineer,Average,Average,Average
+492,Liam Harris,Male,22,3.64,BSIT,Web Development,Portfolio Website,IoT Developer,Average,Average,Average
+493,Charlotte Davis,Female,21,2.89,BSIT,Artificial Intelligence,NLP Pipeline,IoT Developer,Strong,Weak,Average
+494,Abigail Moore,Female,25,3.71,BSIT,Web Development,Full-Stack Web App,Mobile App Developer,Strong,Average,Average
+495,Noah Thomas,Male,19,3.65,BSIT,Database Management,Query Performance Analyzer,IoT Developer,Average,Average,Average
+496,Liam Santos,Male,23,3.82,BSIT,Web Development,Full-Stack Web App,Cloud Solutions Architect,Weak,Strong,Average
+497,Ella Davis,Female,21,3.38,BSIT,Web Development,E-commerce Website,Data Analyst,Weak,Average,Strong
+498,Mia Davis,Female,21,3.55,BSIT,Artificial Intelligence,Speech Recognition System,Systems Analyst,Strong,Strong,Weak
+499,William Davis,Male,22,2.59,BSIT,Computer Graphics,3D Rendering Demo,Software Engineer,Average,Weak,Strong
+500,Grace Jackson,Female,24,3.36,BSIT,Data Science,Customer Segmentation,Software Engineer,Average,Average,Strong
+501,Matthew Martin,Male,21,3.01,BSIT,Machine Learning,Chatbot Development,Information Security Analyst,Weak,Strong,Average
+502,Nora Anderson,Female,20,3.27,BSIT,Software Development,Enterprise App,Data Scientist,Weak,Average,Average
+503,Mark Reyes,Male,18,3.07,BSIT,Cloud Computing,GCP Migration Project,DevOps Engineer,Average,Average,Strong
+504,Sienna Thomas,Female,20,3.31,BSIT,Cybersecurity,Network Intrusion Detection,Data Analyst,Strong,Average,Weak
+505,Abigail Jones,Female,21,2.95,BSIT,Artificial Intelligence,Knowledge Graph Prototype,Machine Learning Engineer,Average,Weak,Strong
+506,Robert Santos,Male,24,2.62,BSIT,Database Management,Data Warehouse ETL,AI Researcher,Average,Average,Weak
+507,Ella Torres,Female,21,2.78,BSIT,Cloud Computing,AWS Deployment,Database Administrator,Average,Weak,Average
+508,Gabriel Moore,Male,20,2.98,BSIT,Cybersecurity,Penetration Testing Report,AI Researcher,Average,Average,Strong
+509,Hannah Thompson,Female,23,2.92,BSIT,IoT,Smart Home Prototype,DevOps Engineer,Strong,Average,Average
+510,Abigail Anderson,Female,22,3.12,BSIT,Artificial Intelligence,Computer Vision Project,Information Security Analyst,Strong,Weak,Weak
+511,Lily Anderson,Female,21,3.11,BSIT,Machine Learning,Image Classifier,Systems Analyst,Average,Weak,Average
+512,Amelia Davis,Female,22,3.05,BSIT,Database Management,Data Warehouse ETL,Mobile App Developer,Strong,Strong,Strong
+513,Chloe Brown,Female,22,2.83,BSIT,Machine Learning,Recommendation System,Software Engineer,Strong,Average,Weak
+514,Chloe Jones,Female,23,2.89,BSIT,Web Development,E-commerce Website,Cloud Solutions Architect,Strong,Average,Average
+515,Benjamin Moore,Male,22,2.96,BSIT,Cybersecurity,Cyber Defense Simulation,QA Engineer,Strong,Strong,Weak
+516,Mia Garcia,Female,18,2.81,BSIT,IoT,Smart Home Prototype,Data Scientist,Strong,Average,Average
+517,Olivia Garcia,Female,22,2.82,BSIT,Mobile App Development,Mobile Game,Mobile App Developer,Weak,Average,Average
+518,Robert Moore,Male,22,3.42,BSIT,Mobile App Development,Mobile Game,QA Engineer,Strong,Strong,Strong
+519,Sophia Johnson,Female,22,3.15,BSIT,Artificial Intelligence,NLP Pipeline,Data Scientist,Strong,Average,Strong
+520,Paul Brown,Male,21,3.01,BSIT,Mobile App Development,Android App,Machine Learning Engineer,Average,Strong,Weak
+521,Maya Wilson,Female,22,3.61,BSIT,Web Development,Responsive Web Design,AI Researcher,Average,Average,Strong
+522,Liam Wilson,Male,20,2.92,BSIT,Mobile App Development,Cross-Platform App,DevOps Engineer,Strong,Average,Average
+523,Ella Cruz,Female,22,3.16,BSIT,Computer Graphics,3D Rendering Demo,QA Engineer,Strong,Average,Average
+524,Matthew Smith,Male,23,3.36,BSIT,Mobile App Development,iOS App,Data Analyst,Average,Weak,Strong
+525,Daniel White,Male,20,3.1,BSIT,Data Science,Sales Forecasting Model,Mobile App Developer,Strong,Weak,Average
+526,Ava Reyes,Female,21,3.18,BSIT,IoT,Sensor Data Collector,Machine Learning Engineer,Average,Strong,Weak
+527,James Johnson,Male,20,2.93,BSIT,Computer Graphics,Game Graphics Module,Cloud Solutions Architect,Average,Average,Average
+528,Hannah Smith,Female,20,3.4,BSIT,Artificial Intelligence,Knowledge Graph Prototype,IoT Developer,Weak,Average,Strong
+529,Chloe Moore,Female,22,3.02,BSIT,Software Development,Inventory Management System,Systems Analyst,Weak,Average,Strong
+530,Maya Torres,Female,20,2.94,BSIT,Database Management,Database Schema Design,Database Administrator,Average,Weak,Strong
+531,James Reyes,Male,21,3.26,BSIT,Cybersecurity,Network Intrusion Detection,Software Engineer,Average,Weak,Average
+532,Amelia Lee,Female,22,3.52,BSIT,Data Science,Data Analysis Pipeline,QA Engineer,Strong,Average,Strong
+533,Charlotte Jones,Female,22,3.19,BSIT,Data Science,Data Visualization Dashboard,Data Analyst,Strong,Strong,Average
+534,Harper Miller,Female,23,3.65,BSIT,Software Development,Social Media Platform,Cloud Solutions Architect,Average,Strong,Strong
+535,David White,Male,26,3.32,BSIT,IoT,Embedded Device Controller,Web Developer,Weak,Strong,Weak
+536,Abigail Santos,Female,20,3.58,BSIT,Web Development,Portfolio Website,Web Developer,Average,Average,Average
+537,Mia Clarke,Female,22,3.74,BSIT,Software Development,Enterprise App,DevOps Engineer,Average,Average,Strong
+538,Victoria Moore,Female,21,2.96,BSIT,Data Science,Sales Forecasting Model,Software Engineer,Weak,Average,Strong
+539,Chloe Anderson,Female,22,2.74,BSIT,IoT,Smart Home Prototype,Database Administrator,Average,Strong,Weak
+540,Liam Clarke,Male,20,3.53,BSIT,Computer Graphics,3D Rendering Demo,Cloud Solutions Architect,Average,Average,Average
+541,Ethan White,Male,19,2.76,BSIT,Machine Learning,Image Classifier,Machine Learning Engineer,Average,Strong,Weak
+542,Ella White,Female,22,2.72,BSIT,Artificial Intelligence,NLP Pipeline,Software Engineer,Average,Average,Strong
+543,Paul Jackson,Male,25,3.54,BSIT,Mobile App Development,iOS App,Data Analyst,Weak,Strong,Weak
+544,Sienna Johnson,Female,20,2.84,BSIT,IoT,Sensor Data Collector,Software Engineer,Weak,Weak,Average
+545,Abigail Lee,Female,20,2.58,BSIT,Data Science,Data Analysis Pipeline,AI Researcher,Average,Average,Weak
+546,Benjamin Anderson,Male,19,2.8,BSIT,IoT,Sensor Data Collector,Database Administrator,Strong,Strong,Strong
+547,Grace Brown,Female,19,3.46,BSIT,Database Management,Database Schema Design,AI Researcher,Weak,Strong,Weak
+548,Lily Torres,Female,19,3.52,BSIT,Artificial Intelligence,NLP Pipeline,Software Engineer,Average,Strong,Strong
+549,Mark Santos,Male,19,3.4,BSIT,Artificial Intelligence,Knowledge Graph Prototype,Machine Learning Engineer,Average,Average,Weak
+550,David Clarke,Male,23,3.45,BSIT,Software Development,Inventory Management System,Cloud Solutions Architect,Weak,Weak,Average
+551,Ethan Torres,Male,26,2.75,BSIT,IoT,Sensor Data Collector,Information Security Analyst,Weak,Weak,Weak
+552,Victoria White,Female,20,3.18,BSIT,IoT,Smart Home Prototype,Software Engineer,Average,Average,Average
+553,Henry Johnson,Male,19,3.67,BSIT,Machine Learning,Image Classifier,AI Researcher,Average,Weak,Weak
+554,Hannah Davis,Female,23,3.36,BSIT,Database Management,Database Schema Design,Systems Analyst,Weak,Average,Weak
+555,Daniel Brown,Male,21,2.36,BSIT,Machine Learning,Chatbot Development,Data Analyst,Average,Weak,Average
+556,Ethan Martinez,Male,20,3.28,BSIT,Machine Learning,Image Classifier,DevOps Engineer,Average,Average,Weak
+557,Noah Rodriguez,Male,24,2.64,BSIT,IoT,Sensor Data Collector,Mobile App Developer,Strong,Strong,Weak
+558,Victoria Davis,Female,22,2.77,BSIT,Artificial Intelligence,Speech Recognition System,Software Engineer,Average,Strong,Weak
+559,Maya Garcia,Female,24,3.53,BSIT,Web Development,Portfolio Website,AI Researcher,Strong,Average,Average
+560,James Jackson,Male,21,2.95,BSIT,Data Science,Data Analysis Pipeline,DevOps Engineer,Average,Strong,Weak
+561,Olivia Smith,Female,21,2.99,BSIT,Mobile App Development,Android App,AI Researcher,Average,Weak,Average
+562,Abigail Santos,Female,22,3.79,BSIT,IoT,Smart Home Prototype,Cloud Solutions Architect,Strong,Average,Weak
+563,Matthew Santos,Male,25,2.51,BSIT,IoT,Smart Home Prototype,Mobile App Developer,Strong,Strong,Weak
+564,Chloe Johnson,Female,19,3.01,BSIT,Database Management,Query Performance Analyzer,Mobile App Developer,Weak,Strong,Average
+565,Amelia Garcia,Female,26,3.21,BSIT,Artificial Intelligence,Computer Vision Project,Systems Analyst,Average,Weak,Average
+566,Harper Johnson,Female,19,3.4,BSIT,Database Management,Query Performance Analyzer,AI Researcher,Average,Strong,Average
+567,Ella Jackson,Female,22,3.5,BSIT,Data Science,Sales Forecasting Model,Data Analyst,Average,Weak,Average
+568,Olivia Jones,Female,20,2.28,BSIT,Data Science,Sales Forecasting Model,AI Researcher,Weak,Weak,Strong
+569,Adrian Garcia,Male,21,2.63,BSIT,Web Development,Full-Stack Web App,Machine Learning Engineer,Weak,Strong,Weak
+570,Grace Moore,Female,22,3.51,BSIT,IoT,IoT Dashboard,AI Researcher,Average,Average,Strong
+571,Liam Thompson,Male,19,3.26,BSIT,Software Development,Enterprise App,AI Researcher,Average,Average,Weak
+572,Robert Lee,Male,24,2.96,BSIT,Computer Graphics,Animation Pipeline,Data Scientist,Strong,Strong,Average
+573,Mia Miller,Female,20,3.54,BSIT,Machine Learning,Fraud Detection Model,Information Security Analyst,Strong,Weak,Strong
+574,Mia Thomas,Female,21,3.29,BSIT,Machine Learning,Recommendation System,Web Developer,Weak,Average,Average
+575,Noah Garcia,Male,18,3.12,BSIT,Database Management,Data Warehouse ETL,AI Researcher,Strong,Strong,Strong
+576,Maya Cruz,Female,24,2.11,BSIT,Artificial Intelligence,Speech Recognition System,DevOps Engineer,Strong,Average,Weak
+577,John Taylor,Male,22,3.27,BSIT,Database Management,SQL Optimization Tool,Mobile App Developer,Average,Strong,Weak
+578,John Brown,Male,22,3.57,BSIT,Artificial Intelligence,NLP Pipeline,Graphics Programmer,Average,Average,Average
+579,Ethan Taylor,Male,19,3.43,BSIT,Database Management,SQL Optimization Tool,Information Security Analyst,Average,Strong,Average
+580,Henry Cruz,Male,26,2.89,BSIT,Artificial Intelligence,Speech Recognition System,Data Scientist,Strong,Strong,Average
+581,Gabriel Lee,Male,19,3.32,BSIT,Computer Graphics,Animation Pipeline,Web Developer,Strong,Average,Average
+582,Matthew Moore,Male,20,3.64,BSIT,Artificial Intelligence,Computer Vision Project,Machine Learning Engineer,Weak,Average,Average
+583,Maya Wilson,Female,21,3.18,BSIT,Web Development,E-commerce Website,Information Security Analyst,Average,Average,Average
+584,Liam Moore,Male,20,2.92,BSIT,IoT,Sensor Data Collector,Software Engineer,Weak,Average,Strong
+585,Ethan Thompson,Male,21,2.92,BSIT,IoT,Embedded Device Controller,DevOps Engineer,Strong,Average,Strong
+586,Matthew Miller,Male,22,3.32,BSIT,Machine Learning,Recommendation System,AI Researcher,Average,Weak,Weak
+587,Ethan Johnson,Male,20,2.28,BSIT,Computer Graphics,Game Graphics Module,Systems Analyst,Average,Strong,Average
+588,Noah Anderson,Male,23,3.03,BSIT,IoT,IoT Dashboard,Information Security Analyst,Average,Average,Weak
+589,Mia Smith,Female,19,3.06,BSIT,Cloud Computing,Dockerized Microservices,Data Analyst,Strong,Weak,Weak
+590,Joseph Martin,Male,22,3.88,BSIT,Computer Graphics,3D Rendering Demo,Cloud Solutions Architect,Average,Weak,Strong
+591,Victoria Thomas,Female,20,2.72,BSIT,Mobile App Development,Cross-Platform App,Data Scientist,Strong,Weak,Average
+592,Mia Santos,Female,20,3.76,BSIT,Machine Learning,Chatbot Development,Data Scientist,Weak,Average,Strong
+593,Mark Torres,Male,21,3.23,BSIT,IoT,Smart Home Prototype,AI Researcher,Weak,Average,Weak
+594,Isabella Jones,Female,24,3.3,BSIT,Cybersecurity,Penetration Testing Report,Data Scientist,Average,Weak,Weak
+595,Harper Thompson,Female,21,3.45,BSIT,Mobile App Development,iOS App,Graphics Programmer,Average,Weak,Weak
+596,Joseph Wilson,Male,20,3.6,BSIT,Computer Graphics,3D Rendering Demo,DevOps Engineer,Weak,Weak,Average
+597,Chloe Santos,Female,22,2.27,BSIT,Machine Learning,Recommendation System,Cloud Solutions Architect,Strong,Average,Average
+598,Henry Jones,Male,21,3.57,BSIT,Artificial Intelligence,Speech Recognition System,DevOps Engineer,Average,Strong,Weak
+599,Henry Lee,Male,22,2.9,BSIT,Cybersecurity,Cyber Defense Simulation,Information Security Analyst,Strong,Average,Strong
+600,Victoria Reyes,Female,21,2.49,BSIT,Web Development,Responsive Web Design,IoT Developer,Weak,Average,Average
+601,William Taylor,Male,21,3.04,BSIT,Machine Learning,Image Classifier,Database Administrator,Strong,Average,Average
+602,Lucas Cruz,Male,21,3.1,BSIT,Mobile App Development,Cross-Platform App,Systems Analyst,Strong,Average,Average
+603,Lily White,Female,21,3.46,BSIT,Data Science,Customer Segmentation,AI Researcher,Weak,Average,Weak
+604,David White,Male,22,3.55,BSIT,Machine Learning,Fraud Detection Model,Mobile App Developer,Weak,Weak,Average
+605,Paul Torres,Male,21,2.87,BSIT,Artificial Intelligence,Knowledge Graph Prototype,Graphics Programmer,Average,Average,Strong
+606,Sophia Moore,Female,24,3.27,BSIT,Data Science,Data Visualization Dashboard,AI Researcher,Weak,Average,Average
+607,Ella Santos,Female,20,2.89,BSIT,Cloud Computing,Cloud Monitoring Setup,Systems Analyst,Weak,Average,Average
+608,Maya White,Female,21,3.35,BSIT,Machine Learning,Image Classifier,Cloud Solutions Architect,Strong,Average,Average
+609,Ella Anderson,Female,19,3.02,BSIT,Database Management,Data Warehouse ETL,Systems Analyst,Strong,Average,Strong
+610,Ethan Thomas,Male,21,3.09,BSIT,Web Development,E-commerce Website,Machine Learning Engineer,Weak,Average,Weak
+611,Ella Jones,Female,21,3.55,BSIT,Artificial Intelligence,Knowledge Graph Prototype,Mobile App Developer,Average,Average,Weak
+612,Noah Taylor,Male,22,3.24,BSIT,Database Management,SQL Optimization Tool,Systems Analyst,Average,Average,Weak
+613,Grace Miller,Female,22,2.92,BSIT,Artificial Intelligence,NLP Pipeline,QA Engineer,Average,Weak,Average
+614,Ava Lee,Female,23,3.52,BSIT,Data Science,Data Analysis Pipeline,Mobile App Developer,Average,Weak,Strong
+615,David Clarke,Male,23,2.86,BSIT,IoT,IoT Dashboard,Machine Learning Engineer,Average,Average,Average
+616,Nora Miller,Female,24,3.19,BSIT,IoT,Sensor Data Collector,Mobile App Developer,Average,Average,Strong
+617,Harper Clarke,Female,22,2.68,BSIT,Cloud Computing,AWS Deployment,Graphics Programmer,Weak,Average,Weak
+618,Ella Moore,Female,21,2.75,BSIT,Data Science,Sales Forecasting Model,QA Engineer,Average,Strong,Average
+619,Lily Rodriguez,Female,19,3.31,BSIT,Software Development,DevOps Automation,AI Researcher,Average,Average,Weak
+620,William Smith,Male,20,3.48,BSIT,Software Development,Enterprise App,IoT Developer,Strong,Strong,Weak
+621,Olivia Anderson,Female,22,3.78,BSIT,Cloud Computing,Dockerized Microservices,IoT Developer,Average,Weak,Strong
+622,Mia Rodriguez,Female,19,2.56,BSIT,Computer Graphics,3D Rendering Demo,Graphics Programmer,Average,Average,Strong
+623,Victoria Brown,Female,20,3.72,BSIT,Database Management,Query Performance Analyzer,Systems Analyst,Strong,Average,Average
+624,Matthew Jackson,Male,21,3.7,BSIT,Mobile App Development,Android App,AI Researcher,Average,Average,Average
+625,Daniel Martinez,Male,24,3.55,BSIT,Database Management,Data Warehouse ETL,Software Engineer,Average,Strong,Weak
+626,Sophia Santos,Female,24,3.05,BSIT,IoT,Sensor Data Collector,Information Security Analyst,Average,Average,Strong
+627,James Martin,Male,24,3.45,BSIT,Cloud Computing,Dockerized Microservices,Information Security Analyst,Weak,Strong,Weak
+628,Robert Jackson,Male,22,2.89,BSIT,IoT,Embedded Device Controller,Systems Analyst,Weak,Strong,Strong
+629,Victoria Cruz,Female,21,3.54,BSIT,Data Science,Sales Forecasting Model,DevOps Engineer,Strong,Weak,Average
+630,Grace Jackson,Female,22,2.67,BSIT,Web Development,E-commerce Website,IoT Developer,Average,Average,Weak
+631,Liam Anderson,Male,22,3.43,BSIT,IoT,Sensor Data Collector,QA Engineer,Average,Average,Strong
+632,William Martinez,Male,20,3.39,BSIT,Mobile App Development,Cross-Platform App,Systems Analyst,Average,Weak,Average
+633,Gabriel Rodriguez,Male,18,3.71,BSIT,Mobile App Development,iOS App,Data Analyst,Weak,Average,Strong
+634,Samuel Moore,Male,22,3.27,BSIT,Machine Learning,Image Classifier,Database Administrator,Average,Average,Weak
+635,Abigail Reyes,Female,21,3.24,BSIT,Software Development,Inventory Management System,DevOps Engineer,Average,Weak,Strong
+636,Ella Cruz,Female,22,3.47,BSIT,Cloud Computing,GCP Migration Project,Cloud Solutions Architect,Strong,Weak,Strong
+637,Henry Rodriguez,Male,21,3.02,BSIT,Web Development,Responsive Web Design,Data Scientist,Strong,Strong,Average
+638,Benjamin Santos,Male,21,2.79,BSIT,Mobile App Development,Cross-Platform App,Web Developer,Weak,Weak,Average
+639,Sienna Reyes,Female,25,2.66,BSIT,Web Development,Portfolio Website,Information Security Analyst,Average,Average,Strong
+640,Mia Martin,Female,18,2.82,BSIT,Machine Learning,Recommendation System,Data Scientist,Weak,Strong,Strong
+641,Paul Moore,Male,19,3.29,BSIT,Machine Learning,Fraud Detection Model,QA Engineer,Average,Average,Average
+642,Harper Lee,Female,23,3.28,BSIT,Software Development,Inventory Management System,Cloud Solutions Architect,Strong,Average,Strong
+643,Henry Johnson,Male,20,3.44,BSIT,Artificial Intelligence,Speech Recognition System,Data Scientist,Strong,Average,Strong
+644,Ethan Santos,Male,22,3.29,BSIT,Artificial Intelligence,Knowledge Graph Prototype,Web Developer,Weak,Strong,Weak
+645,Charlotte Miller,Female,23,3.43,BSIT,IoT,Sensor Data Collector,Mobile App Developer,Strong,Weak,Strong
+646,David Rodriguez,Male,23,2.74,BSIT,IoT,Smart Home Prototype,Data Analyst,Average,Average,Strong
+647,Ethan Thompson,Male,25,3.48,BSIT,Web Development,Portfolio Website,AI Researcher,Strong,Average,Average
+648,Sienna Reyes,Female,18,3.42,BSIT,Web Development,Responsive Web Design,Database Administrator,Strong,Strong,Strong
+649,Mia Davis,Female,24,3.3,BSIT,Web Development,Portfolio Website,Graphics Programmer,Strong,Average,Average
+650,Benjamin Brown,Male,18,2.89,BSIT,Cybersecurity,Penetration Testing Report,Cloud Solutions Architect,Strong,Average,Strong
+651,Isabella Wilson,Female,21,2.54,BSIT,Software Development,Enterprise App,Database Administrator,Average,Strong,Average
+652,Victoria Martinez,Female,22,3.5,BSIT,Cloud Computing,AWS Deployment,Systems Analyst,Average,Average,Weak
+653,Olivia Johnson,Female,21,3.79,BSIT,IoT,Sensor Data Collector,Data Analyst,Average,Average,Average
+654,Lucas Brown,Male,24,3.1,BSIT,Artificial Intelligence,Speech Recognition System,Data Scientist,Average,Average,Average
+655,Gabriel Johnson,Male,22,3.62,BSIT,Computer Graphics,3D Modeling Project,Cloud Solutions Architect,Weak,Average,Average
+656,Matthew Thompson,Male,19,2.96,BSIT,Computer Graphics,3D Rendering Demo,Web Developer,Strong,Average,Strong
+657,Sophia Brown,Female,21,3.1,BSIT,Artificial Intelligence,Knowledge Graph Prototype,Mobile App Developer,Strong,Average,Strong
+658,David Cruz,Male,26,2.87,BSIT,Software Development,Social Media Platform,Cloud Solutions Architect,Average,Weak,Average
+659,Benjamin Reyes,Male,25,2.83,BSIT,Mobile App Development,Cross-Platform App,DevOps Engineer,Average,Average,Average
+660,John Davis,Male,19,2.92,BSIT,Web Development,E-commerce Website,QA Engineer,Weak,Average,Weak
+661,Adrian Davis,Male,19,3.23,BSIT,Cloud Computing,AWS Deployment,Web Developer,Weak,Weak,Strong
+662,Victoria Smith,Female,23,2.98,BSIT,Mobile App Development,iOS App,Machine Learning Engineer,Average,Strong,Average
+663,Lucas Moore,Male,23,3.16,BSIT,Computer Graphics,Animation Pipeline,Software Engineer,Average,Average,Average
+664,Victoria Rodriguez,Female,22,2.66,BSIT,Computer Graphics,3D Rendering Demo,Cloud Solutions Architect,Average,Average,Average
+665,Victoria Jones,Female,21,3.54,BSIT,Cloud Computing,AWS Deployment,Data Scientist,Average,Weak,Average
+666,Daniel Thompson,Male,24,3.06,BSIT,Database Management,Query Performance Analyzer,Data Scientist,Strong,Average,Average
+667,Chloe White,Female,23,3.51,BSIT,Software Development,Social Media Platform,IoT Developer,Average,Weak,Average
+668,Victoria Wilson,Female,20,2.74,BSIT,Computer Graphics,3D Rendering Demo,Software Engineer,Average,Average,Average
+669,Paul Johnson,Male,23,3.1,BSIT,Cybersecurity,Network Intrusion Detection,Graphics Programmer,Weak,Average,Average
+670,Michael Torres,Male,24,3.37,BSIT,Software Development,Enterprise App,QA Engineer,Average,Average,Strong
+671,Abigail Jackson,Female,25,3.24,BSIT,Mobile App Development,Android App,QA Engineer,Average,Average,Weak
+672,Ethan Miller,Male,22,2.12,BSIT,Artificial Intelligence,Knowledge Graph Prototype,DevOps Engineer,Strong,Weak,Average
+673,Joseph Jackson,Male,26,3.21,BSIT,Artificial Intelligence,Speech Recognition System,Information Security Analyst,Strong,Weak,Average
+674,Daniel Garcia,Male,23,3.15,BSIT,Computer Graphics,3D Modeling Project,Systems Analyst,Weak,Strong,Average
+675,Henry Harris,Male,23,3.14,BSIT,Machine Learning,Image Classifier,DevOps Engineer,Average,Strong,Weak
+676,Charlotte Moore,Female,19,3.28,BSIT,Web Development,E-commerce Website,Data Analyst,Average,Strong,Strong
+677,Zara Wilson,Female,21,3.67,BSIT,Software Development,Inventory Management System,Data Analyst,Average,Strong,Strong
+678,Benjamin Jackson,Male,22,2.79,BSIT,Computer Graphics,3D Modeling Project,DevOps Engineer,Average,Strong,Average
+679,Ella Brown,Female,18,2.87,BSIT,Machine Learning,Recommendation System,Machine Learning Engineer,Strong,Average,Average
+680,John Martin,Male,22,3.75,BSIT,Cybersecurity,Secure Login System,DevOps Engineer,Average,Average,Strong
+681,Harper Clarke,Female,21,3.68,BSIT,Data Science,Data Visualization Dashboard,Information Security Analyst,Average,Weak,Average
+682,Maya Thompson,Female,22,3.67,BSIT,IoT,Sensor Data Collector,Database Administrator,Average,Average,Strong
+683,Mia Santos,Female,21,3.19,BSIT,Computer Graphics,Game Graphics Module,QA Engineer,Strong,Average,Weak
+684,Lucas Brown,Male,19,3.01,BSIT,Cloud Computing,GCP Migration Project,AI Researcher,Weak,Weak,Average
+685,Adrian Harris,Male,23,3.57,BSIT,IoT,Embedded Device Controller,AI Researcher,Average,Strong,Strong
+686,Robert Garcia,Male,21,2.82,BSIT,Artificial Intelligence,Knowledge Graph Prototype,Data Scientist,Strong,Average,Average
+687,Michael Cruz,Male,19,2.36,BSIT,Data Science,Data Visualization Dashboard,Web Developer,Average,Average,Weak
+688,Ethan Wilson,Male,20,2.87,BSIT,Web Development,E-commerce Website,Data Scientist,Strong,Average,Strong
+689,Liam Davis,Male,20,3.2,BSIT,Computer Graphics,Animation Pipeline,Web Developer,Strong,Average,Average
+690,Grace Taylor,Female,21,3.17,BSIT,Mobile App Development,iOS App,Systems Analyst,Weak,Average,Strong
+691,Noah Brown,Male,23,2.99,BSIT,Cybersecurity,Cyber Defense Simulation,Database Administrator,Average,Strong,Strong
+692,Olivia Miller,Female,22,2.85,BSIT,Mobile App Development,Cross-Platform App,Graphics Programmer,Average,Average,Strong
+693,Sophia Thompson,Female,21,3.2,BSIT,Web Development,Portfolio Website,IoT Developer,Strong,Weak,Weak
+694,Ava Santos,Female,23,2.73,BSIT,Mobile App Development,Mobile Game,Web Developer,Strong,Average,Weak
+695,Emily Anderson,Female,21,2.52,BSIT,Database Management,Query Performance Analyzer,Information Security Analyst,Weak,Average,Average
+696,David Garcia,Male,20,3.6,BSIT,Cloud Computing,GCP Migration Project,Software Engineer,Average,Average,Weak
+697,Benjamin Jones,Male,21,2.9,BSIT,Cloud Computing,AWS Deployment,Software Engineer,Weak,Strong,Average
+698,Paul Taylor,Male,25,3.38,BSIT,Software Development,Social Media Platform,Database Administrator,Average,Average,Average
+699,John Martinez,Male,22,3.04,BSIT,Computer Graphics,Game Graphics Module,Information Security Analyst,Average,Average,Strong
+700,William Thomas,Male,22,3.1,BSIT,Machine Learning,Chatbot Development,Graphics Programmer,Weak,Strong,Average
+701,Sienna Wilson,Female,22,3.27,BSIT,Artificial Intelligence,Speech Recognition System,Mobile App Developer,Strong,Average,Strong
+702,Paul Wilson,Male,18,3.32,BSIT,Computer Graphics,3D Rendering Demo,Information Security Analyst,Weak,Average,Strong
+703,Harper Moore,Female,20,2.48,BSIT,IoT,IoT Dashboard,IoT Developer,Average,Strong,Average
+704,Noah Anderson,Male,20,3.18,BSIT,Mobile App Development,Cross-Platform App,Software Engineer,Strong,Weak,Strong
+705,John Reyes,Male,20,2.62,BSIT,Artificial Intelligence,Knowledge Graph Prototype,Graphics Programmer,Average,Strong,Average
+706,Abigail Reyes,Female,19,2.99,BSIT,Cloud Computing,Dockerized Microservices,Cloud Solutions Architect,Weak,Strong,Average
+707,Henry Thomas,Male,25,2.93,BSIT,Web Development,Full-Stack Web App,IoT Developer,Strong,Average,Weak
+708,Ella Santos,Female,20,3.3,BSIT,Artificial Intelligence,Speech Recognition System,Software Engineer,Average,Strong,Strong
+709,Benjamin Jones,Male,24,2.78,BSIT,Computer Graphics,Game Graphics Module,IoT Developer,Strong,Average,Average
+710,Gabriel Garcia,Male,23,3.0,BSIT,Machine Learning,Recommendation System,Data Analyst,Strong,Weak,Average
+711,John Santos,Male,22,2.75,BSIT,Artificial Intelligence,NLP Pipeline,Cloud Solutions Architect,Strong,Strong,Weak
+712,Lucas Martinez,Male,19,2.8,BSIT,Computer Graphics,3D Modeling Project,AI Researcher,Average,Strong,Strong
+713,Matthew Moore,Male,22,3.04,BSIT,Database Management,SQL Optimization Tool,Data Analyst,Average,Strong,Strong
+714,David Rodriguez,Male,20,3.56,BSIT,Database Management,Data Warehouse ETL,Web Developer,Average,Strong,Average
+715,Grace Martinez,Female,20,2.2,BSIT,Web Development,Full-Stack Web App,Graphics Programmer,Strong,Strong,Strong
+716,Isabella Clarke,Female,21,3.37,BSIT,Data Science,Data Analysis Pipeline,Software Engineer,Strong,Average,Strong
+717,Sophia Jackson,Female,19,2.87,BSIT,Data Science,Data Analysis Pipeline,Graphics Programmer,Strong,Strong,Average
+718,Samuel Reyes,Male,22,2.93,BSIT,Artificial Intelligence,Knowledge Graph Prototype,AI Researcher,Average,Strong,Average
+719,Emily Jackson,Female,21,3.04,BSIT,Web Development,Portfolio Website,Mobile App Developer,Strong,Weak,Average
+720,Harper Thomas,Female,21,3.1,BSIT,Mobile App Development,Mobile Game,Data Scientist,Weak,Strong,Average
+721,Ethan Wilson,Male,22,2.98,BSIT,Artificial Intelligence,Speech Recognition System,Mobile App Developer,Average,Average,Weak
+722,Sophia Rodriguez,Female,21,3.14,BSIT,Computer Graphics,3D Rendering Demo,Cloud Solutions Architect,Average,Strong,Average
+723,David Anderson,Male,20,2.59,BSIT,Artificial Intelligence,Speech Recognition System,QA Engineer,Average,Strong,Average
+724,Henry Johnson,Male,21,3.29,BSIT,Web Development,E-commerce Website,DevOps Engineer,Weak,Average,Weak
+725,Grace Cruz,Female,21,2.59,BSIT,Web Development,Full-Stack Web App,Software Engineer,Weak,Weak,Weak
+726,Joseph Clarke,Male,22,3.64,BSIT,Database Management,SQL Optimization Tool,Software Engineer,Weak,Average,Weak
+727,Adrian Rodriguez,Male,20,3.96,BSIT,Data Science,Data Analysis Pipeline,QA Engineer,Weak,Average,Strong
+728,Ella Jackson,Female,20,3.3,BSIT,Database Management,Database Schema Design,Graphics Programmer,Strong,Strong,Strong
+729,William Garcia,Male,23,3.34,BSIT,Database Management,Data Warehouse ETL,Mobile App Developer,Average,Strong,Strong
+730,Nora Wilson,Female,23,3.56,BSIT,Database Management,Database Schema Design,Software Engineer,Average,Strong,Weak
+731,Victoria Davis,Female,22,3.35,BSIT,Mobile App Development,Android App,Data Scientist,Average,Strong,Average
+732,Henry Miller,Male,21,2.51,BSIT,Database Management,Query Performance Analyzer,DevOps Engineer,Strong,Strong,Average
+733,Sophia Davis,Female,20,3.43,BSIT,Cloud Computing,GCP Migration Project,Information Security Analyst,Average,Average,Weak
+734,Harper Martin,Female,19,3.96,BSIT,Data Science,Customer Segmentation,AI Researcher,Average,Weak,Weak
+735,Henry Jackson,Male,21,2.88,BSIT,Software Development,DevOps Automation,Software Engineer,Weak,Weak,Average
+736,Paul Harris,Male,22,3.55,BSIT,Data Science,Customer Segmentation,Data Analyst,Average,Weak,Average
+737,Noah Martinez,Male,20,3.44,BSIT,Software Development,Enterprise App,DevOps Engineer,Average,Weak,Strong
+738,Harper Smith,Female,23,2.64,BSIT,Software Development,Inventory Management System,Systems Analyst,Strong,Strong,Strong
+739,Paul Torres,Male,25,3.39,BSIT,Cybersecurity,Cyber Defense Simulation,Machine Learning Engineer,Average,Strong,Strong
+740,Abigail Anderson,Female,23,2.98,BSIT,Database Management,Database Schema Design,Cloud Solutions Architect,Strong,Average,Weak
+741,Chloe Garcia,Female,22,3.86,BSIT,Web Development,Responsive Web Design,Systems Analyst,Average,Average,Weak
+742,Benjamin Torres,Male,23,3.89,BSIT,Computer Graphics,Animation Pipeline,Database Administrator,Average,Average,Weak
+743,Noah Thompson,Male,22,2.76,BSIT,Cloud Computing,Cloud Monitoring Setup,Machine Learning Engineer,Strong,Weak,Average
+744,Noah Thompson,Male,25,2.87,BSIT,IoT,IoT Dashboard,Web Developer,Weak,Average,Weak
+745,Sienna White,Female,18,3.48,BSIT,Cloud Computing,Dockerized Microservices,Machine Learning Engineer,Weak,Average,Weak
+746,Paul Smith,Male,20,4.0,BSIT,Cloud Computing,Cloud Monitoring Setup,Data Scientist,Strong,Weak,Average
+747,Lily Davis,Female,19,3.32,BSIT,IoT,Embedded Device Controller,Data Scientist,Average,Strong,Average
+748,Henry Martinez,Male,20,3.61,BSIT,Machine Learning,Fraud Detection Model,Web Developer,Average,Average,Weak
+749,Victoria Jackson,Female,21,3.37,BSIT,IoT,Embedded Device Controller,Database Administrator,Strong,Strong,Average
+750,Charlotte Moore,Female,20,3.24,BSIT,Mobile App Development,Mobile Game,AI Researcher,Average,Average,Weak
+751,Sophia Rodriguez,Female,24,3.65,BSIT,Computer Graphics,Animation Pipeline,IoT Developer,Strong,Average,Strong
+752,Mark Moore,Male,26,3.89,BSIT,Computer Graphics,3D Rendering Demo,Database Administrator,Weak,Weak,Strong
+753,Henry Miller,Male,20,2.75,BSIT,Data Science,Data Visualization Dashboard,Cloud Solutions Architect,Weak,Average,Weak
+754,William Anderson,Male,22,3.18,BSIT,Artificial Intelligence,Knowledge Graph Prototype,AI Researcher,Strong,Average,Weak
+755,Matthew Miller,Male,20,3.38,BSIT,Software Development,Social Media Platform,Graphics Programmer,Strong,Weak,Weak
+756,Henry Thomas,Male,20,3.22,BSIT,Web Development,E-commerce Website,AI Researcher,Average,Strong,Strong
+757,Isabella Taylor,Female,22,2.69,BSIT,Web Development,Responsive Web Design,Systems Analyst,Weak,Weak,Strong
+758,John Moore,Male,18,3.39,BSIT,Web Development,Full-Stack Web App,QA Engineer,Weak,Average,Weak
+759,Charlotte Cruz,Female,20,3.04,BSIT,Database Management,Data Warehouse ETL,Graphics Programmer,Average,Average,Strong
+760,Daniel Davis,Male,19,3.3,BSIT,Database Management,Database Schema Design,Software Engineer,Average,Average,Average
+761,Matthew Clarke,Male,22,4.0,BSIT,Cloud Computing,Dockerized Microservices,Systems Analyst,Average,Strong,Weak
+762,Maya Miller,Female,20,3.43,BSIT,Data Science,Customer Segmentation,IoT Developer,Strong,Average,Strong
+763,Noah Reyes,Male,21,2.92,BSIT,Mobile App Development,Mobile Game,Cloud Solutions Architect,Average,Strong,Strong
+764,John Lee,Male,23,3.67,BSIT,Data Science,Customer Segmentation,Machine Learning Engineer,Weak,Strong,Average
+765,Liam Davis,Male,19,3.23,BSIT,Mobile App Development,Mobile Game,DevOps Engineer,Strong,Weak,Strong
+766,Lucas Clarke,Male,23,3.31,BSIT,Web Development,E-commerce Website,QA Engineer,Strong,Average,Weak
+767,Daniel Reyes,Male,22,3.34,BSIT,Computer Graphics,Animation Pipeline,Data Scientist,Average,Weak,Strong
+768,Joseph Johnson,Male,22,4.0,BSIT,Machine Learning,Chatbot Development,Data Scientist,Strong,Average,Strong
+769,David Moore,Male,22,2.96,BSIT,Cybersecurity,Cyber Defense Simulation,Data Scientist,Average,Average,Average
+770,Amelia Martinez,Female,23,3.79,BSIT,Artificial Intelligence,NLP Pipeline,Database Administrator,Average,Weak,Average
+771,Mia White,Female,18,2.62,BSIT,Software Development,Enterprise App,Graphics Programmer,Strong,Average,Average
+772,Samuel White,Male,19,3.73,BSIT,Machine Learning,Fraud Detection Model,Machine Learning Engineer,Average,Weak,Weak
+773,Victoria Taylor,Female,24,4.0,BSIT,Database Management,Query Performance Analyzer,AI Researcher,Average,Strong,Weak
+774,Isabella Taylor,Female,25,2.81,BSIT,Machine Learning,Chatbot Development,Systems Analyst,Strong,Average,Strong
+775,Mark Clarke,Male,22,3.01,BSIT,Cloud Computing,GCP Migration Project,Machine Learning Engineer,Average,Strong,Average
+776,Emily Santos,Female,22,2.65,BSIT,Machine Learning,Recommendation System,Mobile App Developer,Strong,Average,Average
+777,Charlotte Smith,Female,19,3.73,BSIT,Cloud Computing,Cloud Monitoring Setup,DevOps Engineer,Average,Strong,Average
+778,Lucas Miller,Male,23,3.55,BSIT,Software Development,Inventory Management System,Graphics Programmer,Strong,Average,Average
+779,David Jones,Male,22,3.26,BSIT,Machine Learning,Recommendation System,DevOps Engineer,Weak,Strong,Average
+780,Mark Smith,Male,19,2.84,BSIT,Cloud Computing,Cloud Monitoring Setup,IoT Developer,Average,Average,Weak
+781,William Davis,Male,21,3.01,BSIT,Mobile App Development,iOS App,Data Scientist,Weak,Strong,Average
+782,Hannah Jackson,Female,22,3.2,BSIT,Mobile App Development,Android App,QA Engineer,Average,Weak,Weak
+783,John Thompson,Male,20,2.53,BSIT,Web Development,Portfolio Website,Information Security Analyst,Strong,Weak,Average
+784,Isabella Davis,Female,21,3.26,BSIT,Web Development,Responsive Web Design,Mobile App Developer,Average,Strong,Average
+785,Noah Lee,Male,21,2.62,BSIT,Database Management,Database Schema Design,Database Administrator,Average,Average,Weak
+786,James Smith,Male,21,3.81,BSIT,Cloud Computing,GCP Migration Project,Software Engineer,Average,Strong,Average
+787,Ava Thomas,Female,21,2.88,BSIT,Computer Graphics,3D Modeling Project,IoT Developer,Weak,Strong,Strong
+788,Emily Clarke,Female,21,2.46,BSIT,Web Development,Full-Stack Web App,IoT Developer,Average,Average,Average
+789,Olivia Thomas,Female,21,4.0,BSIT,IoT,Smart Home Prototype,DevOps Engineer,Average,Average,Strong
+790,Maya Santos,Female,21,2.81,BSIT,Machine Learning,Fraud Detection Model,Systems Analyst,Strong,Strong,Strong
+791,Henry Jones,Male,21,2.91,BSIT,Machine Learning,Image Classifier,Web Developer,Strong,Strong,Weak
+792,Harper Rodriguez,Female,22,3.12,BSIT,IoT,Embedded Device Controller,Data Analyst,Average,Average,Strong
+793,Victoria Brown,Female,23,3.06,BSIT,Mobile App Development,Android App,IoT Developer,Average,Strong,Strong
+794,Nora Moore,Female,23,3.45,BSIT,Cybersecurity,Secure Login System,Web Developer,Average,Weak,Average
+795,Amelia Cruz,Female,25,3.01,BSIT,Database Management,Query Performance Analyzer,Mobile App Developer,Strong,Average,Average
+796,Lucas Anderson,Male,23,3.11,BSIT,IoT,Sensor Data Collector,Graphics Programmer,Average,Average,Weak
+797,Henry Anderson,Male,19,3.91,BSIT,Artificial Intelligence,Knowledge Graph Prototype,Data Scientist,Strong,Weak,Average
+798,Sienna Anderson,Female,20,2.93,BSIT,Data Science,Customer Segmentation,QA Engineer,Average,Average,Strong
+799,Lily Johnson,Female,26,2.83,BSIT,Cybersecurity,Penetration Testing Report,DevOps Engineer,Strong,Strong,Strong
+800,Lily Wilson,Female,26,3.85,BSIT,IoT,Sensor Data Collector,Software Engineer,Average,Average,Average
+801,Lily Taylor,Female,19,3.15,BSIT,Cybersecurity,Cyber Defense Simulation,Web Developer,Weak,Strong,Average
+802,Ella Jackson,Female,22,2.88,BSIT,Mobile App Development,iOS App,AI Researcher,Average,Average,Average
+803,Emily Thomas,Female,22,2.66,BSIT,Machine Learning,Fraud Detection Model,Cloud Solutions Architect,Average,Weak,Weak
+804,Michael Jones,Male,26,2.92,BSIT,IoT,IoT Dashboard,Mobile App Developer,Average,Weak,Strong
+805,James Rodriguez,Male,21,3.02,BSIT,Machine Learning,Fraud Detection Model,Systems Analyst,Strong,Strong,Average
+806,Lily Martinez,Female,22,3.71,BSIT,Artificial Intelligence,Speech Recognition System,Software Engineer,Strong,Weak,Average
+807,John Thompson,Male,22,2.91,BSIT,Data Science,Sales Forecasting Model,Cloud Solutions Architect,Average,Average,Average
+808,David Santos,Male,24,3.06,BSIT,Computer Graphics,Game Graphics Module,Cloud Solutions Architect,Strong,Weak,Average
+809,Zara White,Female,19,3.46,BSIT,IoT,Smart Home Prototype,Systems Analyst,Strong,Strong,Strong
+810,Samuel Santos,Male,20,2.77,BSIT,Computer Graphics,3D Modeling Project,Systems Analyst,Average,Weak,Average
+811,Olivia Martin,Female,20,3.2,BSIT,Data Science,Customer Segmentation,Database Administrator,Strong,Weak,Strong
+812,Michael Harris,Male,24,3.03,BSIT,Software Development,DevOps Automation,Data Scientist,Average,Average,Strong
+813,Adrian Harris,Male,20,3.8,BSIT,Cybersecurity,Network Intrusion Detection,Machine Learning Engineer,Weak,Strong,Weak
+814,Adrian Davis,Male,22,3.63,BSIT,Software Development,Enterprise App,DevOps Engineer,Average,Weak,Average
+815,Lily Jackson,Female,19,3.19,BSIT,Machine Learning,Chatbot Development,Web Developer,Strong,Average,Average
+816,Maya Reyes,Female,22,3.62,BSIT,Computer Graphics,Game Graphics Module,Cloud Solutions Architect,Strong,Average,Strong
+817,Samuel Rodriguez,Male,19,3.34,BSIT,Computer Graphics,3D Modeling Project,Web Developer,Average,Weak,Strong
+818,Mia Rodriguez,Female,20,3.34,BSIT,Data Science,Data Visualization Dashboard,Machine Learning Engineer,Average,Weak,Strong
+819,Ella Thompson,Female,23,2.71,BSIT,Mobile App Development,Cross-Platform App,Graphics Programmer,Average,Weak,Average
+820,Charlotte Thomas,Female,23,3.23,BSIT,IoT,Embedded Device Controller,AI Researcher,Average,Average,Average
+821,Mia Garcia,Female,21,3.19,BSIT,IoT,IoT Dashboard,DevOps Engineer,Strong,Average,Average
+822,Henry Thomas,Male,23,3.07,BSIT,Computer Graphics,Animation Pipeline,Information Security Analyst,Strong,Average,Strong
+823,Ava Wilson,Female,22,3.49,BSIT,Database Management,SQL Optimization Tool,IoT Developer,Weak,Average,Strong
+824,Liam Martin,Male,25,3.38,BSIT,Web Development,Responsive Web Design,IoT Developer,Average,Strong,Average
+825,Adrian Santos,Male,19,3.46,BSIT,Web Development,Responsive Web Design,DevOps Engineer,Average,Average,Strong
+826,Zara Reyes,Female,22,3.22,BSIT,Mobile App Development,Mobile Game,Data Scientist,Average,Strong,Average
+827,William Harris,Male,21,3.64,BSIT,Machine Learning,Recommendation System,Web Developer,Strong,Average,Strong
+828,Ella Wilson,Female,21,3.35,BSIT,Software Development,Enterprise App,Software Engineer,Strong,Average,Average
+829,Zara Johnson,Female,25,3.81,BSIT,Web Development,Full-Stack Web App,Software Engineer,Average,Average,Average
+830,Robert Taylor,Male,21,2.71,BSIT,Data Science,Data Visualization Dashboard,AI Researcher,Average,Average,Strong
+831,Emily Garcia,Female,23,3.2,BSIT,Database Management,Data Warehouse ETL,Database Administrator,Average,Average,Strong
+832,Henry Miller,Male,19,3.65,BSIT,Cloud Computing,AWS Deployment,Database Administrator,Strong,Strong,Weak
+833,William Taylor,Male,21,3.15,BSIT,IoT,Sensor Data Collector,AI Researcher,Strong,Strong,Weak
+834,Mark Reyes,Male,22,3.29,BSIT,Database Management,Query Performance Analyzer,Graphics Programmer,Strong,Average,Strong
+835,Emily Garcia,Female,19,2.52,BSIT,Cybersecurity,Network Intrusion Detection,IoT Developer,Strong,Average,Average
+836,Mark Wilson,Male,20,3.2,BSIT,Data Science,Data Visualization Dashboard,Machine Learning Engineer,Average,Strong,Weak
+837,Matthew Santos,Male,20,3.31,BSIT,Data Science,Sales Forecasting Model,Machine Learning Engineer,Average,Average,Average
+838,Michael Martinez,Male,26,2.96,BSIT,Machine Learning,Fraud Detection Model,Software Engineer,Average,Weak,Weak
+839,Daniel Rodriguez,Male,21,2.73,BSIT,IoT,Smart Home Prototype,Information Security Analyst,Weak,Average,Strong
+840,Ava Anderson,Female,24,3.26,BSIT,Machine Learning,Image Classifier,Software Engineer,Average,Strong,Weak
+841,Isabella Moore,Female,20,3.56,BSIT,Software Development,Social Media Platform,Web Developer,Average,Average,Weak
+842,Ethan Cruz,Male,23,3.08,BSIT,Computer Graphics,Animation Pipeline,Machine Learning Engineer,Average,Weak,Average
+843,Mia Clarke,Female,23,3.59,BSIT,IoT,Sensor Data Collector,Machine Learning Engineer,Strong,Strong,Weak
+844,Grace Wilson,Female,22,3.56,BSIT,Cybersecurity,Penetration Testing Report,Software Engineer,Weak,Average,Strong
+845,Nora Thomas,Female,24,2.6,BSIT,Cloud Computing,AWS Deployment,AI Researcher,Average,Strong,Average
+846,Samuel Martinez,Male,22,3.4,BSIT,Machine Learning,Recommendation System,Software Engineer,Average,Weak,Strong
+847,Victoria Reyes,Female,22,3.04,BSIT,Artificial Intelligence,Knowledge Graph Prototype,Graphics Programmer,Average,Average,Average
+848,Joseph Thompson,Male,22,3.19,BSIT,Computer Graphics,3D Modeling Project,Graphics Programmer,Strong,Average,Average
+849,Matthew Martin,Male,19,3.28,BSIT,Software Development,Social Media Platform,IoT Developer,Weak,Strong,Average
+850,Ava Davis,Female,22,3.69,BSIT,Web Development,Full-Stack Web App,IoT Developer,Average,Average,Weak
+851,Nora Martinez,Female,22,2.74,BSIT,Database Management,SQL Optimization Tool,IoT Developer,Strong,Strong,Weak
+852,John Martin,Male,22,3.5,BSIT,Mobile App Development,Android App,DevOps Engineer,Strong,Average,Strong
+853,Nora Davis,Female,23,3.26,BSIT,Mobile App Development,Mobile Game,Data Scientist,Average,Strong,Weak
+854,Mark Miller,Male,21,3.51,BSIT,Machine Learning,Chatbot Development,Mobile App Developer,Weak,Strong,Average
+855,Robert Taylor,Male,22,3.28,BSIT,Cloud Computing,GCP Migration Project,AI Researcher,Strong,Strong,Weak
+856,Emily Lee,Female,19,3.41,BSIT,Cloud Computing,AWS Deployment,Web Developer,Strong,Strong,Average
+857,Daniel Torres,Male,19,3.55,BSIT,Web Development,Portfolio Website,Systems Analyst,Weak,Strong,Average
+858,Amelia Garcia,Female,21,3.64,BSIT,Mobile App Development,Mobile Game,QA Engineer,Weak,Average,Weak
+859,Nora Jones,Female,18,3.68,BSIT,Data Science,Data Visualization Dashboard,Data Scientist,Average,Weak,Weak
+860,Liam Rodriguez,Male,24,3.34,BSIT,IoT,Embedded Device Controller,IoT Developer,Strong,Strong,Weak
+861,James Rodriguez,Male,19,3.56,BSIT,Mobile App Development,Cross-Platform App,Web Developer,Average,Strong,Weak
+862,Lucas Harris,Male,21,3.1,BSIT,Machine Learning,Fraud Detection Model,Data Scientist,Average,Average,Average
+863,Harper White,Female,22,3.87,BSIT,Data Science,Data Analysis Pipeline,QA Engineer,Average,Weak,Average
+864,Mark Brown,Male,19,2.9,BSIT,Cloud Computing,Dockerized Microservices,Data Scientist,Weak,Strong,Weak
+865,Noah White,Male,21,3.06,BSIT,IoT,IoT Dashboard,Data Scientist,Strong,Average,Weak
+866,Mark Martin,Male,22,2.81,BSIT,Computer Graphics,Game Graphics Module,Cloud Solutions Architect,Weak,Strong,Average
+867,Ava Santos,Female,19,3.03,BSIT,Web Development,Full-Stack Web App,Graphics Programmer,Average,Weak,Weak
+868,Chloe Torres,Female,23,3.41,BSIT,Software Development,DevOps Automation,Data Scientist,Strong,Average,Average
+869,Daniel Johnson,Male,23,3.66,BSIT,Machine Learning,Fraud Detection Model,DevOps Engineer,Strong,Strong,Average
+870,Olivia White,Female,23,3.61,BSIT,Machine Learning,Image Classifier,Data Scientist,Average,Weak,Weak
+871,Mia Torres,Female,20,3.17,BSIT,Software Development,DevOps Automation,Cloud Solutions Architect,Strong,Average,Weak
+872,Michael Clarke,Male,18,2.54,BSIT,Machine Learning,Chatbot Development,Software Engineer,Average,Average,Strong
+873,Harper Thompson,Female,21,3.09,BSIT,Machine Learning,Recommendation System,Web Developer,Average,Strong,Weak
+874,Ava Taylor,Female,20,2.79,BSIT,Computer Graphics,3D Rendering Demo,QA Engineer,Average,Average,Average
+875,Benjamin Miller,Male,19,2.91,BSIT,Software Development,Social Media Platform,Web Developer,Weak,Average,Weak
+876,Adrian Jones,Male,19,3.5,BSIT,Mobile App Development,Android App,Systems Analyst,Strong,Weak,Strong
+877,David Thompson,Male,22,2.55,BSIT,Web Development,Portfolio Website,Database Administrator,Weak,Average,Strong
+878,Lily Harris,Female,20,2.92,BSIT,Cloud Computing,Dockerized Microservices,Data Scientist,Strong,Weak,Average
+879,Isabella Harris,Female,23,3.51,BSIT,Cloud Computing,Cloud Monitoring Setup,Mobile App Developer,Strong,Weak,Weak
+880,Olivia Clarke,Female,19,3.63,BSIT,Cybersecurity,Penetration Testing Report,Systems Analyst,Average,Weak,Strong
+881,Zara Harris,Female,26,2.82,BSIT,Database Management,Query Performance Analyzer,Systems Analyst,Weak,Strong,Average
+882,Benjamin Rodriguez,Male,20,2.89,BSIT,Mobile App Development,Android App,Data Scientist,Average,Strong,Weak
+883,Ella Martin,Female,24,3.45,BSIT,Artificial Intelligence,NLP Pipeline,AI Researcher,Average,Strong,Weak
+884,David Brown,Male,20,2.39,BSIT,Artificial Intelligence,Speech Recognition System,AI Researcher,Strong,Strong,Average
+885,Maya White,Female,18,3.46,BSIT,Mobile App Development,iOS App,AI Researcher,Average,Strong,Average
+886,Zara Jackson,Female,20,2.89,BSIT,IoT,Smart Home Prototype,Mobile App Developer,Strong,Weak,Strong
+887,Nora Smith,Female,19,3.51,BSIT,Mobile App Development,Mobile Game,QA Engineer,Weak,Average,Weak
+888,Adrian Jackson,Male,19,3.44,BSIT,Machine Learning,Image Classifier,Data Analyst,Average,Average,Average
+889,Noah Lee,Male,21,3.07,BSIT,Software Development,DevOps Automation,Software Engineer,Average,Strong,Average
+890,Sienna Torres,Female,21,2.77,BSIT,Database Management,Query Performance Analyzer,AI Researcher,Weak,Strong,Weak
+891,Matthew Clarke,Male,20,3.4,BSIT,Data Science,Customer Segmentation,QA Engineer,Strong,Strong,Average
+892,Michael Brown,Male,24,3.45,BSIT,Cloud Computing,Dockerized Microservices,Systems Analyst,Average,Weak,Strong
+893,Adrian Santos,Male,23,3.62,BSIT,Mobile App Development,Mobile Game,QA Engineer,Weak,Strong,Weak
+894,Sienna Garcia,Female,21,3.11,BSIT,Database Management,SQL Optimization Tool,Data Scientist,Strong,Average,Average
+895,Hannah Martinez,Female,21,3.64,BSIT,Machine Learning,Fraud Detection Model,IoT Developer,Strong,Weak,Weak
+896,Adrian Torres,Male,20,3.21,BSIT,Cloud Computing,GCP Migration Project,Database Administrator,Weak,Weak,Average
+897,Chloe Thomas,Female,18,3.58,BSIT,Data Science,Data Visualization Dashboard,IoT Developer,Strong,Average,Average
+898,Noah Jones,Male,25,2.91,BSIT,Artificial Intelligence,Knowledge Graph Prototype,Database Administrator,Average,Average,Average
+899,Hannah Clarke,Female,20,2.54,BSIT,Data Science,Data Analysis Pipeline,Systems Analyst,Strong,Weak,Weak
+900,Samuel Martin,Male,19,2.57,BSIT,Artificial Intelligence,NLP Pipeline,IoT Developer,Average,Average,Weak
+901,Joseph White,Male,25,2.78,BSIT,Artificial Intelligence,Knowledge Graph Prototype,Data Analyst,Weak,Strong,Strong
+902,Daniel Harris,Male,20,3.77,BSIT,IoT,IoT Dashboard,Information Security Analyst,Strong,Strong,Average
+903,Lucas Johnson,Male,18,3.42,BSIT,Computer Graphics,Animation Pipeline,Database Administrator,Weak,Average,Average
+904,Lily Davis,Female,22,3.52,BSIT,Cloud Computing,AWS Deployment,Systems Analyst,Strong,Average,Strong
+905,Robert Taylor,Male,24,2.77,BSIT,Data Science,Sales Forecasting Model,Graphics Programmer,Strong,Average,Average
+906,Nora Miller,Female,25,3.15,BSIT,Cybersecurity,Network Intrusion Detection,Web Developer,Weak,Weak,Strong
+907,Samuel Santos,Male,22,3.71,BSIT,Web Development,E-commerce Website,AI Researcher,Average,Strong,Weak
+908,Ava Wilson,Female,20,3.11,BSIT,Cybersecurity,Cyber Defense Simulation,Systems Analyst,Average,Weak,Weak
+909,John Clarke,Male,26,3.33,BSIT,Mobile App Development,Android App,Web Developer,Weak,Average,Weak
+910,Amelia Taylor,Female,19,3.06,BSIT,Web Development,Responsive Web Design,Web Developer,Average,Average,Weak
+911,Noah Clarke,Male,24,3.29,BSIT,Web Development,E-commerce Website,IoT Developer,Average,Average,Weak
+912,Chloe White,Female,26,2.96,BSIT,Mobile App Development,Android App,Data Scientist,Average,Average,Strong
+913,Zara Harris,Female,23,3.28,BSIT,Cybersecurity,Network Intrusion Detection,Database Administrator,Weak,Weak,Average
+914,Matthew White,Male,20,3.57,BSIT,Data Science,Customer Segmentation,DevOps Engineer,Average,Average,Strong
+915,Benjamin Davis,Male,20,3.45,BSIT,Software Development,DevOps Automation,Web Developer,Average,Strong,Strong
+916,Victoria Moore,Female,24,3.93,BSIT,Cloud Computing,Dockerized Microservices,QA Engineer,Average,Weak,Average
+917,Ethan Thomas,Male,24,3.38,BSIT,Web Development,Full-Stack Web App,Mobile App Developer,Average,Average,Strong
+918,Zara Thomas,Female,21,2.8,BSIT,Data Science,Sales Forecasting Model,Systems Analyst,Weak,Strong,Average
+919,Chloe Garcia,Female,23,3.45,BSIT,Web Development,Full-Stack Web App,Machine Learning Engineer,Average,Strong,Strong
+920,Lily Wilson,Female,22,3.44,BSIT,Computer Graphics,Game Graphics Module,Web Developer,Average,Strong,Strong
+921,Olivia Thompson,Female,24,2.61,BSIT,Database Management,Data Warehouse ETL,Machine Learning Engineer,Weak,Strong,Average
+922,James Jackson,Male,20,3.52,BSIT,Database Management,Query Performance Analyzer,Machine Learning Engineer,Average,Strong,Average
+923,Abigail Wilson,Female,19,3.31,BSIT,Computer Graphics,3D Rendering Demo,Database Administrator,Average,Weak,Weak
+924,Ella Martinez,Female,21,3.18,BSIT,Database Management,Query Performance Analyzer,Web Developer,Average,Average,Average
+925,Abigail White,Female,23,3.4,BSIT,Database Management,SQL Optimization Tool,Software Engineer,Weak,Strong,Weak
+926,Hannah Rodriguez,Female,20,3.16,BSIT,Cybersecurity,Secure Login System,QA Engineer,Strong,Strong,Strong
+927,Harper Johnson,Female,19,3.35,BSIT,Database Management,Query Performance Analyzer,Information Security Analyst,Average,Average,Average
+928,William Torres,Male,22,3.15,BSIT,Cloud Computing,Cloud Monitoring Setup,IoT Developer,Weak,Average,Average
+929,Harper Anderson,Female,23,3.03,BSIT,Software Development,Social Media Platform,Database Administrator,Average,Strong,Strong
+930,David Brown,Male,26,3.22,BSIT,Web Development,E-commerce Website,Software Engineer,Average,Average,Average
+931,Noah Davis,Male,23,3.23,BSIT,Database Management,Data Warehouse ETL,DevOps Engineer,Average,Strong,Average
+932,Ethan Taylor,Male,26,2.72,BSIT,Mobile App Development,iOS App,Systems Analyst,Average,Weak,Strong
+933,Maya Clarke,Female,19,3.02,BSIT,Data Science,Sales Forecasting Model,Software Engineer,Strong,Weak,Weak
+934,Matthew Jones,Male,25,3.25,BSIT,Data Science,Customer Segmentation,Cloud Solutions Architect,Average,Average,Average
+935,Ethan Jones,Male,18,2.52,BSIT,Cybersecurity,Secure Login System,Machine Learning Engineer,Average,Average,Average
+936,Lucas Jones,Male,22,3.82,BSIT,IoT,Sensor Data Collector,Web Developer,Weak,Weak,Weak
+937,David Martin,Male,19,3.28,BSIT,Cloud Computing,Cloud Monitoring Setup,Cloud Solutions Architect,Weak,Strong,Strong
+938,Joseph Miller,Male,23,3.75,BSIT,Database Management,Data Warehouse ETL,DevOps Engineer,Average,Strong,Weak
+939,Victoria Cruz,Female,20,3.45,BSIT,Database Management,SQL Optimization Tool,Data Scientist,Weak,Weak,Weak
+940,Noah Smith,Male,20,3.04,BSIT,Software Development,Social Media Platform,Data Scientist,Average,Strong,Strong
+941,Victoria Rodriguez,Female,21,3.27,BSIT,IoT,IoT Dashboard,QA Engineer,Weak,Average,Strong
+942,Isabella Wilson,Female,23,3.22,BSIT,Database Management,Query Performance Analyzer,AI Researcher,Strong,Average,Average
+943,John Thomas,Male,20,2.96,BSIT,IoT,Embedded Device Controller,Web Developer,Average,Average,Average
+944,Lucas Rodriguez,Male,22,3.62,BSIT,Machine Learning,Recommendation System,AI Researcher,Average,Average,Average
+945,David Davis,Male,24,3.06,BSIT,Software Development,DevOps Automation,Data Analyst,Average,Average,Strong
+946,Lucas Martinez,Male,20,3.33,BSIT,Web Development,Full-Stack Web App,QA Engineer,Average,Average,Average
+947,Chloe Wilson,Female,19,4.0,BSIT,Machine Learning,Fraud Detection Model,IoT Developer,Strong,Strong,Average
+948,Liam Brown,Male,23,3.25,BSIT,Web Development,Responsive Web Design,Software Engineer,Weak,Strong,Weak
+949,John Moore,Male,21,3.26,BSIT,Machine Learning,Recommendation System,Data Analyst,Strong,Strong,Average
+950,David Santos,Male,20,3.09,BSIT,Cybersecurity,Cyber Defense Simulation,Mobile App Developer,Strong,Average,Weak
+951,Ava Reyes,Female,22,2.28,BSIT,Data Science,Customer Segmentation,Data Analyst,Strong,Average,Average
+952,Gabriel Garcia,Male,22,3.69,BSIT,Cybersecurity,Secure Login System,Data Scientist,Average,Weak,Average
+953,Henry Martin,Male,20,3.35,BSIT,Data Science,Sales Forecasting Model,Graphics Programmer,Strong,Average,Strong
+954,Lucas Jackson,Male,21,2.46,BSIT,Cloud Computing,Cloud Monitoring Setup,Software Engineer,Strong,Weak,Strong
+955,William Lee,Male,24,3.32,BSIT,Database Management,Database Schema Design,Mobile App Developer,Average,Strong,Average
+956,Benjamin Reyes,Male,18,2.69,BSIT,Computer Graphics,3D Modeling Project,QA Engineer,Weak,Weak,Strong
+957,Grace Lee,Female,19,3.08,BSIT,Database Management,SQL Optimization Tool,Web Developer,Strong,Weak,Strong
+958,William Martin,Male,23,3.64,BSIT,Artificial Intelligence,Computer Vision Project,Machine Learning Engineer,Strong,Average,Weak
+959,Emily White,Female,22,3.25,BSIT,Machine Learning,Image Classifier,Graphics Programmer,Strong,Weak,Average
+960,Michael Jones,Male,20,3.34,BSIT,Artificial Intelligence,Computer Vision Project,QA Engineer,Strong,Strong,Average
+961,Samuel Jones,Male,21,3.03,BSIT,IoT,Sensor Data Collector,Data Scientist,Average,Average,Weak
+962,Liam Reyes,Male,19,3.01,BSIT,Mobile App Development,Mobile Game,Database Administrator,Average,Average,Weak
+963,Lucas Garcia,Male,18,2.7,BSIT,Web Development,Full-Stack Web App,Software Engineer,Average,Strong,Average
+964,Ethan Garcia,Male,21,3.34,BSIT,Artificial Intelligence,Speech Recognition System,Software Engineer,Average,Average,Strong
+965,Paul Taylor,Male,21,3.3,BSIT,IoT,IoT Dashboard,AI Researcher,Strong,Strong,Average
+966,Ella Taylor,Female,19,3.4,BSIT,IoT,Embedded Device Controller,Cloud Solutions Architect,Strong,Average,Weak
+967,Zara Torres,Female,22,3.16,BSIT,Mobile App Development,Cross-Platform App,Mobile App Developer,Average,Average,Strong
+968,James Reyes,Male,19,3.82,BSIT,IoT,Embedded Device Controller,Database Administrator,Strong,Strong,Strong
+969,Ava Jones,Female,24,3.59,BSIT,Cloud Computing,AWS Deployment,Software Engineer,Average,Weak,Strong
+970,Ethan Lee,Male,22,3.95,BSIT,Web Development,E-commerce Website,Database Administrator,Weak,Average,Weak
+971,Nora Davis,Female,20,2.6,BSIT,Cybersecurity,Penetration Testing Report,DevOps Engineer,Weak,Strong,Strong
+972,Gabriel Smith,Male,22,3.23,BSIT,IoT,Smart Home Prototype,Machine Learning Engineer,Weak,Weak,Weak
+973,Maya Martin,Female,24,2.87,BSIT,IoT,Embedded Device Controller,Machine Learning Engineer,Strong,Average,Average
+974,Samuel Martin,Male,23,3.71,BSIT,Data Science,Data Visualization Dashboard,Cloud Solutions Architect,Weak,Strong,Average
+975,James Jones,Male,21,3.67,BSIT,Web Development,E-commerce Website,QA Engineer,Strong,Strong,Average
+976,Olivia Miller,Female,25,3.36,BSIT,Data Science,Sales Forecasting Model,QA Engineer,Strong,Average,Average
+977,Isabella Thompson,Female,21,3.47,BSIT,Web Development,Portfolio Website,Database Administrator,Average,Weak,Strong
+978,Joseph Martin,Male,23,3.04,BSIT,Database Management,SQL Optimization Tool,Machine Learning Engineer,Average,Strong,Average
+979,Sophia Thomas,Female,26,3.71,BSIT,Mobile App Development,Android App,Data Analyst,Average,Strong,Weak
+980,Paul Rodriguez,Male,22,3.03,BSIT,Cloud Computing,Cloud Monitoring Setup,Information Security Analyst,Strong,Strong,Weak
+981,Emily Torres,Female,23,3.38,BSIT,Cloud Computing,AWS Deployment,Graphics Programmer,Average,Average,Average
+982,Lucas Martin,Male,19,3.72,BSIT,Artificial Intelligence,NLP Pipeline,Data Analyst,Average,Strong,Average
+983,Ava Rodriguez,Female,19,3.61,BSIT,Computer Graphics,3D Rendering Demo,Systems Analyst,Weak,Strong,Strong
+984,William Jackson,Male,20,3.23,BSIT,Web Development,Full-Stack Web App,Database Administrator,Average,Strong,Strong
+985,Benjamin White,Male,22,3.11,BSIT,Computer Graphics,Game Graphics Module,AI Researcher,Strong,Strong,Strong
+986,Abigail Santos,Female,20,3.07,BSIT,Database Management,Data Warehouse ETL,QA Engineer,Average,Strong,Average
+987,Michael Thomas,Male,24,3.05,BSIT,Software Development,Social Media Platform,Machine Learning Engineer,Strong,Strong,Average
+988,Isabella Thomas,Female,22,2.66,BSIT,Machine Learning,Image Classifier,Machine Learning Engineer,Weak,Average,Average
+989,Michael Martinez,Male,20,2.64,BSIT,Data Science,Data Analysis Pipeline,Information Security Analyst,Average,Average,Weak
+990,Daniel Davis,Male,21,3.7,BSIT,IoT,Embedded Device Controller,Graphics Programmer,Weak,Average,Average
+991,John Lee,Male,23,2.81,BSIT,Software Development,Enterprise App,Systems Analyst,Weak,Strong,Strong
+992,Sophia Jones,Female,22,3.84,BSIT,IoT,IoT Dashboard,QA Engineer,Strong,Average,Average
+993,Zara Martinez,Female,20,2.71,BSIT,Cybersecurity,Penetration Testing Report,Data Analyst,Weak,Strong,Strong
+994,Daniel Torres,Male,22,3.65,BSIT,Database Management,Query Performance Analyzer,Software Engineer,Average,Strong,Average
+995,Sienna Smith,Female,19,2.88,BSIT,Software Development,Enterprise App,AI Researcher,Average,Average,Strong
+996,Adrian Davis,Male,21,3.05,BSIT,Mobile App Development,Android App,Information Security Analyst,Strong,Average,Average
+997,Matthew Martinez,Male,24,3.59,BSIT,Machine Learning,Image Classifier,Machine Learning Engineer,Strong,Weak,Average
+998,Sophia Martin,Female,22,3.6,BSIT,Web Development,Full-Stack Web App,Information Security Analyst,Weak,Strong,Strong
+999,Sophia Lee,Female,20,3.57,BSIT,Data Science,Data Analysis Pipeline,Machine Learning Engineer,Strong,Average,Strong
+1000,Lucas Wilson,Male,19,3.5,BSIT,Database Management,Data Warehouse ETL,Database Administrator,Strong,Strong,Average

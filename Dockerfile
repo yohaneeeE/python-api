@@ -8,8 +8,11 @@ WORKDIR /app
 COPY . .
 
 # Install required system packages
+# Install Tesseract + English language data
 RUN apt-get update && apt-get install -y \
     tesseract-ocr \
+    tesseract-ocr-eng \
+    libtesseract-dev \
     poppler-utils \
     libgl1 \
     && rm -rf /var/lib/apt/lists/*

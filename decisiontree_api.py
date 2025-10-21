@@ -176,14 +176,14 @@ def snap_to_valid_grade(val: float):
         return None
     return min(VALID_GRADES, key=lambda g: abs(g - val))
 
-TEXT_FIXES = {
-    "lective": "Elective",
-    "hective": "Elective",
-    "pen aire": "PE",
-    "pathfit": "PE",
-    "grmmunication": "Communication",
-    "cobege": "College"
-}
+# TEXT_FIXES = {
+#     "lective": "Elective",
+#     "hective": "Elective",
+#     "pen aire": "PE",
+#     "pathfit": "PE",
+#     "grmmunication": "Communication",
+#     "cobege": "College"
+# }
 
 def clean_subject_text(desc: str) -> str:
     d = (desc or "").lower()
@@ -233,52 +233,52 @@ def _normalize_grade_str(num_str: str):
         return round(raw / 100.0, 2)
     return round(raw, 2)
 
-# ---------------------------
-# Gemini Text Cleanup
-# ---------------------------
-async def clean_text_with_gemini(ocr_text: str):
-    if not genai_client:
-        return ocr_text
+# # ---------------------------
+# # Gemini Text Cleanup
+# # ---------------------------
+# async def clean_text_with_gemini(ocr_text: str):
+#     if not genai_client:
+#         return ocr_text
 
-    try:
-        prompt = f"""
-You are a text cleaner and spell corrector for OCR-processed academic transcripts.
+#     try:
+#         prompt = f"""
+# You are a text cleaner and spell corrector for OCR-processed academic transcripts.
 
-Clean and correct the following text:
-- Fix spelling errors in subject names.
-- Remove repeated or garbage lines.
-- Preserve subject names and grades.
-- Keep only meaningful subject-related text.
-- Do NOT add extra commentary or formatting.
-- Do NOT add student name, section number and dates.
+# Clean and correct the following text:
+# - Fix spelling errors in subject names.
+# - Remove repeated or garbage lines.
+# - Preserve subject names and grades.
+# - Keep only meaningful subject-related text.
+# - Do NOT add extra commentary or formatting.
+# - Do NOT add student name, section number and dates.
 
-OCR TEXT:
-{ocr_text}
-"""
-        # use a current Gemini model name (ensure compatibility with your genai lib)
-        response = await asyncio.to_thread(
-            genai_client.models.generate_content,
-            model="gemini-2.5-flash",
-            contents=prompt
-        )
+# OCR TEXT:
+# {ocr_text}
+# """
+#         # use a current Gemini model name (ensure compatibility with your genai lib)
+#         response = await asyncio.to_thread(
+#             genai_client.models.generate_content,
+#             model="gemini-2.5-flash",
+#             contents=prompt
+#         )
 
-        cleaned = getattr(response, "text", None)
-        if not cleaned:
-            # fallback: maybe response is string-like
-            cleaned = str(response)
-        # defensive cleanup
-        cleaned = cleaned.strip()
-        # if model returned long commentary, try to keep only lines with numbers (grades)
-        lines = [l.strip() for l in cleaned.splitlines() if l.strip()]
-        # keep lines that look like they contain a grade number
-        filtered = []
-        for l in lines:
-            if re.search(r'\d', l):  # has digit -> likely subject+grade line
-                filtered.append(l)
-        return "\n".join(filtered) if filtered else cleaned
-    except Exception as e:
-        print(f"[Gemini Cleanup Error] {e}")
-        return ocr_text
+#         cleaned = getattr(response, "text", None)
+#         if not cleaned:
+#             # fallback: maybe response is string-like
+#             cleaned = str(response)
+#         # defensive cleanup
+#         cleaned = cleaned.strip()
+#         # if model returned long commentary, try to keep only lines with numbers (grades)
+#         lines = [l.strip() for l in cleaned.splitlines() if l.strip()]
+#         # keep lines that look like they contain a grade number
+#         filtered = []
+#         for l in lines:
+#             if re.search(r'\d', l):  # has digit -> likely subject+grade line
+#                 filtered.append(l)
+#         return "\n".join(filtered) if filtered else cleaned
+#     except Exception as e:
+#         print(f"[Gemini Cleanup Error] {e}")
+#         return ocr_text
 
 # ---------------------------
 # OCR Extraction

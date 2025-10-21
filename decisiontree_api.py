@@ -1,20 +1,27 @@
-
+# main.py
 import os
 from dotenv import load_dotenv
 import re
 import io
 from collections import OrderedDict
-from typing import List
+from typing import List, Optional
 
 import pandas as pd
 from fastapi import FastAPI, UploadFile, File
 from pydantic import BaseModel
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 import pytesseract
 import asyncio
 from fastapi.middleware.cors import CORSMiddleware
+
+# Optional Gemini import (only used if GEMINI_API_KEY is present)
+try:
+    from google import genai
+    _HAS_GENAI = True
+except Exception:
+    _HAS_GENAI = False
 
 # Load .env file
 load_dotenv()
@@ -22,14 +29,22 @@ load_dotenv()
 # Read variables
 TESSERACT_PATH = os.getenv("TESSERACT_PATH")
 FRONTEND_URL = os.getenv("FRONTEND_URL", "*")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-
-# Windows Tesseract path (adjust if needed)
+# Configure Tesseract executable path if provided
 if TESSERACT_PATH:
     pytesseract.pytesseract.tesseract_cmd = TESSERACT_PATH
 
+# Initialize Gemini client if available and key present
+genai_client = None
+if _HAS_GENAI and GEMINI_API_KEY:
+    try:
+        genai_client = genai.Client(api_key=GEMINI_API_KEY)
+    except Exception:
+        genai_client = None
+
 # ---------------------------
-# Input Schema
+# Input Schema (not used directly in endpoint but kept for reference)
 # ---------------------------
 class StudentInput(BaseModel):
     python: int
@@ -39,6 +54,7 @@ class StudentInput(BaseModel):
 # ---------------------------
 # Train Structured Data Model
 # ---------------------------
+# NOTE: Ensure bsit_students.csv is present in working directory
 df = pd.read_csv("bsit_students.csv")
 
 features = ["Python", "SQL", "Java"]
@@ -69,7 +85,7 @@ app = FastAPI(title="Career Prediction API (TOR/COG + Certificates 🚀)")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[FRONTEND_URL],
+    allow_origins=[FRONTEND_URL] if FRONTEND_URL != "*" else ["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -145,79 +161,6 @@ careerCertSuggestions = {
 # ---------------------------
 VALID_GRADES = [1.00, 1.25, 1.50, 1.75, 2.00, 2.25, 2.50, 2.75, 3.00, 5.00]
 
-
-
-# Known OCR misreads to fix (add more as you discover them)
-TEXT_FIXES = {
-    "lective": "Elective",
-    "hective": "Elective",
-    "pen aire": "PE",
-    "pathfit": "PE",
-    "grmmunication": "Communication",
-    "cobege": "College",
-    "tras beaives bstaegt": "Elective 5",
-    "wage system integration and rotate 2 es": "System Integration and Architecture 2",
-    "aot sten ainsaton and marenance": "System Administration and Maintenance",
-    "capa capstone pret and research 2 es": "Capstone Project and Research 2",
-    "mathnats nthe modem oa es": "Mathematics in the Modern World",
-    "advan database systems": "Advance Database Systems",
-    "capstone project and research 1 spparont cepsre": "Capstone Project and Research 1",
-    "web systems and technologies 2 soxtsrowebsystemsbtechroiogies": "Web Systems and Technologies 2",
-    "rane foreign languoge 2": "Foreign Language 2",
-    "Networking 1 2": "Networking 2",
-    "panik at lpunen 255": "Panitikan at Lipunan",
-    "lifeand works of rizal": "Life and Works of Rizal",
-    "conder cote soman cagesuntcanes": "Data Structure and Algorithms",
-    "negate proganmingandteomoege": "Integrative Programming and Technologies 1",
-    "foreign langage": "Foreign Language",
-    "hunan computer terface": "Human Computer Interface",
-    "infomation anogerent": "Information Management",
-    "toot": "Object-Oriented Programming 1",
-    "lective": "elective 4",
-    "hective": "elective",
-    "pen aire": "pe",
-    "pathfit": "pe",
-    "grmmunication": "communication",
-    "cobege": "college",
-    "phystal edeation": "physical education",
-    "inveductonto computing ws": "introduction to computing",
-    "inveductonto computing": "introduction to computing",
-    "rio harare system ard saving": "hardware system and servicing",
-    "hardware system ard saving": "hardware system and servicing",
-    "camper prararining": "computer programming",
-    "camper prararin": "computer programming",
-    "readhgs npop history": "readings in philippine history",
-    "scene technology and sooty": "science technology and society",
-    "scene technology and sooty": "science technology and society",
-    "atari": "art appreciation",
-    "natonl sncetrhing pega": "national service training program",
-    "diserete sturt for it": "discrete structures for it",
-    "networking": "networking 1",
-    "understanding the se": "understanding the self",
-    "understanding The sef": "understanding the self",
-    "Understanding The Selff": "understanding the self",
-    "purposve communication": "purposive communication",
-    "mathematics in the modem world so": "mathematics in the modern world",
-    "lective": "Elective",
-    "hective": "Elective",
-    "pen aire": "PE",
-    "pathfit": "PE",
-    "grmmunication": "Communication",
-    "cobege": "College"
-
-}
-
-# Things that should NEVER appear (noise / random OCR junk)
-REMOVE_LIST = [
-    "stone project ad reset",
-    "catege ommuniatons crass uniteamed",
-    "student",
-    "acaserie eer agpy gna",
-    "unknown subject",
-    "category", "communications", "class", "united", "student no", "fullname",
-    "report of grades", "republic", "city of", "wps", "office"
-]
-
 def grade_to_level(grade: float) -> str:
     if grade is None:
         return "Unknown"
@@ -233,10 +176,17 @@ def snap_to_valid_grade(val: float):
         return None
     return min(VALID_GRADES, key=lambda g: abs(g - val))
 
-
+TEXT_FIXES = {
+    "lective": "Elective",
+    "hective": "Elective",
+    "pen aire": "PE",
+    "pathfit": "PE",
+    "grmmunication": "Communication",
+    "cobege": "College"
+}
 
 def clean_subject_text(desc: str) -> str:
-    d = desc.lower()
+    d = (desc or "").lower()
 
     # --- Fix PE (PE / PathFit) ---
     if "pen aire" in d or "pathfit" in d:
@@ -244,7 +194,6 @@ def clean_subject_text(desc: str) -> str:
 
     # --- Fix Elective with numbers ---
     if "lective" in d or "hective" in d:
-        # try to capture number (e.g., "312 Lective" => Elective 4)
         match = re.search(r'(\d+)', d)
         if match:
             num = match.group(1)[-1]  # take last digit
@@ -261,11 +210,12 @@ def clean_subject_text(desc: str) -> str:
             d = d.replace(wrong, right.lower())
 
     return d.title()
+
 # ---------------------------
 # Helpers
 # ---------------------------
 def classify_subject(desc: str):
-    d = desc.lower()
+    d = (desc or "").lower()
     if "elective" in d:
         return "Major Subject"
     if any(k in d for k in [
@@ -276,7 +226,7 @@ def classify_subject(desc: str):
         return "IT Subject"
     return "Minor Subject"
 
-def normalize_code(text: str) -> str:
+def normalize_code(text: str) -> Optional[str]:
     if not text:
         return None
     return re.sub(r'\s+', '', text.upper())
@@ -314,10 +264,11 @@ def extractSubjectGrades(text: str):
     subjects_structured = []
     rawSubjects = OrderedDict()
     normalizedText = {}
+    # mappedSkills stores dict per subject for internal logic: {'level': 'Strong', 'bucket': 'Python' or None}
     mappedSkills = {}
     bucket_grades = {"Python": [], "SQL": [], "Java": []}
 
-    lines = [l.strip() for l in text.splitlines() if l.strip()]
+    lines = [l.strip() for l in (text or "").splitlines() if l.strip()]
 
     for raw_line in lines:
         line = raw_line.strip()
@@ -398,19 +349,21 @@ def extractSubjectGrades(text: str):
         subjKey = f"{subjCode} {subjDesc}" if subjCode else subjDesc
         category = classify_subject(subjDesc)
 
-    # determine mapping to skill bucket
+        # determine mapping to skill bucket
         assigned_bucket = None
         lower_desc = subjDesc.lower()
         for group, keywords in subjectGroups.items():
             if any(k in lower_desc for k in keywords):
                 assigned_bucket = bucketMap.get(group)
                 if assigned_bucket and gradeVal is not None:
-                    # append grade to bucket_grades
-                    bucket_grades[assigned_bucket].append(gradeVal)
+                    bucket_grades.setdefault(assigned_bucket, []).append(gradeVal)
                 break
 
-        # NEW: store skill level instead of bucket name
-        mappedSkills[subjDesc] = grade_to_level(gradeVal) if gradeVal is not None else "Unknown"
+        # store both level and bucket to make later lookup reliable (internal)
+        mappedSkills[subjDesc] = {
+            "level": grade_to_level(gradeVal) if gradeVal is not None else "Unknown",
+            "bucket": assigned_bucket  # may be None if no bucket matched
+        }
 
         subjects_structured.append({
             "code": subjCode,
@@ -440,25 +393,34 @@ def extractSubjectGrades(text: str):
 # Career Prediction
 # ---------------------------
 def predictCareerWithSuggestions(finalBuckets: dict, normalizedText: dict, mappedSkills: dict):
+    # prepare DataFrame input using finalBuckets with safe defaults
     dfInput = pd.DataFrame([{
-        "Python": finalBuckets["Python"],
-        "SQL": finalBuckets["SQL"],
-        "Java": finalBuckets["Java"],
+        "Python": finalBuckets.get("Python", 3.0),
+        "SQL": finalBuckets.get("SQL", 3.0),
+        "Java": finalBuckets.get("Java", 3.0),
     }])
 
     proba = model.predict_proba(dfInput)[0]
-    careers = [
-        {"career": targetEncoder.inverse_transform([i])[0], "confidence": round(float(p)*100, 2)}
-        for i, p in enumerate(proba)
-    ]
+    # model.classes_ contains encoded labels (the same encoding used by targetEncoder)
+    careers = []
+    for encoded_label, p in zip(model.classes_, proba):
+        try:
+            career_label = targetEncoder.inverse_transform([int(encoded_label)])[0]
+        except Exception:
+            # fallback: if decoding fails, str cast
+            career_label = str(encoded_label)
+        careers.append({"career": career_label, "confidence": round(float(p) * 100, 2)})
+
     careers = sorted(careers, key=lambda x: x["confidence"], reverse=True)[:3]
 
     for c in careers:
         suggestions = []
+        # find subjects that map to each skill bucket (mappedSkills entries with bucket == skill)
         for skill, grade in finalBuckets.items():
             if grade is None:
                 continue
-            subjMatches = [subj for subj, mapped in mappedSkills.items() if mapped == skill]
+            subjMatches = [subj for subj, meta in mappedSkills.items() if meta.get("bucket") == skill]
+            # Because grade is numeric and lower is better (1.0 best), treat >=2.75 as weak
             if grade >= 2.75:
                 for subj in subjMatches:
                     suggestions.append(
@@ -496,12 +458,42 @@ def analyzeCertificates(certFiles: List[UploadFile]):
         "python": "Python certification supports Data Science, AI, and Software Engineering careers."
     }
     for cert in certFiles:
-        certName = cert.filename.lower()
+        certName = (cert.filename or "").lower()
         matched = [msg for key, msg in certificateSuggestions.items() if key in certName]
         if not matched:
             matched = [f"Certificate '{cert.filename}' adds additional value to your career profile."]
         results.append({"file": cert.filename, "suggestions": matched})
     return results
+
+# ---------------------------
+# Gemini Enhancement (optional)
+# ---------------------------
+async def enhance_with_gemini(careerOptions, mappedSkills, finalBuckets):
+    if not genai_client:
+        return None
+    try:
+        prompt = f"""
+You are a helpful career advisor for BSIT students.
+Given this student's analysis:
+- Final numeric buckets: {finalBuckets}
+- Mapped skill levels and buckets: {mappedSkills}
+- Top career predictions: {careerOptions}
+
+Provide 3 concise, practical, and personalized suggestions (mention technologies, projects, or certs).
+Keep output under 5 sentences and use a motivational friendly tone.
+"""
+        response = await asyncio.to_thread(
+            genai_client.models.generate_content,
+            model="gemini-2.5-flash",
+            contents=prompt
+        )
+        # response may have .text or similar, attempt safe extraction
+        try:
+            return response.text.strip() if hasattr(response, "text") else str(response)
+        except Exception:
+            return str(response)
+    except Exception as e:
+        return f"(Gemini unavailable: {e})"
 
 # ---------------------------
 # Routes
@@ -510,7 +502,18 @@ def analyzeCertificates(certFiles: List[UploadFile]):
 async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[UploadFile] = File(None)):
     try:
         imageBytes = await file.read()
-        img = Image.open(io.BytesIO(imageBytes))
+        try:
+            img = Image.open(io.BytesIO(imageBytes))
+        except UnidentifiedImageError:
+            return {"error": "Uploaded file is not a supported image."}
+        except Exception as e:
+            return {"error": f"Could not open image: {e}"}
+
+        # For safety, convert to RGB (some PIL formats are paletted)
+        if img.mode != "RGB":
+            img = img.convert("RGB")
+
+        # Run OCR in a thread (blocking)
         text = await asyncio.to_thread(pytesseract.image_to_string, img)
 
         subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets = extractSubjectGrades(text.strip())
@@ -530,15 +533,39 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
         else:
             certResults = [{"info": "No certificates uploaded"}]
 
+        # Gemini enhancement (optional)
+        gemini_enhancement = await enhance_with_gemini(careerOptions, mappedSkills, finalBuckets) if genai_client else None
+
+        # Convert mappedSkills to frontend-friendly strings to avoid [object Object] issues
+        mappedSkills_readable = {}
+        for subj, meta in mappedSkills.items():
+            level = meta.get("level", "Unknown")
+            bucket = meta.get("bucket")
+            # Include numeric average from finalBuckets if it belongs to that bucket
+            grade_info = ""
+            if bucket and finalBuckets.get(bucket) is not None:
+                grade_info = f" - {finalBuckets.get(bucket)}"
+            if bucket:
+                mappedSkills_readable[subj] = f"{level} ({bucket}){grade_info}"
+            else:
+                mappedSkills_readable[subj] = f"{level}{grade_info}"
+
         return {
             "careerPrediction": careerOptions[0]["career"],
             "careerOptions": careerOptions,
+            "geminiSuggestions": gemini_enhancement,
             "subjects_structured": subjects_structured,
             "rawSubjects": list(rawSubjects.items()),
             "normalizedText": normalizedText,
-            "mappedSkills": mappedSkills,
+            "mappedSkills": mappedSkills_readable,
             "finalBuckets": finalBuckets,
             "certificates": certResults
         }
     except Exception as e:
+        # Don't leak huge stack traces to users — return error message
         return {"error": str(e)}
+
+# Basic health route
+@app.get("/")
+def root():
+    return {"status": "ok", "message": "Career Prediction API running."}

@@ -54,7 +54,6 @@ class StudentInput(BaseModel):
 # ---------------------------
 # Train Structured Data Model
 # ---------------------------
-# NOTE: ensure bsit_students.csv exists in working dir
 df = pd.read_csv("bsit_students.csv")
 
 features = ["Python", "SQL", "Java"]
@@ -176,14 +175,14 @@ def snap_to_valid_grade(val: float):
         return None
     return min(VALID_GRADES, key=lambda g: abs(g - val))
 
-# TEXT_FIXES = {
-#     "lective": "Elective",
-#     "hective": "Elective",
-#     "pen aire": "PE",
-#     "pathfit": "PE",
-#     "grmmunication": "Communication",
-#     "cobege": "College"
-# }
+TEXT_FIXES = {
+    "lective": "Elective",
+    "hective": "Elective",
+    "pen aire": "PE",
+    "pathfit": "PE",
+    "grmmunication": "Communication",
+    "cobege": "College"
+}
 
 def clean_subject_text(desc: str) -> str:
     d = (desc or "").lower()
@@ -233,52 +232,38 @@ def _normalize_grade_str(num_str: str):
         return round(raw / 100.0, 2)
     return round(raw, 2)
 
-# # ---------------------------
-# # Gemini Text Cleanup
-# # ---------------------------
-# async def clean_text_with_gemini(ocr_text: str):
-#     if not genai_client:
-#         return ocr_text
+# ---------------------------
+# Gemini Text Cleanup
+# ---------------------------
+async def clean_text_with_gemini(ocr_text: str):
+    if not genai_client:
+        return ocr_text
 
-#     try:
-#         prompt = f"""
-# You are a text cleaner and spell corrector for OCR-processed academic transcripts.
+    try:
+        prompt = f"""
+You are a text cleaner and spell corrector for OCR-processed academic transcripts.
 
-# Clean and correct the following text:
-# - Fix spelling errors in subject names.
-# - Remove repeated or garbage lines.
-# - Preserve subject names and grades.
-# - Keep only meaningful subject-related text.
-# - Do NOT add extra commentary or formatting.
-# - Do NOT add student name, section number and dates.
+Clean and correct the following text:
+- Fix spelling errors in subject names.
+- Remove repeated or garbage lines.
+- Preserve subject names and grades.
+- Keep only meaningful subject-related text.
+- Do NOT add extra commentary or formatting.
 
-# OCR TEXT:
-# {ocr_text}
-# """
-#         # use a current Gemini model name (ensure compatibility with your genai lib)
-#         response = await asyncio.to_thread(
-#             genai_client.models.generate_content,
-#             model="gemini-2.5-flash",
-#             contents=prompt
-#         )
+OCR TEXT:
+{ocr_text}
+"""
+        response = await asyncio.to_thread(
+            genai_client.models.generate_content,
+            model="gemini-2.0-flash",
+            contents=prompt
+        )
 
-#         cleaned = getattr(response, "text", None)
-#         if not cleaned:
-#             # fallback: maybe response is string-like
-#             cleaned = str(response)
-#         # defensive cleanup
-#         cleaned = cleaned.strip()
-#         # if model returned long commentary, try to keep only lines with numbers (grades)
-#         lines = [l.strip() for l in cleaned.splitlines() if l.strip()]
-#         # keep lines that look like they contain a grade number
-#         filtered = []
-#         for l in lines:
-#             if re.search(r'\d', l):  # has digit -> likely subject+grade line
-#                 filtered.append(l)
-#         return "\n".join(filtered) if filtered else cleaned
-#     except Exception as e:
-#         print(f"[Gemini Cleanup Error] {e}")
-#         return ocr_text
+        cleaned = getattr(response, "text", None)
+        return cleaned.strip() if cleaned else ocr_text
+    except Exception as e:
+        print(f"[Gemini Cleanup Error] {e}")
+        return ocr_text
 
 # ---------------------------
 # OCR Extraction
@@ -307,7 +292,6 @@ def extractSubjectGrades(text: str):
         if len(parts) < 2:
             continue
 
-        # Find numeric tokens (prefer last numeric token as grade)
         float_tokens = []
         for i, tok in enumerate(parts):
             token_clean = re.sub(r'[^0-9.]', '', tok)
@@ -324,7 +308,6 @@ def extractSubjectGrades(text: str):
         gradeVal = _normalize_grade_str(tok)
         gradeVal = snap_to_valid_grade(gradeVal)
 
-        # subject description is the tokens before the grade token
         subjDesc = " ".join(parts[:idx]).strip().title()
         subjDesc = clean_subject_text(subjDesc)
         category = classify_subject(subjDesc)
@@ -356,10 +339,6 @@ def extractSubjectGrades(text: str):
     for b, grades in bucket_grades.items():
         finalBuckets[b] = round(sum(grades) / len(grades), 2) if grades else 3.0
 
-    # ensure keys exist
-    for k in ("Python", "SQL", "Java"):
-        finalBuckets.setdefault(k, 3.0)
-
     return subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets
 
 # ---------------------------
@@ -376,8 +355,8 @@ Given this student's analysis:
 - Mapped skill levels and buckets: {mappedSkills}
 - Top career predictions: {careerOptions}
 
-Provide 3 completely different, concise, practical, and personalized suggestions (mention technologies, projects, or certs).
-Keep output under 2 to 3 sentences and use a motivational friendly tone.
+Provide 3 concise, practical, and personalized suggestions (mention technologies, projects, or certs).
+Keep output under 5 sentences and use a motivational friendly tone.
 """
         response = await asyncio.to_thread(
             genai_client.models.generate_content,
@@ -385,9 +364,7 @@ Keep output under 2 to 3 sentences and use a motivational friendly tone.
             contents=prompt
         )
         try:
-            cleaned = response.text.strip() if hasattr(response, "text") else str(response)
-            # keep the result short
-            return cleaned
+            return response.text.strip() if hasattr(response, "text") else str(response)
         except Exception:
             return str(response)
     except Exception as e:
@@ -397,7 +374,6 @@ Keep output under 2 to 3 sentences and use a motivational friendly tone.
 # Predict Career
 # ---------------------------
 def predictCareerWithSuggestions(finalBuckets: dict, normalizedText: dict, mappedSkills: dict):
-    # Build df in same feature order as training
     dfInput = pd.DataFrame([{
         "Python": finalBuckets.get("Python", 3.0),
         "SQL": finalBuckets.get("SQL", 3.0),
@@ -406,12 +382,11 @@ def predictCareerWithSuggestions(finalBuckets: dict, normalizedText: dict, mappe
 
     proba = model.predict_proba(dfInput)[0]
     careers = []
-    # use enumerate so index matches encoder mapping used during training
-    for i, p in enumerate(proba):
+    for encoded_label, p in zip(model.classes_, proba):
         try:
-            career_label = targetEncoder.inverse_transform([i])[0]
+            career_label = targetEncoder.inverse_transform([int(encoded_label)])[0]
         except Exception:
-            career_label = str(i)
+            career_label = str(encoded_label)
         careers.append({"career": career_label, "confidence": round(float(p) * 100, 2)})
 
     careers = sorted(careers, key=lambda x: x["confidence"], reverse=True)[:3]
@@ -430,22 +405,11 @@ async def ocrPredict(file: UploadFile = File(...)):
 
         # --- OCR and Gemini Cleanup ---
         raw_text = await asyncio.to_thread(pytesseract.image_to_string, img)
-        # if OCR produced empty text, skip cleanup
-        if not raw_text or not raw_text.strip():
-            cleaned_text = raw_text
-        else:
-            cleaned_text = await clean_text_with_gemini(raw_text)
+        text = await clean_text_with_gemini(raw_text)
 
         # --- Extraction and Prediction ---
-        subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets = extractSubjectGrades(cleaned_text)
+        subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets = extractSubjectGrades(text)
         careerOptions = predictCareerWithSuggestions(finalBuckets, normalizedText, mappedSkills)
-
-        # fallback if predict returns empty
-        if not careerOptions:
-            careerOptions = [{
-                "career": "General Studies",
-                "confidence": 50.0
-            }]
 
         # --- Gemini Enhancement ---
         gemini_enhancement = await enhance_with_gemini(careerOptions, mappedSkills, finalBuckets)
@@ -461,15 +425,13 @@ async def ocrPredict(file: UploadFile = File(...)):
                 mappedSkills_readable[subj] = level
 
         return {
-            "careerPrediction": careerOptions[0].get("career", "Unknown"),
+            "careerPrediction": careerOptions[0]["career"],
             "careerOptions": careerOptions,
             "geminiSuggestions": gemini_enhancement,
             "subjects_structured": subjects_structured,
             "mappedSkills": mappedSkills_readable,
             "finalBuckets": finalBuckets,
         }
-    except UnidentifiedImageError:
-        return {"error": "Uploaded file is not a supported image."}
     except Exception as e:
         return {"error": str(e)}
 

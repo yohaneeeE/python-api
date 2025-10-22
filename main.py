@@ -1,10 +1,9 @@
+# filename: decisiontree_api.py
 
-import os
-from dotenv import load_dotenv
 import re
 import io
 from collections import OrderedDict
-from typing import List
+from typing import List, Optional
 
 import pandas as pd
 from fastapi import FastAPI, UploadFile, File
@@ -16,17 +15,8 @@ import pytesseract
 import asyncio
 from fastapi.middleware.cors import CORSMiddleware
 
-# Load .env file
-load_dotenv()
-
-# Read variables
-TESSERACT_PATH = os.getenv("TESSERACT_PATH")
-FRONTEND_URL = os.getenv("FRONTEND_URL", "*")
-
-
 # Windows Tesseract path (adjust if needed)
-if TESSERACT_PATH:
-    pytesseract.pytesseract.tesseract_cmd = TESSERACT_PATH
+pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
 
 # ---------------------------
 # Input Schema
@@ -39,7 +29,7 @@ class StudentInput(BaseModel):
 # ---------------------------
 # Train Structured Data Model
 # ---------------------------
-df = pd.read_csv("bsit_students.csv")
+df = pd.read_csv("cs_students.csv")
 
 features = ["Python", "SQL", "Java"]
 target = "Future Career"
@@ -69,12 +59,11 @@ app = FastAPI(title="Career Prediction API (TOR/COG + Certificates 🚀)")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"] if FRONTEND_URL == "*" or not FRONTEND_URL else [FRONTEND_URL],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 # ---------------------------
 # Subject Groups & Buckets
@@ -312,72 +301,72 @@ REMOVE_LIST = [
     "report of grades", "republic", "city of", "wps", "office"
 ]
 
-def grade_to_level(grade: float) -> str:
-    if grade is None:
-        return "Unknown"
-    if grade <= 1.75:
-        return "Strong"
-    elif grade <= 2.5:
-        return "Average"
-    else:
-        return "Weak"
+def normalize_subject(code: Optional[str], desc: str) -> Optional[str]:
+    """
+    Normalize and clean a subject description. Returns cleaned title-case desc or None (to drop).
+    - code: the detected code (e.g. "IT 102") or None
+    - desc: raw description tokens before grade
+    """
+    raw = desc or ""   # ignore course code in the displayed string
+    s = raw.lower().strip()
 
-def snap_to_valid_grade(val: float):
-    if val is None:
+    # remove underscores, stray punctuation and multiple spaces
+    s = re.sub(r'[_]+', ' ', s)
+    s = re.sub(r'[^\w\s]', ' ', s)
+    s = re.sub(r'\s{2,}', ' ', s).strip()
+
+    if not s:
         return None
-    return min(VALID_GRADES, key=lambda g: abs(g - val))
 
-TEXT_FIXES = {
-    "lective": "Elective",
-    "hective": "Elective",
-    "pen aire": "PE",
-    "pathfit": "PE",
-    "grmmunication": "Communication",
-    "cobege": "College"
-}
+    # Remove obvious junk (contains any token from remove list)
+    for bad in REMOVE_LIST:
+        if bad in s:
+            return None
 
-def clean_subject_text(desc: str) -> str:
-    d = desc.lower()
+    # Replace known OCR misreads
+    for wrong, correct in TEXT_FIXES.items():
+        if wrong in s:
+            s = s.replace(wrong, correct)
 
-    # --- Fix PE (PE / PathFit) ---
-    if "pen aire" in d or "pathfit" in d:
+    # Elective special-case: try preserve trailing elective number
+    if "elective" in s:
+        # try to grab an elective number from code or from the string
+        num = None
+        # look for a trailing digit token in s
+        m = re.search(r'\b(\d{1,2})\b', s)
+        if m:
+            num = m.group(1)[-1]  # last digit
+        elif code:
+            m2 = re.search(r'(\d)', code)
+            if m2:
+                num = m2.group(1)
+        return f"Elective {num}" if num else "Elective"
+
+    # PE / Pathfit
+    if s.strip() == "pe" or "pe " in s or "pathfit" in s or s.startswith("pe "):
+        # Keep "PE" (optionally include number from code)
+        if code:
+            # try to extract number from code (E10 or PE 10)
+            m = re.search(r'(\d{1,3})', code)
+            if m:
+                return f"PE {m.group(1)}"
         return "PE"
 
-    # --- Fix Elective with numbers ---
-    if "lective" in d or "hective" in d:
-        # try to capture number (e.g., "312 Lective" => Elective 4)
-        match = re.search(r'(\d+)', d)
-        if match:
-            num = match.group(1)[-1]  # take last digit
-            return f"Elective {num}"
-        return "Elective"
-
-    # --- Purposive Communication ---
-    if "purposive" in d and "communication" in d:
+    # Purposive Communication
+    if "purposive" in s and "communication" in s:
+        # try to include code prefix if available
         return "Purposive Communication"
 
-    # General replacements
-    for wrong, right in TEXT_FIXES.items():
-        if wrong in d:
-            d = d.replace(wrong, right.lower())
+    # Trim obvious headings/columns like "student" etc already covered above
+    # Final cleanup and Title case
+    s = s.strip()
+    # avoid leaving strings like '5' or single chars
+    if len(s) < 3:
+        return None
 
-    return d.title()
-# ---------------------------
-# Helpers
-# ---------------------------
-def classify_subject(desc: str):
-    d = desc.lower()
-    if "elective" in d:
-        return "Major Subject"
-    if any(k in d for k in [
-        "programming", "database", "data", "system", "integration", "architecture",
-        "software", "network", "computing", "information", "security", "java",
-        "python", "sql", "web", "algorithm"
-    ]):
-        return "IT Subject"
-    return "Minor Subject"
+    return s.title()
 
-def normalize_code(text: str) -> str:
+def normalize_code(text: str) -> Optional[str]:
     if not text:
         return None
     return re.sub(r'\s+', '', text.upper())
@@ -429,8 +418,9 @@ def extractSubjectGrades(text: str):
         if any(kw in low for kw in ignore_keywords):
             continue
 
+        # normalize whitespace and remove weird separators
         clean = re.sub(r'[\t\r\f\v]+', ' ', line)
-        clean = re.sub(r'[^\w\.\-\s]', ' ', clean)
+        clean = re.sub(r'[^\w\.\-\s]', ' ', clean)   # keep letters, numbers, dot, dash, underscore
         clean = re.sub(r'\s{2,}', ' ', clean).strip()
         if not clean:
             continue
@@ -439,17 +429,20 @@ def extractSubjectGrades(text: str):
         if len(parts) < 2:
             continue
 
+        # --- detect course code (handles "IT 312", "IT312", "E10", "PCM 101") ---
         subjCode = None
         if len(parts) >= 2 and parts[0].isalpha() and parts[1].isdigit():
             subjCode = f"{parts[0].upper()} {parts[1]}"
             parts = parts[2:]
-        elif re.match(r'^[A-Z]{1,4}\d{2,3}$', parts[0].upper()):
+        elif re.match(r'^[A-Z]{1,4}\d{1,3}$', parts[0].upper()):
             subjCode = parts[0].upper()
             parts = parts[1:]
+        # else leave subjCode None and treat tokens as description + numbers
 
         if not parts:
             continue
 
+        # Remove trailing textual remark (e.g., "Passed")
         remarks = None
         if parts and parts[-1].isalpha():
             remarks = parts[-1]
@@ -457,6 +450,7 @@ def extractSubjectGrades(text: str):
             if not parts:
                 continue
 
+        # Collect numeric tokens with positions (to find grade and units)
         float_tokens = []
         for i, tok in enumerate(parts):
             token_clean = re.sub(r'[^0-9.]', '', tok)
@@ -467,6 +461,7 @@ def extractSubjectGrades(text: str):
                 except:
                     continue
 
+        # Decide grade and units:
         gradeVal = None
         unitsVal = None
         grade_idx = None
@@ -485,36 +480,51 @@ def extractSubjectGrades(text: str):
             gradeVal = snap_to_valid_grade(gradeVal)
             unitsVal = None
         else:
+            # no numeric token → not a subject row
             continue
 
+        # Build description tokens before grade_idx
         desc_tokens = parts[:grade_idx] if grade_idx is not None else parts[:]
+        # If first token is just numeric code like '312', remove it
         if desc_tokens and re.fullmatch(r'\d+', desc_tokens[0]):
             desc_tokens = desc_tokens[1:]
 
-        subjDesc = " ".join(desc_tokens).strip().title()
-        subjDesc = clean_subject_text(subjDesc)
-        if not subjDesc:
-            subjDesc = subjCode or "Unknown Subject"
+        subjDesc_raw = " ".join(desc_tokens).strip()
+        if not subjDesc_raw:
+            subjDesc_raw = subjCode or "Unknown Subject"
 
-        subjKey = f"{subjCode} {subjDesc}" if subjCode else subjDesc
-        category = classify_subject(subjDesc)
+        # Normalize & filter subject name
+        subjDesc_clean = normalize_subject(subjCode, subjDesc_raw)
+        if subjDesc_clean is None:
+            # filtered as junk
+            continue
 
-    # determine mapping to skill bucket
-        assigned_bucket = None
+        subjDesc = subjDesc_clean
+        subjKey = subjDesc   # ✅ no course code in keys
+        category = None
+        # classify after normalization
+        category = "Major Subject" if "elective" in subjDesc.lower() else (
+            "IT Subject" if any(k in subjDesc.lower() for k in [
+                "programming", "database", "data", "system", "integration", "architecture",
+                "software", "network", "computing", "information", "security", "java",
+                "python", "sql", "web", "algorithm"
+            ]) else "Minor Subject"
+        )
+
+        # determine mapping to skill bucket (for ML only)
         lower_desc = subjDesc.lower()
         for group, keywords in subjectGroups.items():
             if any(k in lower_desc for k in keywords):
                 assigned_bucket = bucketMap.get(group)
                 if assigned_bucket and gradeVal is not None:
-                    # append grade to bucket_grades
                     bucket_grades[assigned_bucket].append(gradeVal)
                 break
 
-        # NEW: store skill level instead of bucket name
+        # store subject skill level (Weak/Average/Strong) for UI
         mappedSkills[subjDesc] = grade_to_level(gradeVal) if gradeVal is not None else "Unknown"
 
+        # store
         subjects_structured.append({
-            "code": subjCode,
             "description": subjDesc,
             "grade": gradeVal,
             "units": float(unitsVal) if unitsVal is not None else None,
@@ -525,6 +535,7 @@ def extractSubjectGrades(text: str):
         rawSubjects[subjKey] = gradeVal
         normalizedText[subjKey] = subjDesc
 
+    # average bucket grades -> finalBuckets numeric values
     finalBuckets = {}
     for b, grades in bucket_grades.items():
         if grades:
@@ -538,7 +549,7 @@ def extractSubjectGrades(text: str):
     return subjects_structured, rawSubjects, normalizedText, mappedSkills, finalBuckets
 
 # ---------------------------
-# Career Prediction
+# Career Prediction with Smarter Suggestions (IT-only focus + Subject Certs)
 # ---------------------------
 def predictCareerWithSuggestions(finalBuckets: dict, normalizedText: dict, mappedSkills: dict):
     dfInput = pd.DataFrame([{
@@ -554,33 +565,57 @@ def predictCareerWithSuggestions(finalBuckets: dict, normalizedText: dict, mappe
     ]
     careers = sorted(careers, key=lambda x: x["confidence"], reverse=True)[:3]
 
+    # Keywords to consider as IT-related
+    it_keywords = [
+        "programming", "database", "data", "system", "integration", "architecture",
+        "software", "network", "computing", "information", "security",
+        "java", "python", "sql", "web", "algorithm", "ai", "machine learning"
+    ]
+
     for c in careers:
         suggestions = []
-        for skill, grade in finalBuckets.items():
-            if grade is None:
-                continue
-            subjMatches = [subj for subj, mapped in mappedSkills.items() if mapped == skill]
-            if grade >= 2.75:
-                for subj in subjMatches:
-                    suggestions.append(
-                        f"Your performance in {subj} suggests you need to strengthen {skill} skills "
-                        f"to better align with {c['career']} roles."
-                    )
-            elif 2.0 <= grade < 2.75:
-                for subj in subjMatches:
-                    suggestions.append(
-                        f"Improving your foundation in {subj} will increase opportunities in {c['career']}."
-                    )
+        cert_recs = []
+
+        for subj, level in mappedSkills.items():
+            subj_lower = subj.lower()
+
+            # ✅ Skip non-IT related subjects
+            if not any(k in subj_lower for k in it_keywords):
+                continue  
+
+            if level == "Strong":
+                suggestions.append(f"Excellent performance in {subj}! Keep it up 🚀.")
+                suggestions.append(f"Since you're strong in {subj}, consider certifications to prove your skill.")
+                # If strong but no cert yet → recommend certs too
+                for key, certs in subjectCertMap.items():
+                    if key in subj_lower:
+                        cert_recs.extend(certs)
+
+            elif level == "Average":
+                suggestions.append(f"Good progress in {subj}, but you can still improve 📘.")
+                suggestions.append(f"Extra practice or online short courses in {subj} could help you excel.")
+                for key, certs in subjectCertMap.items():
+                    if key in subj_lower:
+                        cert_recs.extend(certs)
+
+            elif level == "Weak":
+                suggestions.append(f"You need to strengthen your foundation in {subj}.")
+                suggestions.append(f"Study resources, tutorials, and practice exercises in {subj} are highly recommended.")
+                for key, certs in subjectCertMap.items():
+                    if key in subj_lower:
+                        cert_recs.extend(certs)
+
+        # Add career-specific hints
         if "Developer" in c["career"] or "Engineer" in c["career"]:
-            suggestions.append("Focus on coding projects and internships to gain practical experience.")
+            suggestions.append("💻 Build small coding projects to apply your knowledge.")
         if "Data" in c["career"] or "AI" in c["career"]:
-            suggestions.append("Consider hands-on Python/ML projects to solidify applied skills.")
-        if "Database" in c["career"] or "Architect" in c["career"]:
-            suggestions.append("Build database design and cloud deployment skills for real-world readiness.")
-        if not suggestions:
-            suggestions.append(f"Great work! You’re already strong for {c['career']}.")
-        c["suggestion"] = " ".join(suggestions)
-        c["certificates"] = careerCertSuggestions.get(c["career"], ["Consider general IT certifications."])
+            suggestions.append("📊 Try Python/ML projects to enhance your data science portfolio.")
+
+        # Attach suggestions + certs
+        c["suggestion"] = " ".join(suggestions[:8]) if suggestions else "Focus on IT-related subjects for stronger career alignment."
+        c["certificates"] = cert_recs if cert_recs else careerCertSuggestions.get(
+            c["career"], ["Consider general IT certifications."]
+        )
 
     return careers
 

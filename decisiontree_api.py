@@ -457,7 +457,7 @@ async def ocrPredict(file: UploadFile = File(...), certificateFiles: List[Upload
                 "suggestion": "Add more subjects or improve grades for a better match.",
                 "certificates": careerCertSuggestions["General Studies"]
             }]
-# comment shfiusdfhudif
+
         certResults = []
         if certificateFiles:
             certResults = analyzeCertificates(certificateFiles or [])
